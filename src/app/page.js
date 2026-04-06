@@ -25,11 +25,11 @@ export default function Home() {
 
       {/* 2. Secciones Principales (Base Section Light) — Figma ID 3781:19217 */}
       <section className="container-xxl py-5 px-lg-5">
-        
+
         <div className="d-flex flex-column gap-0 align-items-start position-relative w-100">
           {sections.map((cat, index) => (
             <div key={cat.id} className={`w-100 ${index > 0 ? 'mt-32px' : 'pt-4'}`}>
-              
+
               {/* CAROUSEL HEADER — Gap 20px below — Figma ID 3781:19222 */}
               <div className="d-flex justify-content-between align-items-end" style={{ marginBottom: '20px' }}>
                 <div style={{ maxWidth: '541px' }}>
@@ -37,7 +37,7 @@ export default function Home() {
                     {cat.title}
                   </h2>
                 </div>
-                
+
                 {/* CAROUSEL NAV — Figma ID 3781:19224 */}
                 <div className="carousel-nav-container d-none d-md-flex align-items-center">
                   <button className="carousel-arrow left me-2" aria-label="Anterior">
@@ -54,7 +54,7 @@ export default function Home() {
               <div className="d-flex gap-3 overflow-hidden flex-nowrap pb-3">
                 {[1, 2, 3, 4, 5].map((i) => (
                   <div key={i} className="flex-shrink-0 animate-hover-lift" style={{ minWidth: '318px' }}>
-                    <EventCard 
+                    <EventCard
                       title={`${cat.title} Item ${i}`}
                       date={index === 0 ? "jue, 12 mar, 21:00" : "Verano 2026"}
                       location={index === 0 ? "Elvis RockandBar" : "Centro Cultural"}
@@ -68,7 +68,7 @@ export default function Home() {
 
               {/* BUTTON WRAP — Gap 20px above — Figma ID 3781:19232 (158x43) */}
               <div className="text-center" style={{ marginTop: '20px' }}>
-                <Link href={`/${cat.slug}`} className="btn btn-outline-primary px-3 py-2 rounded-2 shadow-premium fw-normal font-inter" style={{ 
+                <Link href={`/${cat.slug}`} className="btn btn-outline-primary px-3 py-2 rounded-2 shadow-premium fw-normal font-inter" style={{
                   minWidth: '158px',
                   height: '43px',
                   display: 'inline-flex',
@@ -81,7 +81,7 @@ export default function Home() {
                   Ver más {index === 0 ? 'eventos' : index === 1 ? 'lugares' : 'actividades'}
                 </Link>
               </div>
-              
+
             </div>
           ))}
         </div>
