@@ -114,7 +114,42 @@
   }
 }
 
-// 4. RESPONSIVE
+// 4. LISTING & FILTERS (ID: 3640:28420)
+.bg-listing-page {
+  background-color: #f9fafb !important;
+}
+
+.top-info-bar {
+  background-color: #c3ddfd !important;
+  color: #233876 !important;
+  font-size: 18px;
+  font-weight: 600;
+  padding: 16px 0;
+}
+
+.filter-container {
+  background: white;
+  padding-top: 16px;
+  padding-bottom: 144px;
+}
+
+.listing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(318px, 1fr));
+  gap: 32px 16px;
+  width: 100%;
+}
+
+.bg-light-gray {
+  background-color: #f9fafb !important;
+  border-color: #d1d5db !important;
+}
+
+.max-w-768px {
+  max-width: 768px;
+}
+
+// 5. RESPONSIVE
 @media (max-width: 768px) {
   .hero-title {
     font-size: 32px !important;
