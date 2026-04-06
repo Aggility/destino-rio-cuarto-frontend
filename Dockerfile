@@ -1,33 +1,39 @@
-# Use a Node.js base image
 FROM node:20-alpine AS base
 
-# Step 1: Install dependencies
+# 1. Install dependencies only when needed
 FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
-COPY package.json package-lock.json ./
+
+# Install dependencies based on the preferred package manager
+COPY package.json package-lock.json* ./
 RUN npm ci
 
-# Step 2: Build project
+# 2. Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# For Next.js to use the build-time env vars
+
+# Set environment variables for build time
 # ENV NEXT_PUBLIC_API_URL=...
+
 RUN npm run build
 
-# Step 3: Production image
+# 3. Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
+# Uncomment the following line in case you want to disable telemetry during runtime.
+# ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Set permission for prerender cache
 COPY --from=builder /app/public ./public
+
+# Set the correct permission for prerender cache
 RUN mkdir .next
 RUN chown nextjs:nodejs .next
 
@@ -41,7 +47,8 @@ USER nextjs
 EXPOSE 3000
 
 ENV PORT=3000
-# set hostname to localhost
 ENV HOSTNAME="0.0.0.0"
 
+# server.js is created by next build from the standalone output
+# https://nextjs.org/docs/pages/api-reference/next-config-js/output
 CMD ["node", "server.js"]

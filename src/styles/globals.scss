@@ -2,7 +2,7 @@
 // globals.scss — Diseño Directo Destino Río Cuarto (Pixel Perfect)
 // ═══════════════════════════════════════════════════════════
 
-@import "variables"; 
+@use "variables" as *; 
 
 // 1. CAROUSEL NAV (FIGMA ID: 3396:5178)
 .carousel-nav-container {

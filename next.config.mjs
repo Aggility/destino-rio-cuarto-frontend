@@ -27,6 +27,9 @@ const nextConfig = {
 
   reactStrictMode: true,
   poweredByHeader: false,
+  
+  // Habilitar salida standalone para Docker/Dokploy
+  output: 'standalone',
 };
 
 export default nextConfig;
