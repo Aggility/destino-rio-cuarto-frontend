@@ -1,2 +1,128 @@
-@import './variables';
-@import '~bootstrap';
+// ═══════════════════════════════════════════════════════════
+// globals.scss — Diseño Directo Destino Río Cuarto (Pixel Perfect)
+// ═══════════════════════════════════════════════════════════
+
+@import "variables"; 
+
+// 1. CAROUSEL NAV (FIGMA ID: 3396:5178)
+.carousel-nav-container {
+  display: flex !important;
+  gap: 12px;
+  align-items: center;
+}
+
+.carousel-arrow {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 999px !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  border: none !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &.left {
+    background-color: #9CA3AF !important; // Gray 400
+  }
+  
+  &.right {
+    background-color: #1F2A37 !important; // Gray 800
+  }
+  
+  i {
+    font-size: 20px !important;
+    color: white !important;
+  }
+  
+  &:hover {
+    filter: brightness(1.1);
+    transform: scale(1.05);
+  }
+}
+
+// 2. HERO COMPONENTS (ID: 3781:19196)
+.hero-main {
+  position: relative;
+  width: 100%;
+  z-index: 10;
+}
+
+.hero-title {
+  color: #FFFFFF !important;
+  font-family: 'Inter', var(--font-inter), sans-serif;
+  font-weight: 500 !important;
+  font-size: 60px;
+  line-height: 1.1 !important;
+  letter-spacing: -1.8px !important;
+  z-index: 100 !important;
+  position: relative;
+  text-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+}
+
+.category-tab-btn {
+  background-color: #FFFFFF !important;
+  border-radius: 8px !important;
+  padding: 6px 6px 6px 12px !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  text-decoration: none !important;
+  min-width: 166px !important;
+  box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.12) !important;
+  transition: transform 0.2s ease;
+  z-index: 120 !important;
+  border: 1px solid #E5E7EB !important;
+
+  span {
+    color: #374151 !important;
+    font-size: 16px !important;
+    font-weight: 500 !important;
+  }
+
+  .icon-box {
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 8px !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    color: white !important;
+    margin-left: 12px;
+    font-size: 18px !important;
+  }
+}
+
+// 3. SECTIONS & SPACING (ID: 3640:28349 / 3781:19219)
+.mt-32px {
+  margin-top: 32px !important;
+}
+
+.mt-section-spaced {
+  margin-top: 100px !important;
+}
+
+.shadow-premium {
+  box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.12), 0px 0px 0px 0px rgba(0, 0, 0, 0.08) !important;
+}
+
+.animate-hover-lift {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+  &:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0px 10px 25px rgba(0,0,0,0.15) !important;
+  }
+}
+
+// 4. RESPONSIVE
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 32px !important;
+    letter-spacing: -0.96px !important;
+  }
+  .carousel-arrow {
+    width: 32px !important;
+    height: 32px !important;
+    i { font-size: 16px !important; }
+  }
+}

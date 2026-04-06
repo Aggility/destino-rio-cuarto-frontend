@@ -1,0 +1,58 @@
+// ═══════════════════════════════════════════════════════════
+// _animations.scss — Animaciones y keyframes
+// ═══════════════════════════════════════════════════════════
+
+// ── Keyframes ────────────────────────────────────────────
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(var(--bs-primary-rgb), .4); }
+  50% { box-shadow: 0 0 0 10px rgba(var(--bs-primary-rgb), 0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+// ── Clases de animación ───────────────────────────────────
+
+.animate-fade-in      { animation: fadeIn .5s ease both; }
+.animate-fade-in-up   { animation: fadeInUp .5s ease both; }
+.animate-fade-in-down { animation: fadeInDown .5s ease both; }
+.animate-slide-left   { animation: slideInLeft .5s ease both; }
+.animate-pulse-glow   { animation: pulse-glow 2s infinite; }
+
+// Delays
+@for $i from 1 through 6 {
+  .animation-delay-#{$i}00 {
+    animation-delay: #{$i * 100}ms;
+  }
+}
+
+// Skeleton loader
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+  border-radius: 4px;
+}

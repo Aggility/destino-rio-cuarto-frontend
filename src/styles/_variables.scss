@@ -1,0 +1,100 @@
+// ═══════════════════════════════════════════════════════════
+// _variables.scss — Diseño Destino Río Cuarto (Figma Sync)
+// ═══════════════════════════════════════════════════════════
+
+// 1. Colores de Marca (Figma Tokens)
+$primary:       #1A56D8; // Indigo primary
+$primary-dark:  #1E429F;
+$secondary:     #fa4489; // Eventos
+$success:       #203f83; // Servicios
+$info:          #8a38f5; // Actividades
+$warning:       #ff5a1f; // Experiencias
+$danger:        #dc2626;
+
+// Colores de Categoría (Específicos de Figma)
+$color-eventos:     #FA4489;
+$color-actividades: #8A38F5;
+$color-experiencias: #FF5A1F;
+$color-servicios:   #203F83;
+
+// Grises y Neutros
+$white:    #ffffff;
+$gray-50:  #f9fafb;
+$gray-100: #f3f4f6;
+$gray-200: #e5e7eb;
+$gray-300: #d1d5db;
+$gray-400: #9ca3af;
+$gray-500: #6b7280;
+$gray-600: #4b5563;
+$gray-700: #374151;
+$gray-800: #1f2a37;
+$gray-900: #111928;
+
+// Fondo y Superficies
+$body-bg: $gray-50;
+$body-color: $gray-900;
+
+// 2. Tipografía (Google Fonts: Inter & Roboto)
+$font-family-sans-serif: 'Inter', system-ui, -apple-system, sans-serif;
+$font-family-base:       $font-family-sans-serif;
+$headings-font-family:   $font-family-sans-serif;
+
+$font-size-base: 1rem; // 16px
+$headings-font-weight: 600;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+// Heading Sizes
+$h1-font-size: 3.75rem; // 60px (Hero)
+$h2-font-size: 2.25rem; // 36px (Section titles)
+$h3-font-size: 1.375rem; // 22px (Card titles)
+
+// 3. Spacing & Shape (Figma vars)
+$spacer: 1rem;
+$spacers: (
+  0: 0,
+  1: $spacer * 0.25,
+  2: $spacer * 0.5,
+  3: $spacer * 0.75,
+  4: $spacer,
+  5: $spacer * 1.25,
+  6: $spacer * 1.5,
+  8: $spacer * 2,
+  10: $spacer * 2.5,
+  12: $spacer * 3,
+  16: $spacer * 4,
+  20: $spacer * 5
+);
+
+$border-radius: 0.5rem; // 8px
+$border-radius-lg: 0.75rem; // 12px
+
+// 4. Sombras (Premium Figma)
+$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+$shadow:    0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+// Sombras específicas de Figma para botones (Shadow 3)
+$btn-shadow: 0px 4px 16px 0px rgba(26, 86, 216, 0.3), 0px 0px 0px 0px rgba(26, 86, 216, 0.08);
+
+// 5. Bootstrap Overrides
+$nav-link-font-size: 1rem;
+$nav-link-font-weight: 400;
+$nav-link-color: $white;
+$nav-link-hover-color: $gray-200;
+
+$btn-padding-y: 0.75rem;
+$btn-padding-x: 1.25rem;
+$btn-font-size: 0.9375rem;
+$btn-border-radius: 0.5rem;
+
+// 6. Grid & Breakpoints
+$grid-gutter-width: 1.5rem;
+$container-max-widths: (
+  sm: 540px,
+  md: 720px,
+  lg: 960px,
+  xl: 1140px,
+  xxl: 1320px
+);

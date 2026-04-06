@@ -1,0 +1,41 @@
+// ═══════════════════════════════════════════════════════════
+// _typography.scss — Configuración tipográfica
+// ═══════════════════════════════════════════════════════════
+
+h1, .h1 { font-size: 2.5rem; letter-spacing: -0.025em; }
+h2, .h2 { font-size: 2rem; letter-spacing: -0.025em; }
+h3, .h3 { font-size: 1.75rem; letter-spacing: -0.015em; }
+h4, .h4 { font-size: 1.5rem; }
+h5, .h5 { font-size: 1.25rem; }
+h6, .h6 { font-size: 1rem; }
+
+.text-sm { font-size: 0.875rem; }
+.text-xs { font-size: 0.75rem; }
+
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+
+// Clases de texto personalizadas para el proyecto
+.display-title {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--bs-primary);
+}
+
+.section-title {
+  position: relative;
+  margin-bottom: 2rem;
+  font-weight: 700;
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 50px;
+    height: 4px;
+    background: var(--bs-primary);
+    border-radius: 2px;
+  }
+}

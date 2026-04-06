@@ -1,0 +1,31 @@
+// ═══════════════════════════════════════════════════════════
+// _dark-mode.scss — Estilos para dark mode
+// ═══════════════════════════════════════════════════════════
+
+[data-bs-theme="dark"] {
+  --bs-body-bg: #0f172a;
+  --bs-body-color: #e2e8f0;
+  --bs-border-color: #1e293b;
+  --bs-card-bg: #1e293b;
+
+  .card {
+    background-color: #1e293b;
+    border-color: #334155;
+  }
+
+  .navbar-dark {
+    background-color: #0f172a !important;
+    border-bottom: 1px solid #1e293b;
+  }
+
+  .form-control {
+    background-color: #1e293b;
+    border-color: #334155;
+    color: #e2e8f0;
+
+    &::placeholder { color: #64748b; }
+    &:focus { background-color: #1e293b; color: #e2e8f0; border-color: var(--bs-primary); }
+  }
+
+  .table { --bs-table-bg: transparent; --bs-table-striped-bg: rgba(255,255,255,.03); }
+}
