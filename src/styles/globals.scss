@@ -114,6 +114,24 @@
   }
 }
 
+// 5. CARD EFFECTS
+.card-zoom-effect {
+  overflow: hidden;
+  position: relative;
+  img {
+    transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+    object-fit: cover !important;
+  }
+}
+
+// Aplicar zoom al contenedor del padre que tenga el efecto
+.card:hover .card-zoom-effect img,
+.service-list-item:hover .card-zoom-effect img,
+.activity-card:hover .card-zoom-effect img,
+.sidebar-list-card:hover .card-zoom-effect img {
+  transform: scale(1.1);
+}
+
 // 4. LISTING & FILTERS (ID: 3640:28420)
 .bg-listing-page {
   background-color: #f9fafb !important;
@@ -138,6 +156,30 @@
   grid-template-columns: repeat(auto-fill, minmax(318px, 1fr));
   gap: 32px 16px;
   width: 100%;
+  
+  @media (max-width: 576px) {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+.mobile-horizontal-scroll {
+  @media (max-width: 991.98px) {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    padding-bottom: 20px !important;
+    margin-bottom: -20px !important;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar {
+        display: none;
+    }
+    & > div {
+      flex: 0 0 auto;
+      width: 85%;
+    }
+  }
 }
 
 .bg-light-gray {
@@ -155,7 +197,8 @@
 
 // 6. SERVICES LIST (ID: 3640:28485)
 .service-list-item {
-  height: 132px;
+  min-height: 132px;
+  height: auto;
   background: white;
   border: 1px solid #d1d5db;
   border-radius: 8px;
@@ -181,6 +224,42 @@
   box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.12), 0px 0px 0px 0px rgba(0, 0, 0, 0.08), inset 0px -1px 0px 0px rgba(0, 0, 0, 0.25);
 }
 
+// 8. EVENT DETAIL SPECIFIC
+.text-listing-title {
+  color: #203f83 !important;
+}
+
+.bg-listing-recommendation {
+  background-color: #ebf5ff !important;
+}
+
+.border-1-5 {
+  border-width: 1.5px !important;
+}
+
+.sticky-top {
+  z-index: 1000 !important;
+}
+
+// 9. EVENT DETAIL UTILITIES (From [id]/page.js)
+.display-5-custom { 
+  font-size: clamp(32px, 5vw, 48px) !important; 
+}
+.bg-pink-500 { 
+  background-color: #f54286 !important; 
+}
+.text-pink-500 { 
+  color: #f54286 !important; 
+}
+.mt-lg-n5-detail { 
+  margin-top: -3rem !important; 
+}
+@media (max-width: 991.98px) {
+  .mt-lg-n5-detail { 
+    margin-top: 1.5rem !important; 
+  }
+}
+
 // 7. RESPONSIVE
 @media (max-width: 768px) {
   .hero-title {
@@ -191,5 +270,117 @@
     width: 32px !important;
     height: 32px !important;
     i { font-size: 16px !important; }
+  }
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.transition-all {
+  transition: all 0.3s ease;
+}
+
+.hover-lift {
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  }
+}
+
+.border-dashed {
+  border-style: dashed !important;
+}
+
+// 10. TEXT UTILITIES
+.text-truncate-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.text-truncate-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.w-fit-content {
+  width: fit-content !important;
+}
+
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+// 11. CALENDAR SPECIFIC
+.col-xl-7-cols {
+  @media (min-width: 1200px) {
+    flex: 0 0 auto;
+    width: 14.2857% !important;
+  }
+}
+
+.calendar-day-box {
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar-day-box .day-number {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.calendar-day-box .mini-card-container .sidebar-list-card {
+  padding: 0 !important;
+}
+
+.calendar-day-box .mini-card-container .sidebar-list-card img {
+  width: 34px !important;
+  height: 34px !important;
+}
+
+.calendar-day-box .mini-card-container .sidebar-list-card h5 {
+  font-size: 12px !important;
+}
+
+.calendar-day-box .mini-card-container .sidebar-list-card p, 
+.calendar-day-box .mini-card-container .sidebar-list-card .bi-chevron-right, 
+.calendar-day-box .mini-card-container .sidebar-list-card .ms-2 {
+  display: none !important;
+}
+
+// 12. NAVBAR MOBILE FIX
+@media (max-width: 991.98px) {
+  .navbar-collapse {
+    background-color: #1F2A37;
+    padding: 1rem;
+    padding-bottom: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 5px;
+    border-radius: 0 0 8px 8px;
+  }
+}
+
+// 13. MACROEVENTCARD THUMB FIX
+.macro-event-card {
+  .macro-thumb {
+    width: 100%;
+    max-width: 300px;
+    height: 180px;
+    flex-basis: auto;
+
+    @media (min-width: 768px) {
+      width: 154px !important;
+      height: 115px !important;
+    }
   }
 }

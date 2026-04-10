@@ -10,14 +10,13 @@ export default function NavBar() {
   const navLinks = [
     { label: 'Eventos', href: '/eventos' },
     { label: 'Actividades', href: '/actividades' },
-    { label: 'Turismo Ciudad', href: '/turismo' },
     { label: 'Servicios', href: '/servicios' },
     { label: 'Calendario', href: '/calendario' },
   ];
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark w-100" style={{ 
-      height: '97px',
+      minHeight: '97px', // Cambiado de height a minHeight para evitar recortes en mobile
       backgroundColor: '#1F2A37', /* Indigo / Gray-800 — Figma Navbar Solid color */
       boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
       zIndex: 1000
