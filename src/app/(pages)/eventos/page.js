@@ -2,6 +2,7 @@ import React from 'react';
 import EventCard from '@/components/server/EventCard';
 import MacroEventCard from '@/components/server/MacroEventCard';
 import ChatbotIcon from '@/components/server/ChatbotIcon';
+import HeroHome from '@/components/server/HeroHome';
 import Link from 'next/link';
 
 /**
@@ -23,33 +24,11 @@ export default function EventsPage() {
   return (
     <div className="bg-listing-page min-vh-100 position-relative">
       
-      {/* 1. TOP INFO BAR — Figma ID 3410:5609 */}
-      <div className="py-2 px-3" style={{ backgroundColor: '#c3ddfd', borderBottom: '1px solid #a4cafe' }}>
-        <div className="container-xxl px-lg-5 d-flex align-items-center justify-content-center flex-wrap gap-2 text-center text-md-start">
-            <div className="bg-primary rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" 
-                 style={{ width: '28px', height: '28px', backgroundColor: '#1c64f2', border: '1px solid #a4cafe' }}>
-              <i className="bi bi-sparkles text-white" style={{ fontSize: '14px' }}></i>
-            </div>
-            <span className="font-inter fw-bold" style={{ color: '#233876', fontSize: 'clamp(14px, 1.8vw, 17px)', lineHeight: '1.2' }}>
-              Encontrá todo lo que hay para hacer en Río Cuarto en un solo lugar
-            </span>
-            <i className="bi bi-chevron-down opacity-50 d-none d-lg-block" style={{ color: '#233876' }}></i>
-        </div>
-      </div>
-
-      {/* 2. HERO SECTION — Figma ID 3640:28424 / 3777:8121 */}
-      <section className="bg-white pt-5 pb-3">
-        <div className="container-xxl px-lg-5">
-            <h1 className="display-4 fw-bold text-gray-900 tracking-tighter font-inter mb-0" 
-                style={{ fontSize: 'clamp(36px, 8vw, 64px)', letterSpacing: '-2px', lineHeight: '1' }}>
-              Eventos
-            </h1>
-            <p className="text-muted mt-2 d-md-none small">Explora la agenda cultural de la ciudad.</p>
-        </div>
-      </section>
+      {/* 2. HERO SECTION REEMPLAZADA POR LA GLOBAL */}
+      <HeroHome initialSlug="eventos" />
 
       {/* 3. FILTERS SECTION — Optimizado para Mobile */}
-      <section className="bg-white border-bottom pb-4 pb-md-5 overflow-visible shadow-sm">
+      <section className="bg-white border-bottom pt-4 pb-4 pb-md-5 overflow-visible shadow-sm">
         <div className="container-xxl px-lg-5">
           <div className="row g-3 align-items-end">
             

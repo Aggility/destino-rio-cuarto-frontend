@@ -1,6 +1,7 @@
 import React from 'react';
 import ActivityCard from '@/components/server/ActivityCard';
 import ChatbotIcon from '@/components/server/ChatbotIcon';
+import HeroHome from '@/components/server/HeroHome';
 import Link from 'next/link';
 
 /**
@@ -51,32 +52,11 @@ export default function ActivitiesPage() {
   return (
     <div className="bg-listing-page min-vh-100 position-relative">
       
-      {/* 1. TOP INFO BAR */}
-      <div className="py-2 px-3" style={{ backgroundColor: '#c3ddfd', borderBottom: '1px solid #a4cafe' }}>
-        <div className="container-xxl px-lg-5 d-flex align-items-center justify-content-center flex-wrap gap-2 text-center text-md-start">
-            <div className="bg-secondary rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" 
-                 style={{ width: '28px', height: '28px', backgroundColor: '#8a38f5', border: '1px solid #c084fc' }}>
-              <i className="bi bi-compass-fill text-white" style={{ fontSize: '14px' }}></i>
-            </div>
-            <span className="font-inter fw-bold" style={{ color: '#233876', fontSize: 'clamp(14px, 1.8vw, 17px)', lineHeight: '1.2' }}>
-              Viví experiencias únicas recorriendo cada rincón de nuestra ciudad
-            </span>
-        </div>
-      </div>
-
-      {/* 2. HERO SECTION */}
-      <section className="bg-white pt-5 pb-3">
-        <div className="container-xxl px-lg-5">
-            <h1 className="display-4 fw-bold text-gray-900 tracking-tighter font-inter mb-0" 
-                style={{ fontSize: 'clamp(36px, 8vw, 64px)', letterSpacing: '-2px', lineHeight: '1' }}>
-              Actividades
-            </h1>
-            <p className="text-muted mt-2 d-md-none small">Paseos, museos y experiencias permanentes.</p>
-        </div>
-      </section>
+      {/* GLOBAL HERO SECTION */}
+      <HeroHome initialSlug="actividades" />
 
       {/* 3. FILTERS SECTION */}
-      <section className="bg-white border-bottom pb-4 pb-md-5 overflow-visible shadow-sm">
+      <section className="bg-white border-bottom pt-4 pb-4 pb-md-5 overflow-visible shadow-sm">
         <div className="container-xxl px-lg-5">
           <div className="row g-3 align-items-end">
             

@@ -18,7 +18,7 @@ export default function EventCard({
 }) {
   return (
     <Link href={`/eventos/${id}`} className="text-decoration-none">
-      <div className="card h-100 border-0 bg-transparent shadow-none animate-hover-lift w-100">
+      <div className="card h-100 border-0 bg-transparent shadow-none w-100">
         
         {/* 1. Header (Thumbnail & Tag) — Figma ID I3781:19227;3389:3472 */}
         <div className="position-relative overflow-hidden rounded-2 mb-2 card-zoom-effect" style={{ height: '207px', borderRadius: '8px' }}>
