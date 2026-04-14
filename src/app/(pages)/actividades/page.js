@@ -49,6 +49,7 @@ export default function ActivitiesPage() {
     }
   ];
 
+
   return (
     <div className="bg-listing-page min-vh-100 position-relative">
       

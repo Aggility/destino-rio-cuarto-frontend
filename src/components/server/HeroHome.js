@@ -14,7 +14,7 @@ export default function HeroHome({ initialSlug = null }) {
     { label: 'Eventos', slug: 'eventos', icon: 'bi-star-fill', color: '#f54286' },
     { label: 'Actividades', slug: 'actividades', icon: 'bi-person-walking', color: '#8a38f5' },
     { label: 'Experiencias', slug: 'experiencias', icon: 'bi-stars', color: '#ff5a1f' },
-    { label: 'Servicios', slug: 'servicios', icon: 'bi-shop', color: '#203f83' },
+    { label: 'Servicios', slug: 'servicios', icon: 'bi-shop', color: '#1a56db' },
   ];
 
   // Buscamos si la ruta actual coincide con alguna categoría
@@ -22,6 +22,18 @@ export default function HeroHome({ initialSlug = null }) {
   
   // O usamos la categoría actual de la ruta, o el slug inicial que pasamos
   const activeCategory = currentCategoryPath || categories.find(c => c.slug === initialSlug) || null;
+
+  const connectors = ['de', 'del', 'en', 'y', 'a', 'e', 'o', 'u', 'por', 'para', 'con', 'sin', 'el', 'la', 'lo', 'los', 'las', 'un', 'una', 'unos', 'unas', 'que', 'qué', 'hay', 'vos', 'para'];
+
+  const formatTitle = (text) => {
+    if (!text) return '';
+    return text.split(' ').map((word, index) => {
+      if (index === 0) return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+      const cleanWord = word.toLowerCase().replace(/[.,!?;:]/g, '');
+      if (connectors.includes(cleanWord)) return word.toLowerCase();
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    }).join(' ');
+  };
 
   const getBackgroundImage = (slug) => {
     switch(slug) {
@@ -38,14 +50,39 @@ export default function HeroHome({ initialSlug = null }) {
     : '/hero_home.png';
 
   let displayTitle;
+  const coloredSpanStyle = (color) => ({
+    color: color,
+    fontWeight: '800'
+  });
+
   if (!activeCategory) {
-    displayTitle = <>Descubrí qué cosas <br className="d-none d-md-block" /> podés hacer en <span className="text-white">Río Cuarto</span></>;
+    displayTitle = (
+      <>
+        {formatTitle("Descubrí qué cosas")} <br className="d-none d-md-block" /> 
+        {formatTitle("podés hacer en")} <span className="text-white">Río Cuarto</span>
+      </>
+    );
   } else if (activeCategory.slug === 'actividades') {
-    displayTitle = <>Explorá <span style={{ color: '#38bdf8' }}>actividades</span> <br className="d-none d-md-block" /> para vos en <span className="text-white">Río Cuarto</span></>;
+    displayTitle = (
+      <>
+        {formatTitle("Explorá")} <span style={coloredSpanStyle(activeCategory.color)}>{formatTitle(activeCategory.label)}</span> <br className="d-none d-md-block" /> 
+        {formatTitle("para vos en")} <span className="text-white">Río Cuarto</span>
+      </>
+    );
   } else if (activeCategory.slug === 'experiencias') {
-    displayTitle = <>Descubrí <span style={{ color: '#38bdf8' }}>experiencias</span> <br className="d-none d-md-block" /> únicas en <span className="text-white">Río Cuarto</span></>;
+    displayTitle = (
+      <>
+        {formatTitle("Descubrí")} <span style={coloredSpanStyle(activeCategory.color)}>{formatTitle(activeCategory.label)}</span> <br className="d-none d-md-block" /> 
+        {formatTitle("únicas en")} <span className="text-white">Río Cuarto</span>
+      </>
+    );
   } else {
-    displayTitle = <>Descubrí qué <span style={{ color: '#38bdf8' }}>{activeCategory.label.toLowerCase()}</span> hay <br className="d-none d-md-block" /> para vos en <span className="text-white">Río Cuarto</span></>;
+    displayTitle = (
+      <>
+        {formatTitle("Descubrí qué")} <span style={coloredSpanStyle(activeCategory.color)}>{formatTitle(activeCategory.label)}</span> {formatTitle("hay")} <br className="d-none d-md-block" /> 
+        {formatTitle("para vos en")} <span className="text-white">Río Cuarto</span>
+      </>
+    );
   }
 
   return (

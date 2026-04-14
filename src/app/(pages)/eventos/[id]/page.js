@@ -52,12 +52,16 @@ export default async function EventDetailPage({ params }) {
     <div className="bg-light-gray min-vh-100 pb-5">
       
       {/* 1. HERO HEADER — Basado en Figma Mobile/Desktop */}
-      <section className="position-relative overflow-hidden" style={{ height: '400px' }}>
+      <section className="position-relative overflow-hidden bg-dark" style={{ height: 'clamp(300px, 45vh, 480px)' }}>
         <img 
           src={event.thumbnail} 
           alt={event.title} 
-          className="position-absolute w-100 h-100 object-cover"
+          className="position-absolute w-100 h-100"
+          style={{ objectFit: 'cover', objectPosition: 'center' }}
         />
+        {/* Dark Overlay sutil para profundidad */}
+        <div className="position-absolute top-0 start-0 w-100 h-100" style={{ background: 'rgba(0,0,0,0.1)' }}></div>
+        <div className="position-absolute bottom-0 start-0 w-100 h-50" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 100%)' }}></div>
         {/* Desktop Buttons */}
         <div className="position-absolute bottom-0 end-0 p-4 d-none d-lg-flex gap-3">
             <button className="btn btn-white shadow-premium d-flex align-items-center gap-2 px-3 py-2 rounded-3 border-0">
@@ -100,7 +104,17 @@ export default async function EventDetailPage({ params }) {
                 </div>
                 
                 <h1 className="display-5-custom fw-bold text-gray-900 font-inter mb-4" style={{ letterSpacing: '-1px' }}>
-                    {event.title}
+                    {(() => {
+                        const connectors = ['de', 'del', 'en', 'y', 'a', 'e', 'o', 'u', 'por', 'para', 'con', 'sin', 'el', 'la', 'lo', 'los', 'las', 'un', 'una', 'unos', 'unas', 'que', 'qué', 'hay', 'vos', 'para'];
+                        const text = event.title;
+                        if (!text) return '';
+                        return text.split(' ').map((word, index) => {
+                            if (index === 0) return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                            const cleanWord = word.toLowerCase().replace(/[.,!?;:]/g, '');
+                            if (connectors.includes(cleanWord)) return word.toLowerCase();
+                            return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                        }).join(' ');
+                    })()}
                 </h1>
 
                 {/* Info Bar */}

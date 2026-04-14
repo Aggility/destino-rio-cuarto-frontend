@@ -40,7 +40,16 @@ export default function CalendarPage() {
             <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                 <div>
                     <h1 className="display-5 fw-bold text-gray-900 font-inter mb-1" style={{ letterSpacing: '-1.5px' }}>
-                        Calendario de Eventos
+                        {(() => {
+                            const connectors = ['de', 'del', 'en', 'y', 'a', 'e', 'o', 'u', 'por', 'para', 'con', 'sin', 'el', 'la', 'lo', 'los', 'las', 'un', 'una', 'unos', 'unas', 'que', 'qué', 'hay', 'vos', 'para'];
+                            const text = "Calendario de Eventos";
+                            return text.split(' ').map((word, index) => {
+                                if (index === 0) return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                                const cleanWord = word.toLowerCase().replace(/[.,!?;:]/g, '');
+                                if (connectors.includes(cleanWord)) return word.toLowerCase();
+                                return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                            }).join(' ');
+                        })()}
                     </h1>
                     <p className="text-muted mb-0">Explora la agenda cultural y actividades por día.</p>
                 </div>

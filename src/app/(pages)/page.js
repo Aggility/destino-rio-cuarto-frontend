@@ -8,7 +8,42 @@ import EventCard from '@/components/server/EventCard';
  * Sincronizado con Figma ID 3781:19219
  * Optimizado para Mobile y Desktop.
  */
-export default function Home() {
+export default async function Home() {
+  // 1. Fetch Events API
+  let apiEvents = [];
+  try {
+    const res = await fetch('http://destbackdev.aggility.io/api/v1/events', { cache: 'no-store' });
+    if (res.ok) {
+      const data = await res.json();
+      apiEvents = Array.isArray(data) ? data : (data.data || []);
+      apiEvents = apiEvents.slice(0, 5); // Solo tomar 5 para portada
+    }
+  } catch (error) {
+    console.error("Error fetching events API para la home:", error);
+  }
+
+  // 2. Format Eventos limitados
+  const formatedHomeEvents = apiEvents.map((evt, idx) => {
+    const primaryCalendar = evt.calendars?.[0];
+    let dateStr = 'Fecha a conf.';
+    if (primaryCalendar) {
+       const d = new Date(primaryCalendar.start_date);
+       dateStr = d.toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' });
+       if (primaryCalendar.start_time) {
+         dateStr += `, ${primaryCalendar.start_time.substring(0, 5)}hs`;
+       }
+    }
+    return {
+      id: evt.id,
+      title: evt.title,
+      date: dateStr,
+      location: evt.organization?.name || 'A confirmar',
+      category: evt.categories?.[0]?.name?.toUpperCase() || 'EVENTO',
+      typeColor: '#f54286',
+      thumbnail: evt.image_url || "/Thumbnail.png"
+    };
+  });
+
   const sections = [
     { id: 1, title: 'Eventos Destacados', slug: 'eventos', color: '#f54286' },
     { id: 2, title: 'Recorré la Ciudad', slug: 'servicios', color: '#8a38f5' },
@@ -16,6 +51,40 @@ export default function Home() {
   ];
 
   const localThumbnail = "/Thumbnail.png";
+
+  const renderCards = (cat, index) => {
+    // Si estamos en Eventos y tenemos datos de la API
+    if (cat.slug === 'eventos' && formatedHomeEvents.length > 0) {
+      return formatedHomeEvents.map((evt) => (
+        <div key={evt.id} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)' }}>
+          <EventCard
+            id={evt.id}
+            title={evt.title}
+            date={evt.date}
+            location={evt.location}
+            category={evt.category}
+            typeColor={evt.typeColor}
+            thumbnail={evt.thumbnail}
+          />
+        </div>
+      ));
+    }
+
+    // Para el rest de secciones o si falla la API
+    return [1, 2, 3, 4, 5].map((i) => (
+      <div key={i} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)' }}>
+        <EventCard
+          id={i}
+          title={`${cat.title} ${i}`}
+          date={index === 0 ? "12 mar, 21:00hs" : "Temporada 2026"}
+          location={index === 0 ? "Elvis RockandBar" : "Puntos Emblemáticos"}
+          category={cat.title.split(' ')[0].toUpperCase()}
+          typeColor={cat.color}
+          thumbnail={localThumbnail}
+        />
+      </div>
+    ));
+  };
 
   return (
     <div className="bg-white overflow-hidden pb-5 font-inter">
@@ -51,19 +120,7 @@ export default function Home() {
 
               {/* HORIZONTAL CAROUSEL — Figma ID 3781:19225 */}
               <div className="d-flex gap-3 overflow-auto flex-nowrap pb-4 hide-scrollbar px-1">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <div key={i} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)' }}>
-                    <EventCard
-                      id={i}
-                      title={`${cat.title} ${i}`}
-                      date={index === 0 ? "12 mar, 21:00hs" : "Temporada 2026"}
-                      location={index === 0 ? "Elvis RockandBar" : "Puntos Emblemáticos"}
-                      category={cat.title.split(' ')[0]}
-                      typeColor={cat.color}
-                      thumbnail={localThumbnail}
-                    />
-                  </div>
-                ))}
+                {renderCards(cat, index)}
               </div>
 
               {/* SEE MORE CTA — Figma ID 3781:19232 */}

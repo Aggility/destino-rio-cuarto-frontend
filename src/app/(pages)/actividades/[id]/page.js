@@ -43,11 +43,12 @@ export default async function ActivityDetailPage({ params }) {
       
       {/* 1. HERO HEADER — Altura fluida para mobile */}
       <section className="position-relative overflow-hidden bg-dark" 
-               style={{ height: 'clamp(300px, 40vh, 450px)' }}>
+               style={{ height: 'clamp(300px, 45vh, 480px)' }}>
         <img 
           src={activity.images[0]} 
           alt={activity.title} 
-          className="position-absolute w-100 h-100 object-cover opacity-75"
+          className="position-absolute w-100 h-100"
+          style={{ objectFit: 'cover', objectPosition: 'center', opacity: '0.8' }}
         />
         <div className="position-absolute bottom-0 start-0 w-100 p-4 p-md-5 text-white bg-gradient-dark">
           <div className="container-xxl px-lg-5">
@@ -67,7 +68,17 @@ export default async function ActivityDetailPage({ params }) {
             </div>
             <h1 className="fw-bold mb-0 text-shadow-sm" 
                 style={{ fontSize: 'clamp(32px, 6vw, 64px)', letterSpacing: '-2px', lineHeight: '1' }}>
-              {activity.title}
+              {(() => {
+                  const connectors = ['de', 'del', 'en', 'y', 'a', 'e', 'o', 'u', 'por', 'para', 'con', 'sin', 'el', 'la', 'lo', 'los', 'las', 'un', 'una', 'unos', 'unas', 'que', 'qué', 'hay', 'vos', 'para'];
+                  const text = activity.title;
+                  if (!text) return '';
+                  return text.split(' ').map((word, index) => {
+                      if (index === 0) return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                      const cleanWord = word.toLowerCase().replace(/[.,!?;:]/g, '');
+                      if (connectors.includes(cleanWord)) return word.toLowerCase();
+                      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                  }).join(' ');
+              })()}
             </h1>
           </div>
         </div>

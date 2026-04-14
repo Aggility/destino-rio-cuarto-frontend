@@ -8,14 +8,33 @@ import HeroHome from '@/components/server/HeroHome';
  * ServiciosPage - Destino Río Cuarto
  * Diseño Píxel Perfect basado en Figma ID 3640:28485 / 3777:8035 (Mobile)
  */
-export default function ServiciosPage() {
-  const services = [
+export default async function ServiciosPage() {
+  let apiServices = [];
+  try {
+    const res = await fetch('http://destbackdev.aggility.io/api/v1/organizations', { cache: 'no-store' });
+    if (res.ok) {
+      const data = await res.json();
+      apiServices = Array.isArray(data) ? data : (data.data || []);
+    }
+  } catch (error) {
+    console.error("Error fetching organizations API: ", error);
+  }
+
+  const formattedServices = apiServices.map((org) => ({
+    id: org.id,
+    title: org.name,
+    category: org.categories?.[0]?.name || 'Servicio',
+    address: org.addresses?.[0]?.address?.split(',')[0] || 'Río Cuarto',
+    phone: org.phone || 'Consultar contacto',
+    thumbnail: org.image_url || "/Thumbnail.png"
+  }));
+
+  const services = formattedServices.length > 0 ? formattedServices : [
     { id: 1, title: '3G Bebidas S.A.S', category: 'Tienda de Bebidas', address: 'Hipólito Irigoyen 3076, Río Cuarto', phone: '358 475-4624' },
     { id: 2, title: 'A Mi Manera', category: 'Casa de té', address: 'Alvear 734, Río Cuarto', phone: '358 462-1360' },
     { id: 3, title: 'Hotel Opera', category: 'Alojamiento', address: '25 de Mayo 55, Río Cuarto', phone: '358 464-1011' },
     { id: 4, title: 'Restaurante Central', category: 'Gastronomía', address: 'Sobremonte 654, Río Cuarto', phone: '358 462-0012' },
     { id: 5, title: 'Alquiler de Autos RC', category: 'Transporte', address: 'Aeropuerto Local, Río Cuarto', phone: '358 465-9876' },
-    { id: 6, title: 'Hotel Windsor', category: 'Alojamiento', address: 'Centro, Río Cuarto', phone: '358 464-5555' },
   ];
 
   const categories = ["Comer", "Dormir", "Disfrutar", "Viajar", "Servicios generales o al turista"];
