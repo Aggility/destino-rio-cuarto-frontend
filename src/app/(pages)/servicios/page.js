@@ -1,5 +1,6 @@
 import React from 'react';
 import ServiceListItem from '@/components/server/ServiceListItem';
+import ServicesListClient from '@/components/client/ServicesListClient';
 import EventCard from '@/components/server/EventCard';
 import ChatbotIcon from '@/components/server/ChatbotIcon';
 import HeroHome from '@/components/server/HeroHome';
@@ -26,7 +27,9 @@ export default async function ServiciosPage() {
     category: org.categories?.[0]?.name || 'Servicio',
     address: org.addresses?.[0]?.address?.split(',')[0] || 'Río Cuarto',
     phone: org.phone || 'Consultar contacto',
-    thumbnail: org.image_url || "/Thumbnail.png"
+    thumbnail: org.image_url || "/Thumbnail.png",
+    lat: org.addresses?.[0]?.latitude,
+    lng: org.addresses?.[0]?.longitude
   }));
 
   const services = formattedServices.length > 0 ? formattedServices : [
@@ -87,18 +90,7 @@ export default async function ServiciosPage() {
             
             {/* MAIN LIST */}
             <div className="col-12 col-xl-8">
-              <div className="d-flex flex-column gap-3">
-                {services.map((service) => (
-                  <ServiceListItem 
-                    key={service.id}
-                    title={service.title}
-                    category={service.category}
-                    address={service.address}
-                    phone={service.phone}
-                    thumbnail={localThumbnail}
-                  />
-                ))}
-              </div>
+              <ServicesListClient initialServices={services} />
 
               {/* LOAD MORE */}
               <div className="text-center mt-5">

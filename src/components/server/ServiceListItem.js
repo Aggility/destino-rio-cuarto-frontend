@@ -12,7 +12,8 @@ export default function ServiceListItem({
   category = "Categoría", 
   address = "Dirección no especificada", 
   phone = "Sin teléfono",
-  thumbnail = "/Thumbnail.png"
+  thumbnail = "/Thumbnail.png",
+  distance = null
 }) {
   return (
     <div className="service-list-item bg-white border border-light-subtle rounded-3 transition-all shadow-sm w-100"
@@ -46,11 +47,22 @@ export default function ServiceListItem({
                     style={{ fontSize: '16px', lineHeight: '1.3' }}>
                     {title}
                 </h3>
-                <div className="bg-primary-100 rounded-1 px-2 py-0-5 w-fit-content" 
-                     style={{ backgroundColor: '#e1effe' }}>
-                    <span className="font-inter fw-medium text-primary-800" style={{ color: '#1e429f', fontSize: '12px' }}>
-                    {category}
-                    </span>
+                <div className="d-flex gap-2 align-items-center flex-wrap">
+                  <div className="bg-primary-100 rounded-1 px-2 py-0-5 w-fit-content" 
+                       style={{ backgroundColor: '#e1effe' }}>
+                      <span className="font-inter fw-medium text-primary-800" style={{ color: '#1e429f', fontSize: '12px' }}>
+                      {category}
+                      </span>
+                  </div>
+                  {distance !== null && distance !== undefined && (
+                    <div className="bg-success-100 rounded-1 px-2 py-0-5 w-fit-content" 
+                         style={{ backgroundColor: '#def7ec' }}>
+                        <span className="font-inter fw-medium text-success-800" style={{ color: '#03543f', fontSize: '12px' }}>
+                          <i className="bi bi-geo-alt-fill me-1"></i>
+                          {distance < 1000 ? `${Math.round(distance)}m` : `${(distance / 1000).toFixed(1)}km`}
+                        </span>
+                    </div>
+                  )}
                 </div>
             </div>
         </div>

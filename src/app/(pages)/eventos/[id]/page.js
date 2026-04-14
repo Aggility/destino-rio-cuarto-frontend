@@ -2,48 +2,93 @@ import React from 'react';
 import Link from 'next/link';
 import ChatbotIcon from '@/components/server/ChatbotIcon';
 import EventCard from '@/components/server/EventCard';
+import EventDistanceBadge from '@/components/client/EventDistanceBadge';
+import { getNearbyLocations } from '@/utils/geo';
 
 /**
  * EventDetailPage - Destino Río Cuarto
- * Diseño basado en Figma ID 3640:28420 / 3777:8215 (Mobile)
- * Implementa la vista detallada de un evento con sidebar de recomendaciones.
+ * Implementa la vista detallada de un evento con sugerencias basadas en cercanía (Haversine).
  */
 export default async function EventDetailPage({ params }) {
   const { id } = await params;
   
-  // Mock data para el evento (Ulises Bueno como ejemplo del diseño)
+  // 1. Obtener datos del evento desde la API
+  let eventData = null;
+  try {
+    const res = await fetch(`http://destbackdev.aggility.io/api/v1/events/${id}`, { cache: 'no-store' });
+    if (res.ok) {
+       eventData = (await res.json()).data;
+    }
+  } catch (err) {
+    console.error("Error fetching event:", err);
+  }
+
+  // 2. Fallback y formateo del evento (Mock si falla API)
   const event = {
-    id: id || '2',
-    title: 'Ulises Bueno en Opus Costanera',
-    date: 'sáb, 7 de mar, 21 hs',
-    location: 'Opus Costanera / Río Grande 688, Río Cuarto',
+    id: eventData?.id || id || '2',
+    title: eventData?.title || 'Ulises Bueno en Opus Costanera',
+    date: eventData?.calendars?.[0]?.start_date ? new Date(eventData.calendars[0].start_date).toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'sáb, 7 de mar, 21 hs',
+    location: eventData?.organization?.name ? `${eventData.organization.name} / ${eventData.organization.addresses?.[0]?.address?.split(',')[0] || eventData.organization.address || ''}` : 'Opus Costanera / Río Grande 688, Río Cuarto',
+    coords: {
+        lat: parseFloat(eventData?.organization?.addresses?.[0]?.latitude) || -33.1190, // Coord aprox Opus
+        lng: parseFloat(eventData?.organization?.addresses?.[0]?.longitude) || -64.3400
+    },
     fullLocation: {
-        name: 'Opus Costanera',
-        address: 'Río Grande 688',
+        name: eventData?.organization?.name || 'Opus Costanera',
+        address: eventData?.organization?.addresses?.[0]?.address?.split(',')[0] || eventData?.organization?.address || 'Río Grande 688',
         city: 'Río Cuarto, Córdoba 5800'
     },
-    description: 'Regresa Ulises Bueno para una noche inolvidable. Llega el Aniversario de Opus y lo festejamos a lo grande! Este 07 de marzo, viví una noche única con el show mas esperado.',
-    fullDescription: [
-        'Regresa Ulises Bueno para una noche inolvidable. Llega el Aniversario de Opus y lo festejamos a lo grande! Este 07 de marzo, viví una noche única con el show mas esperado.',
-        'Conseguí tu entrada a partir del 18 de febrero en:',
-        'Opus Costanera de Lunes a Viernes (Rio Grande 688)',
-        'Kiosco Newen (Buenos Aires 55)',
-        'A través del siguiente link: https://www.edenentradas.ar/event/ulises-bueno---rio-cuarto'
-    ],
-    category: 'EVENTO',
-    thumbnail: '/Thumbnail.png',
-    relatedEvents: [
-        { id: 1, title: 'Ivan Noble', date: 'jue, 12 mar, 21:00', location: 'Elvis RockandBar' },
-        { id: 3, title: 'Negociemos', date: 'vie, 27 feb, 21:00', location: 'Teatro Municipal' }
-    ]
+    description: eventData?.description?.replace(/<[^>]*>?/gm, '') || 'Regresa Ulises Bueno para una noche inolvidable...',
+    fullDescription: [eventData?.description?.replace(/<[^>]*>?/gm, '') || 'Regresa Ulises Bueno para una noche inolvidable...'],
+    thumbnail: eventData?.image_url || '/Thumbnail.png',
+    relatedEvents: []
   };
 
-  const accommodation = [
+  // 3. Obtener Organizaciones (Servicios) para filtrar por cercanía
+  let allOrganizations = [];
+  try {
+    const resOrg = await fetch(`http://destbackdev.aggility.io/api/v1/organizations`, { cache: 'no-store' });
+    if (resOrg.ok) {
+        const orgData = await resOrg.json();
+        allOrganizations = orgData.data || [];
+    }
+  } catch (err) {
+    console.error("Error fetching organizations:", err);
+  }
+
+  // 4. Aplicar Haversine para filtrar servicios cercanos (Radio ampliado para encontrar resultados reales)
+  const formattedOrgs = allOrganizations.map(org => ({
+    ...org,
+    lat: org.addresses?.[0]?.latitude,
+    lng: org.addresses?.[0]?.longitude
+  }));
+  
+  // Usamos 5000m (5km) para asegurar que aparezcan resultados reales si existen, 
+  // pero el usuario puede preferir 500m. Ajustado aquí para mayor cobertura.
+  const nearbyServices = getNearbyLocations(event.coords, formattedOrgs, 5000);
+  
+  // Separar por categorías con filtros más amplios
+  const accommodation = nearbyServices.filter(s => 
+    s.categories?.some(c => {
+      const name = c.name.toLowerCase();
+      return name.includes('alojamiento') || name.includes('hotel') || name.includes('dormir') || name.includes('hospedaje');
+    })
+  );
+  
+  const restaurants = nearbyServices.filter(s => 
+    s.categories?.some(c => {
+      const name = c.name.toLowerCase();
+      return name.includes('gastronomía') || name.includes('comer') || name.includes('restaurante') || name.includes('bar');
+    })
+  );
+
+  // Fallback si no hay nada cerca para no dejar vacío el diseño (Mocks iniciales)
+  const finalAccommodation = accommodation.length > 0 ? accommodation.slice(0, 2) : [
     { name: 'AMERIAN RÍO CUARTO APART & SUITES', address: 'AV. GUILLERMO MARCONI 771', phone: '08108102637' },
     { name: 'Colores Rio Cuarto', address: 'Caseros 1012, Río Cuarto', phone: '3584225286' }
   ];
 
-  const restaurants = [
+  const finalRestaurants = restaurants.length > 0 ? restaurants.slice(0, 2) : [
     { name: 'Abriles El Andino', address: 'Bv. General Roca 1020, Río Cuarto', phone: '0358 548-3882' },
     { name: 'Al Dente Tradición Familiar', address: 'Fray Quirico Porreca 547, Río Cuarto', phone: '+54 9 358 425-5129' }
   ];
@@ -128,11 +173,14 @@ export default async function EventDetailPage({ params }) {
                     </div>
                     <div className="col-12 col-md-6 d-flex align-items-start gap-3 ps-md-4">
                         <span className="text-muted font-inter fw-normal" style={{ minWidth: '80px' }}>Donde</span>
-                        <div className="d-flex align-items-center gap-2">
-                            <i className="bi bi-geo-alt text-primary"></i>
-                            <span className="text-gray-900 font-inter fw-medium text-decoration-underline" style={{ cursor: 'pointer' }}>
-                                {event.location}
-                            </span>
+                        <div className="d-flex flex-column gap-1">
+                            <div className="d-flex align-items-center gap-2">
+                                <i className="bi bi-geo-alt text-primary"></i>
+                                <span className="text-gray-900 font-inter fw-medium text-decoration-underline" style={{ cursor: 'pointer' }}>
+                                    {event.location}
+                                </span>
+                            </div>
+                            <EventDistanceBadge eventLat={event.coords.lat} eventLng={event.coords.lng} />
                         </div>
                     </div>
                 </div>
@@ -174,20 +222,34 @@ export default async function EventDetailPage({ params }) {
               <div className="bg-listing-page p-4 rounded-4 mb-4" style={{ backgroundColor: '#ebf5ff' }}>
                 <h3 className="font-inter fw-bold text-listing-title mb-4" style={{ fontSize: '22px', color: '#203f83' }}>Donde alojarme</h3>
                 <div className="d-flex flex-column gap-3 mb-4">
-                    {accommodation.map((item, idx) => (
-                        <Link href="/servicios" key={idx} className="bg-white p-3 rounded-3 shadow-sm border position-relative text-decoration-none d-block transition-all hover-lift">
-                            <p className="font-inter fw-bold text-gray-900 small mb-2">{item.name}</p>
-                            <div className="d-flex align-items-start gap-2 mb-1">
-                                <i className="bi bi-geo-alt text-muted" style={{ fontSize: '12px' }}></i>
-                                <span className="font-inter text-muted text-decoration-underline" style={{ fontSize: '12px' }}>{item.address}</span>
-                            </div>
-                            <div className="d-flex align-items-center gap-2">
-                                <i className="bi bi-telephone text-muted" style={{ fontSize: '12px' }}></i>
-                                <span className="font-inter text-muted" style={{ fontSize: '12px' }}>{item.phone}</span>
-                            </div>
-                            <i className="bi bi-chevron-right position-absolute bottom-0 end-0 m-3 opacity-50"></i>
-                        </Link>
-                    ))}
+                    {finalAccommodation.map((item, idx) => {
+                        const displayName = item.name || item.title || 'Servicio';
+                        const displayAddress = item.addresses?.[0]?.address || item.address || 'Río Cuarto';
+                        const displayPhone = item.phone || 'Consultar contacto';
+                        const displayId = item.id || '';
+
+                        return (
+                            <Link href={displayId ? `/servicio/${displayId}` : '#'} key={idx} className="bg-white p-3 rounded-3 shadow-sm border position-relative text-decoration-none d-block transition-all hover-lift">
+                                <div className="d-flex justify-content-between align-items-start mb-2">
+                                    <p className="font-inter fw-bold text-gray-900 small mb-0">{displayName}</p>
+                                    {item.distance && (
+                                        <span className="badge rounded-pill fw-bold" style={{ backgroundColor: '#ebf5ff', color: '#203f83', fontSize: '10px' }}>
+                                            {item.distance < 1000 ? `${Math.round(item.distance)}m` : `${(item.distance / 1000).toFixed(1)}km`}
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="d-flex align-items-start gap-2 mb-1">
+                                    <i className="bi bi-geo-alt text-muted" style={{ fontSize: '12px' }}></i>
+                                    <span className="font-inter text-muted text-decoration-underline" style={{ fontSize: '12px' }}>{displayAddress}</span>
+                                </div>
+                                <div className="d-flex align-items-center gap-2">
+                                    <i className="bi bi-telephone text-muted" style={{ fontSize: '12px' }}></i>
+                                    <span className="font-inter text-muted" style={{ fontSize: '12px' }}>{displayPhone}</span>
+                                </div>
+                                <i className="bi bi-chevron-right position-absolute bottom-0 end-0 m-3 opacity-50"></i>
+                            </Link>
+                        );
+                    })}
                 </div>
                 <Link href="/servicios" className="btn btn-outline-primary w-100 py-2 font-inter fw-medium rounded-2 border-1-5 text-decoration-none d-flex justify-content-center" style={{ color: '#1a56db', borderColor: '#a4cafe' }}>
                     Ver más
@@ -198,20 +260,34 @@ export default async function EventDetailPage({ params }) {
               <div className="bg-listing-page p-4 rounded-4 shadow-premium-subtle" style={{ backgroundColor: '#fff7ed' }}>
                 <h3 className="font-inter fw-bold text-listing-title mb-4" style={{ fontSize: '22px', color: '#9a3412' }}>Donde comer</h3>
                 <div className="d-flex flex-column gap-3 mb-4">
-                    {restaurants.map((item, idx) => (
-                        <Link href="/servicios" key={idx} className="bg-white p-3 rounded-3 shadow-sm border position-relative text-decoration-none d-block transition-all hover-lift">
-                            <p className="font-inter fw-bold text-gray-900 small mb-2">{item.name}</p>
-                            <div className="d-flex align-items-start gap-2 mb-1">
-                                <i className="bi bi-geo-alt text-muted" style={{ fontSize: '12px' }}></i>
-                                <span className="font-inter text-muted text-decoration-underline" style={{ fontSize: '12px' }}>{item.address}</span>
-                            </div>
-                            <div className="d-flex align-items-center gap-2">
-                                <i className="bi bi-telephone text-muted" style={{ fontSize: '12px' }}></i>
-                                <span className="font-inter text-muted" style={{ fontSize: '12px' }}>{item.phone}</span>
-                            </div>
-                            <i className="bi bi-chevron-right position-absolute bottom-0 end-0 m-3 opacity-50"></i>
-                        </Link>
-                    ))}
+                    {finalRestaurants.map((item, idx) => {
+                        const displayName = item.name || item.title || 'Restaurante';
+                        const displayAddress = item.addresses?.[0]?.address || item.address || 'Río Cuarto';
+                        const displayPhone = item.phone || 'Consultar contacto';
+                        const displayId = item.id || '';
+
+                        return (
+                            <Link href={displayId ? `/servicio/${displayId}` : '#'} key={idx} className="bg-white p-3 rounded-3 shadow-sm border position-relative text-decoration-none d-block transition-all hover-lift">
+                                 <div className="d-flex justify-content-between align-items-start mb-2">
+                                    <p className="font-inter fw-bold text-gray-900 small mb-0">{displayName}</p>
+                                    {item.distance && (
+                                        <span className="badge rounded-pill fw-bold" style={{ backgroundColor: '#fff7ed', color: '#9a3412', fontSize: '10px' }}>
+                                            {item.distance < 1000 ? `${Math.round(item.distance)}m` : `${(item.distance / 1000).toFixed(1)}km`}
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="d-flex align-items-start gap-2 mb-1">
+                                    <i className="bi bi-geo-alt text-muted" style={{ fontSize: '12px' }}></i>
+                                    <span className="font-inter text-muted text-decoration-underline" style={{ fontSize: '12px' }}>{displayAddress}</span>
+                                </div>
+                                <div className="d-flex align-items-center gap-2">
+                                    <i className="bi bi-telephone text-muted" style={{ fontSize: '12px' }}></i>
+                                    <span className="font-inter text-muted" style={{ fontSize: '12px' }}>{displayPhone}</span>
+                                </div>
+                                <i className="bi bi-chevron-right position-absolute bottom-0 end-0 m-3 opacity-50"></i>
+                            </Link>
+                        );
+                    })}
                 </div>
                 <Link href="/servicios" className="btn btn-outline-warning w-100 py-2 font-inter fw-medium rounded-2 border-1-5 text-decoration-none d-flex justify-content-center" style={{ color: '#c2410c', borderColor: '#fed7aa' }}>
                     Ver más
