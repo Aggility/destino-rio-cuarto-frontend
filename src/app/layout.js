@@ -27,6 +27,8 @@ export const metadata = {
   description: "Explora Río Cuarto: Agenda de eventos, servicios, organizaciones y actividades turísticas de la ciudad.",
 };
 
+import GeolocationPopup from "@/components/client/GeolocationPopup";
+
 export default function RootLayout({ children }) {
   return (
     <html lang="es" className={`${inter.variable} ${roboto.variable}`}>
@@ -36,6 +38,7 @@ export default function RootLayout({ children }) {
           {children}
         </main>
         <Footer />
+        <GeolocationPopup />
         
         {/* Bootstrap JS para interactividad */}
         <script

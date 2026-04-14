@@ -9,17 +9,28 @@ export default function ServicesListClient({ initialServices }) {
   const [services, setServices] = useState(initialServices);
 
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setUserLocation({ lat: latitude, lng: longitude });
-        },
-        (error) => {
-          console.error("Error getting user location:", error);
-        }
-      );
-    }
+    const fetchLocation = () => {
+      if (navigator.geolocation && localStorage.getItem('geo_permission_granted') === 'true') {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            setUserLocation({ lat: latitude, lng: longitude });
+          },
+          (error) => {
+            console.error("Error getting user location:", error);
+          }
+        );
+      }
+    };
+
+    // Attempt on mount
+    fetchLocation();
+
+    // Listen for custom event from GeolocationPopup
+    window.addEventListener('geo_granted_event', fetchLocation);
+    return () => {
+      window.removeEventListener('geo_granted_event', fetchLocation);
+    };
   }, []);
 
   useEffect(() => {
