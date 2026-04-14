@@ -8,6 +8,7 @@ import Link from 'next/link';
  * - Mobile: ID 3777:8035 (Service Data Block)
  */
 export default function ServiceListItem({ 
+  id,
   title = "Nombre del Servicio", 
   category = "Categoría", 
   address = "Dirección no especificada", 
@@ -16,15 +17,17 @@ export default function ServiceListItem({
   distance = null
 }) {
   return (
-    <div className="service-list-item bg-white border border-light-subtle rounded-3 transition-all shadow-sm w-100"
+    <div className="service-list-item bg-white border border-light-subtle rounded-3 transition-all shadow-sm w-100 position-relative"
          style={{ 
             border: '1px solid #d1d5db',
             padding: '12px 16px', // Basado en Figma px-1rem py-0.75rem
             borderRadius: '8px'
          }}>
       
-      {/* 1. HEADER ROW (Layout mixto) */}
-      <div className="d-flex align-items-start justify-content-between gap-3 w-100 mb-2">
+      {/* WRAP CONTENT IN LINK */}
+      <Link href={id ? `/servicio/${id}` : "#"} className="text-decoration-none text-reset">
+        {/* 1. HEADER ROW (Layout mixto) */}
+        <div className="d-flex align-items-start justify-content-between gap-3 w-100 mb-2">
         
         <div className="d-flex flex-row align-items-start gap-3 flex-grow-1 overflow-hidden">
              {/* Thumbnail (90x65 en mobile, algo más grande en desktop vía clamp) */}
@@ -91,6 +94,7 @@ export default function ServiceListItem({
           </p>
         </div>
       </div>
+      </Link>
 
       {/* 3. ACTIONS FOOTER - Figma ID 3605:22704 */}
       <div className="d-flex align-items-center justify-content-between gap-2 mt-3 pt-2 border-top">

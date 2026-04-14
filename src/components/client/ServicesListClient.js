@@ -49,6 +49,7 @@ export default function ServicesListClient({ initialServices }) {
       {services.map((service) => (
         <ServiceListItem 
           key={service.id}
+          id={service.id}
           title={service.title}
           category={service.category}
           address={service.address}

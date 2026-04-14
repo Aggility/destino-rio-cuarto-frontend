@@ -1,0 +1,219 @@
+import React from 'react';
+import Link from 'next/link';
+import ChatbotIcon from '@/components/server/ChatbotIcon';
+import SidebarListCard from '@/components/server/SidebarListCard';
+import ServiceListItem from '@/components/server/ServiceListItem';
+
+/**
+ * ServicioDetailPage - Destino Río Cuarto
+ * Vista individual de una Organización/Servicio basada en los mocks "Organización - Desktop" y "Organización Ejemplo - Mobile"
+ */
+export default async function ServicioDetailPage({ params }) {
+  const { id } = await params;
+  
+  // 1. Obtener datos de la organización desde la API
+  let orgData = null;
+  try {
+    const res = await fetch(`http://destbackdev.aggility.io/api/v1/organizations/${id}`, { cache: 'no-store' });
+    if (res.ok) {
+       orgData = (await res.json()).data;
+    }
+  } catch (err) {
+    console.error("Error fetching organization:", err);
+  }
+
+  // 2. Mapeo de datos (Fallback por si falla la API o faltan datos)
+  const service = {
+    id: orgData?.id || id || '1',
+    name: orgData?.name || '47 Street',
+    category: orgData?.categories?.[0]?.name || 'Tiendas de Ropa',
+    address: orgData?.addresses?.[0]?.address || 'Hipólito Irigoyen 3076, Río Cuarto',
+    phones: orgData?.phone ? [orgData.phone] : ['358 475-4624', '358 422-1360'],
+    socials: [
+      { type: 'web', label: 'www.47street.com', url: 'https://www.47street.com', icon: 'bi-link-45deg' },
+      { type: 'instagram', label: 'Instagram', url: '#', icon: 'bi-instagram' },
+      { type: 'facebook', label: 'facebook', url: '#', icon: 'bi-facebook' }
+    ],
+    description: orgData?.description || 'Empresa que brinda servicio de transporte automotor interurbano regular de pasajeros y servicio de transporte automotor turístico de pasajeros.',
+    image: orgData?.image_url || '/Thumbnail.png'
+  };
+
+  // Mocks para 'Otras ubicaciones'
+  const relatedServices = [
+    { title: '3G Bebidas S.A.S', category: 'Tienda de Bebidas', address: 'Hipólito Irigoyen 3076, Río Cuarto', phone: '358 475-4624 / 358 422-1360', thumbnail: '/Thumbnail.png' },
+    { title: '3G Bebidas S.A.S', category: 'Tienda de Bebidas', address: 'Hipólito Irigoyen 3076, Río Cuarto', phone: '358 475-4624 / 358 422-1360', thumbnail: '/Thumbnail.png' },
+    { title: '3G Bebidas S.A.S', category: 'Tienda de Bebidas', address: 'Hipólito Irigoyen 3076, Río Cuarto', phone: '358 475-4624 / 358 422-1360', thumbnail: '/Thumbnail.png' },
+    { title: '3G Bebidas S.A.S', category: 'Tienda de Bebidas', address: 'Hipólito Irigoyen 3076, Río Cuarto', phone: '358 475-4624 / 358 422-1360', thumbnail: '/Thumbnail.png' }
+  ];
+
+  // Mocks para 'También te puede interesar'
+  const suggestedEvents = [
+    { title: 'Event Name', subtitle: 'Opus Costanera', badge: '10 NOV', type: 'event', thumbnail: '/Thumbnail.png', href: '#' },
+    { title: 'Event Name', subtitle: 'Opus Costanera', badge: '10 NOV', type: 'event', thumbnail: '/Thumbnail.png', href: '#' },
+    { title: 'Event Name', subtitle: 'Opus Costanera', badge: '10 NOV', type: 'event', thumbnail: '/Thumbnail.png', href: '#' }
+  ];
+
+  const suggestedActivities = [
+    { title: 'Circuito del Bienestar', subtitle: 'Río Cuarto', badge: '4 Lugares', type: 'activity', thumbnail: '/Thumbnail.png', href: '#' },
+    { title: 'Circuito del Bienestar', subtitle: 'Río Cuarto', badge: '4 Lugares', type: 'activity', thumbnail: '/Thumbnail.png', href: '#' },
+    { title: 'Circuito del Bienestar', subtitle: 'Río Cuarto', badge: '4 Lugares', type: 'activity', thumbnail: '/Thumbnail.png', href: '#' }
+  ];
+
+  return (
+    <div className="bg-white min-vh-100 pb-5">
+      <div className="container-xxl px-lg-5 pt-4">
+        
+        {/* Breadcrumb */}
+        <div className="d-flex align-items-center gap-2 mb-4">
+            <div className="d-flex align-items-center justify-content-center bg-primary text-white rounded-2" style={{ width: '32px', height: '32px', backgroundColor: '#1a56db' }}>
+                <i className="bi bi-shop"></i>
+            </div>
+            <Link href="/servicios" className="text-decoration-underline font-inter fw-medium" style={{ color: '#1a56db' }}>
+                Servicios
+            </Link>
+        </div>
+
+        {/* Title & Category Top Block */}
+        <div className="mb-4">
+            <h1 className="display-4 fw-bold text-gray-900 font-inter mb-2" style={{ letterSpacing: '-1px' }}>
+                {service.name}
+            </h1>
+            <div className="d-inline-flex bg-primary-100 rounded-1 px-2 py-1 mb-3" style={{ backgroundColor: '#e1effe' }}>
+                <span className="font-inter fw-medium text-primary-800" style={{ color: '#1e429f', fontSize: '13px' }}>
+                    {service.category}
+                </span>
+            </div>
+        </div>
+
+        {/* Main Grid: Info + Sidebar */}
+        <div className="row g-5">
+            
+            {/* LEFT COLUMN: Main Detail */}
+            <div className="col-12 col-lg-8">
+                
+                {/* Featured Image */}
+                <div className="w-100 bg-gray-200 rounded-3 mb-5 overflow-hidden" style={{ height: 'clamp(300px, 50vh, 450px)' }}>
+                    <img src={service.image} className="w-100 h-100 object-fit-cover" style={{ objectFit: 'cover', objectPosition: 'center' }} alt={service.name} />
+                </div>
+
+                {/* Ubicación y Contacto */}
+                <div className="mb-5 border-bottom pb-5">
+                    <h2 className="h4 fw-bold font-inter text-gray-900 mb-4" style={{ fontSize: '24px' }}>Ubicación y Contacto</h2>
+                    
+                    <div className="d-flex flex-column flex-md-row justify-content-between gap-4">
+                        {/* Contact List */}
+                        <div className="d-flex flex-column gap-3">
+                            <div className="d-flex align-items-start gap-2">
+                                <i className="bi bi-geo-alt-fill text-muted mt-1"></i>
+                                <span className="font-inter text-gray-900 text-decoration-underline" style={{ cursor: 'pointer' }}>{service.address}</span>
+                            </div>
+                            <div className="d-flex align-items-start gap-2">
+                                <i className="bi bi-telephone-fill text-muted mt-1"></i>
+                                <span className="font-inter text-gray-900">{service.phones.join(' / ')}</span>
+                            </div>
+                            {service.socials.map((social, index) => (
+                                <div key={index} className="d-flex align-items-start gap-2">
+                                    <i className={`bi ${social.icon} text-muted mt-1`}></i>
+                                    <a href={social.url} className="font-inter text-gray-900 text-decoration-underline" target="_blank" rel="noreferrer">{social.label}</a>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="d-flex gap-3 align-items-start font-inter">
+                            <button className="btn btn-outline-secondary d-flex align-items-center gap-2 shadow-sm bg-white rounded-2 border-1" style={{ borderColor: '#d1d5db', color: '#111827' }}>
+                                Contactar <i className="bi bi-telephone-fill small text-muted"></i>
+                            </button>
+                            <button className="btn btn-outline-secondary d-flex align-items-center gap-2 shadow-sm bg-white rounded-2 border-1" style={{ borderColor: '#d1d5db', color: '#111827' }}>
+                                WhatsApp <i className="bi bi-whatsapp text-success small"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Más Información */}
+                <div className="mb-5">
+                    <h2 className="h4 fw-bold font-inter text-gray-900 mb-3" style={{ fontSize: '24px' }}>Más Información</h2>
+                    <p className="font-inter text-gray-700" style={{ fontSize: '16px', lineHeight: '1.6' }}>
+                        {service.description}
+                    </p>
+                </div>
+
+                {/* Otras ubicaciones relacionadas */}
+                <div className="p-4 p-md-5 rounded-4 shadow-sm" style={{ backgroundColor: '#f0f7ff', border: '1px solid #e1effe' }}>
+                    <h3 className="fw-bold font-inter mb-4" style={{ color: '#1e429f', fontSize: '22px' }}>Otras ubicaciones relacionadas</h3>
+                    <div className="row g-3 mb-4">
+                        {relatedServices.map((rs, i) => (
+                            <div className="col-12 col-md-6" key={i}>
+                                <ServiceListItem 
+                                    id={i + 1}
+                                    title={rs.title}
+                                    category={rs.category}
+                                    address={rs.address}
+                                    phone={rs.phone}
+                                    thumbnail={rs.thumbnail}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                    <button className="btn btn-outline-primary bg-white shadow-sm font-inter text-primary rounded-2 px-4 shadow-premium-subtle transition-all hover-lift" style={{ color: '#1a56db', borderColor: '#a4cafe' }}>
+                        Ver más
+                    </button>
+                </div>
+            </div>
+
+            {/* RIGHT COLUMN: Sidebar (Recommendations) */}
+            <div className="col-12 col-lg-4">
+                <div className="p-4 bg-white rounded-4 border shadow-sm position-sticky" style={{ top: '120px' }}>
+                    <h3 className="font-inter fw-bold text-gray-900 mb-4" style={{ fontSize: '24px', letterSpacing: '-0.5px' }}>
+                        También te puede interesar
+                    </h3>
+
+                    {/* Eventos Section */}
+                    <div className="mb-4">
+                        <div className="d-flex align-items-center gap-2 mb-3">
+                            <div className="d-flex align-items-center justify-content-center text-white rounded-2" style={{ width: '28px', height: '28px', backgroundColor: '#f54286' }}>
+                                <i className="bi bi-star-fill small"></i>
+                            </div>
+                            <h4 className="font-inter fw-bold m-0" style={{ color: '#f54286', fontSize: '18px' }}>Eventos</h4>
+                        </div>
+                        <div className="d-flex flex-column mb-3 border-bottom pb-2">
+                            {suggestedEvents.map((ev, i) => (
+                                <div key={i} className={i !== 0 ? 'border-top pt-1 mt-1' : ''}>
+                                    <SidebarListCard {...ev} />
+                                </div>
+                            ))}
+                        </div>
+                        <Link href="/eventos" className="font-inter text-decoration-none small fw-medium text-pink-500" style={{ color: '#f54286' }}>
+                            Ver más Actividades
+                        </Link>
+                    </div>
+
+                    {/* Actividades Turísticas Section */}
+                    <div className="mb-2 pt-2">
+                        <div className="d-flex align-items-center gap-2 mb-3 mt-3">
+                            <div className="d-flex align-items-center justify-content-center text-white rounded-2" style={{ width: '28px', height: '28px', backgroundColor: '#8a38f5' }}>
+                                <i className="bi bi-person-arms-up small"></i>
+                            </div>
+                            <h4 className="font-inter fw-bold m-0" style={{ color: '#8a38f5', fontSize: '18px' }}>Actividades Turísticas</h4>
+                        </div>
+                        <div className="d-flex flex-column mb-3 border-bottom pb-2">
+                            {suggestedActivities.map((ac, i) => (
+                                <div key={i} className={i !== 0 ? 'border-top pt-1 mt-1' : ''}>
+                                    <SidebarListCard {...ac} />
+                                </div>
+                            ))}
+                        </div>
+                        <Link href="/actividades" className="font-inter text-decoration-none small fw- medium" style={{ color: '#8a38f5' }}>
+                            Ver más Experiencias
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      <ChatbotIcon />
+    </div>
+  );
+}
