@@ -55,7 +55,7 @@ export default function CalendarPage() {
                 </div>
                 <div className="d-flex align-items-center gap-3">
                     <button className="btn btn-light rounded-circle border shadow-sm px-3"><i className="bi bi-chevron-left"></i></button>
-                    <h2 className="h4 fw-bold mb-0 font-inter text-primary" style={{ minWidth: '150px', textAlign: 'center' }}>{currentMonth}</h2>
+                    <h2 className="h4 fw-bold mb-0 font-inter" style={{ minWidth: '150px', textAlign: 'center', color: '#f54286' }}>{currentMonth}</h2>
                     <button className="btn btn-light rounded-circle border shadow-sm px-3"><i className="bi bi-chevron-right"></i></button>
                 </div>
             </div>
@@ -81,9 +81,9 @@ export default function CalendarPage() {
                     const dayEvents = calendarEvents.find(e => e.day === num);
                     return (
                         <div key={num} className="col-12 col-md-6 col-lg-4 col-xl-7-cols">
-                            <div className={`calendar-day-box bg-white rounded-4 border p-3 transition-all ${dayEvents ? 'shadow-premium border-primary-subtle' : 'opacity-80'}`}>
+                            <div className={`calendar-day-box bg-white rounded-4 border p-3 transition-all ${dayEvents ? 'shadow-premium' : 'opacity-80'}`} style={{ borderColor: dayEvents ? '#f5428644' : '#dee2e6' }}>
                                 
-                                <span className={`day-number font-inter ${dayEvents ? 'text-primary' : 'text-gray-400'}`}>
+                                <span className={`day-number font-inter`} style={{ color: dayEvents ? '#f54286' : '#9ca3af' }}>
                                     {num}
                                 </span>
 

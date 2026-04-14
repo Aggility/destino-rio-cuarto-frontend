@@ -42,8 +42,8 @@ export default function EventCard({
           
           {/* Badge Proyectivo — indigo-100/800 */}
           {category && category !== "Evento" && (
-             <div className="d-inline-block px-1 py-0 rounded-1 mb-1" style={{ backgroundColor: '#e5edff' }}>
-                <span className="fw-medium font-inter" style={{ color: '#42389d', fontSize: '12px' }}>
+             <div className="d-inline-block px-1 py-0 rounded-1 mb-1" style={{ backgroundColor: '#fff0f5' }}>
+                <span className="fw-medium font-inter" style={{ color: '#f54286', fontSize: '12px' }}>
                   {category}
                 </span>
              </div>

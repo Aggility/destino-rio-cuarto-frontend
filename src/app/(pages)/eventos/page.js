@@ -48,13 +48,13 @@ export default async function EventsPage() {
       description: descStr,
       thumbnail: evt.image_url || "/Thumbnail.png", // Usa image_url si existe
       category: evt.categories?.[0]?.name?.toUpperCase() || (idx % 2 === 0 ? "POP" : "KIDS"),
-      typeColor: idx % 2 === 0 ? "#1a56db" : "#f54286"
+      typeColor: "#f54286"
     };
   });
 
   // Fallback if empty to keep design intact
   const events = formattedEvents.length > 0 ? formattedEvents : [
-    { id: 1, title: 'Ivan Noble', date: 'jue, 12 mar, 21:00', location: 'Elvis RockandBar', description: 'Llega Iván Noble a la esquina de Elvis con “canciones traspapeladas”', category: 'POP', typeColor: '#1a56db' },
+    { id: 1, title: 'Ivan Noble', date: 'jue, 12 mar, 21:00', location: 'Elvis RockandBar', description: 'Llega Iván Noble a la esquina de Elvis con “canciones traspapeladas”', category: 'POP', typeColor: '#f54286' },
     { id: 2, title: 'Ulises Bueno', date: 'lun, 6 ene, 00:00', location: 'Opus Costanera', description: 'Regresa Ulises Bueno para una noche inolvidable. Llega el Aniversario de Opus y lo festejamos a lo grande!', category: 'KIDS', typeColor: '#f54286' }
   ];
 
@@ -73,7 +73,7 @@ export default async function EventsPage() {
               <h2 className="font-inter fw-bold text-gray-900 mb-0" style={{ fontSize: 'clamp(24px, 4vw, 32px)', letterSpacing: '-1px' }}>
                   Eventos Destacados
               </h2>
-              <Link href="/calendario" className="btn btn-link p-0 text-primary fw-bold text-decoration-none small d-none d-md-block">Ver Calendario Completo</Link>
+              <Link href="/calendario" className="btn btn-link p-0 fw-bold text-decoration-none small d-none d-md-block" style={{ color: '#f54286' }}>Ver Calendario Completo</Link>
           </div>
           <div className="d-flex flex-column gap-3">
             <Link href="/macro-evento/otono-polifonico" className="text-decoration-none">

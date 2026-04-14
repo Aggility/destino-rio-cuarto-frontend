@@ -36,7 +36,7 @@ export default function EventsListClient({ initialEvents }) {
       description: descStr,
       thumbnail: evt.image_url || "/Thumbnail.png",
       category: evt.categories?.[0]?.name?.toUpperCase() || (idx % 2 === 0 ? "POP" : "KIDS"),
-      typeColor: idx % 2 === 0 ? "#1a56db" : "#f54286"
+      typeColor: "#f54286"
     };
   };
 
@@ -106,7 +106,7 @@ export default function EventsListClient({ initialEvents }) {
                    placeholder="Buscar un evento, artista, teatro..." 
                    style={{ height: '52px' }} 
                 />
-                <button className="btn btn-primary d-md-none border-0 px-3" style={{ backgroundColor: '#1a56db' }}>
+                <button className="btn btn-primary d-md-none border-0 px-3" style={{ backgroundColor: '#f54286' }}>
                    <i className="bi bi-search"></i>
                 </button>
               </div>
@@ -118,8 +118,13 @@ export default function EventsListClient({ initialEvents }) {
                     {categories.map((cat, idx) => (
                       <button 
                         key={idx} 
-                        className={`btn ${selectedCategory === cat ? 'btn-primary' : 'btn-outline-secondary'} rounded-pill px-4 btn-sm`} 
-                        style={{ minWidth: 'fit-content' }}
+                        className={`btn rounded-pill px-4 btn-sm transition-all`} 
+                        style={{ 
+                          minWidth: 'fit-content',
+                          backgroundColor: selectedCategory === cat ? '#f54286' : 'transparent',
+                          color: selectedCategory === cat ? '#fff' : '#6b7280',
+                          border: `1px solid ${selectedCategory === cat ? '#f54286' : '#d1d5db'}`
+                        }}
                         onClick={() => setSelectedCategory(cat)}
                       >
                         {cat}
@@ -161,7 +166,7 @@ export default function EventsListClient({ initialEvents }) {
             <div className="col-12 col-xl-2 d-none d-md-block">
               <button 
                 className="btn btn-primary w-100 fw-bold border-0 font-inter shadow-premium" 
-                style={{ height: '52px', backgroundColor: '#1a56db' }}
+                style={{ height: '52px', backgroundColor: '#f54286' }}
               >
                 FILTRAR
               </button>
@@ -211,8 +216,8 @@ export default function EventsListClient({ initialEvents }) {
                 style={{ 
                   minWidth: '220px',
                   height: '56px',
-                  borderColor: '#1a56db',
-                  color: '#1a56d8'
+                  borderColor: '#f54286',
+                  color: '#f54286'
                 }}
               >
                 {isLoading ? (

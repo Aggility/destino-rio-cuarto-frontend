@@ -48,7 +48,7 @@ export default function SidebarListCard({
           </div>
 
           <div className="d-inline-flex px-2 py-1 rounded-1 mt-1 w-fit-content" 
-               style={{ backgroundColor: isActivity ? '#374151' : '#374151', width: 'fit-content' }}>
+               style={{ backgroundColor: !isActivity ? '#f54286' : '#374151', width: 'fit-content' }}>
             <span className="font-inter fw-medium text-white shadow-sm" 
                   style={{ fontSize: '12px', lineHeight: '1' }}>
               {badge}
@@ -58,7 +58,7 @@ export default function SidebarListCard({
 
         {/* Arrow (Figma I3804:30290;3613:24634) */}
         <div className="ms-2 opacity-50 group-hover:opacity-100 transition-opacity d-none d-sm-block">
-            <i className="bi bi-chevron-right text-primary"></i>
+            <i className="bi bi-chevron-right" style={{ color: !isActivity ? '#f54286' : '#1a56db' }}></i>
         </div>
       </div>
     </Link>

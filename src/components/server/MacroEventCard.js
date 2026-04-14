@@ -27,7 +27,7 @@ export default function MacroEventCard({
 
       {/* 2. Content — Figma ID 3634:12460 */}
       <div className="flex-grow-1 d-flex flex-column gap-2 py-1 w-100 text-center text-md-start">
-        <h3 className="font-inter fw-bold mb-1" style={{ fontSize: 'clamp(18px, 2.5vw, 22px)', color: '#1a56db', lineHeight: '1.2' }}>
+        <h3 className="font-inter fw-bold mb-1" style={{ fontSize: 'clamp(18px, 2.5vw, 22px)', color: '#f54286', lineHeight: '1.2' }}>
           {title}
         </h3>
         
