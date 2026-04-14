@@ -3,6 +3,7 @@ import Link from 'next/link';
 import ChatbotIcon from '@/components/server/ChatbotIcon';
 import SidebarListCard from '@/components/server/SidebarListCard';
 import ServiceListItem from '@/components/server/ServiceListItem';
+import ContactAndLocationWidget from '@/components/client/ContactAndLocationWidget';
 
 /**
  * ServicioDetailPage - Destino Río Cuarto
@@ -28,6 +29,8 @@ export default async function ServicioDetailPage({ params }) {
     name: orgData?.name || '47 Street',
     category: orgData?.categories?.[0]?.name || 'Tiendas de Ropa',
     address: orgData?.addresses?.[0]?.address || 'Hipólito Irigoyen 3076, Río Cuarto',
+    lat: orgData?.addresses?.[0]?.latitude || -33.1293,
+    lng: orgData?.addresses?.[0]?.longitude || -64.3496,
     phones: orgData?.phone ? [orgData.phone] : ['358 475-4624', '358 422-1360'],
     socials: [
       { type: 'web', label: 'www.47street.com', url: 'https://www.47street.com', icon: 'bi-link-45deg' },
@@ -96,40 +99,10 @@ export default async function ServicioDetailPage({ params }) {
                     <img src={service.image} className="w-100 h-100 object-fit-cover" style={{ objectFit: 'cover', objectPosition: 'center' }} alt={service.name} />
                 </div>
 
-                {/* Ubicación y Contacto */}
-                <div className="mb-5 border-bottom pb-5">
-                    <h2 className="h4 fw-bold font-inter text-gray-900 mb-4" style={{ fontSize: '24px' }}>Ubicación y Contacto</h2>
-                    
-                    <div className="d-flex flex-column flex-md-row justify-content-between gap-4">
-                        {/* Contact List */}
-                        <div className="d-flex flex-column gap-3">
-                            <div className="d-flex align-items-start gap-2">
-                                <i className="bi bi-geo-alt-fill text-muted mt-1"></i>
-                                <span className="font-inter text-gray-900 text-decoration-underline" style={{ cursor: 'pointer' }}>{service.address}</span>
-                            </div>
-                            <div className="d-flex align-items-start gap-2">
-                                <i className="bi bi-telephone-fill text-muted mt-1"></i>
-                                <span className="font-inter text-gray-900">{service.phones.join(' / ')}</span>
-                            </div>
-                            {service.socials.map((social, index) => (
-                                <div key={index} className="d-flex align-items-start gap-2">
-                                    <i className={`bi ${social.icon} text-muted mt-1`}></i>
-                                    <a href={social.url} className="font-inter text-gray-900 text-decoration-underline" target="_blank" rel="noreferrer">{social.label}</a>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Action Buttons */}
-                        <div className="d-flex gap-3 align-items-start font-inter">
-                            <button className="btn btn-outline-secondary d-flex align-items-center gap-2 shadow-sm bg-white rounded-2 border-1" style={{ borderColor: '#d1d5db', color: '#111827' }}>
-                                Contactar <i className="bi bi-telephone-fill small text-muted"></i>
-                            </button>
-                            <button className="btn btn-outline-secondary d-flex align-items-center gap-2 shadow-sm bg-white rounded-2 border-1" style={{ borderColor: '#d1d5db', color: '#111827' }}>
-                                WhatsApp <i className="bi bi-whatsapp text-success small"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                {/* Ubicación y Contacto Component (Mini Mapa + Info + Routing) */}
+                <h2 className="h4 fw-bold font-inter text-gray-900 mb-4" style={{ fontSize: '24px' }}>Ubicación y Contacto</h2>
+                
+                <ContactAndLocationWidget service={service} />
 
                 {/* Más Información */}
                 <div className="mb-5">
