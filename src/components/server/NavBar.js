@@ -142,14 +142,6 @@ export default function NavBar() {
               ))}
             </ul>
 
-            {/* Call to action (Móvil) */}
-            <div className="mt-5">
-              <Link href="/publicar"
-                onClick={closeMenu}
-                className="btn btn-primary bg-primary text-white w-100 py-3 border-0 rounded-2 fw-semibold shadow-premium d-flex align-items-center justify-content-center gap-2">
-                <i className="bi bi-plus-circle"></i> Publicá Acá
-              </Link>
-            </div>
           </div>
         </div>
       </div>

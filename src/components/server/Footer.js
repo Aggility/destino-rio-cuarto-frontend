@@ -45,19 +45,8 @@ export default function Footer() {
             </p>
           </div>
 
-          {/* Nav Links */}
-          <div className="col-lg-12">
-            <div className="d-flex flex-wrap justify-content-center gap-3 gap-md-5 mb-5 border-top border-white border-opacity-10 pt-5">
-              {footerLinks.map((link) => (
-                <Link key={link.label} href={link.href} className="text-decoration-none text-white opacity-80 transition-all hover-opacity-100 fw-medium">
-                  {link.label}
-                </Link>
-              ))}
-            </div>
-          </div>
-
           {/* Socials & Copyright */}
-          <div className="col-lg-12 border-top border-white border-opacity-10 pt-4">
+          <div className="col-lg-12 border-top border-white border-opacity-10 pt-4 mt-5">
             <div className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-4">
               <p className="mb-0 opacity-60 small">
                 © 2026 Destino Río Cuarto. Secretaría de Deporte y Turismo.
