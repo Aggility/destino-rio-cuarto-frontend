@@ -79,7 +79,7 @@ export default function HeroHome({ initialSlug = null }) {
   } else {
     displayTitle = (
       <>
-        {formatTitle("Descubrí qué")} <span style={coloredSpanStyle(activeCategory.color)}>{formatTitle(activeCategory.label)}</span> {formatTitle("hay")} <br className="d-none d-md-block" />
+        {formatTitle("Encontra")} <span style={coloredSpanStyle(activeCategory.color)}>{formatTitle(activeCategory.label)}</span> {formatTitle("disponibles")} <br className="d-none d-md-block" />
         {formatTitle("para vos en")} <span className="text-white">Río Cuarto</span>
       </>
     );
