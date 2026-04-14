@@ -42,18 +42,18 @@ export default function NavBar() {
   ];
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark w-100" style={{ 
-      minHeight: '97px', 
-      backgroundColor: '#1F2A37', 
+    <nav className="navbar navbar-expand-lg navbar-dark w-100" style={{
+      minHeight: '97px',
+      backgroundColor: '#1F2A37',
       boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
       zIndex: 1000
     }}>
       <div className="container-xxl d-flex align-items-center h-100 px-lg-5">
-        
+
         {/* LOGO */}
         <Link href="/" className="navbar-brand d-flex align-items-center" onClick={closeMenu}>
           <div className="bg-white rounded-circle d-flex align-items-center justify-content-center me-3 shadow-premium" style={{ width: '48px', height: '48px' }}>
-             <i className="bi bi-geo-alt-fill text-primary" style={{ fontSize: '24px' }}></i>
+            <i className="bi bi-geo-alt-fill text-primary" style={{ fontSize: '24px' }}></i>
           </div>
           <div className="d-flex flex-column justify-content-center">
             <span className="fw-bold text-white h4 mb-0 font-inter" style={{ letterSpacing: '-0.8px', lineHeight: 1 }}>
@@ -80,81 +80,77 @@ export default function NavBar() {
                 </Link>
               </li>
             ))}
-            <li className="nav-item ms-lg-3">
-              <Link href="/publicar" className="btn btn-outline-light px-4 py-2 border-2 rounded-2 fw-semibold shadow-premium transition-all hover-lift">
-                Publicá Acá
-              </Link>
-            </li>
+
           </ul>
         </div>
 
         {/* --- MOBILE SIDEBAR SECTION --- */}
         {/* Backdrop (Fondo semitransparente oscuro) */}
         {isOpen && (
-          <div className="position-fixed top-0 start-0 w-100 h-100 bg-black opacity-50 d-lg-none" 
-               style={{ zIndex: 1040, transition: 'opacity 0.3s ease-in-out' }} 
-               onClick={closeMenu}></div>
+          <div className="position-fixed top-0 start-0 w-100 h-100 bg-black opacity-50 d-lg-none"
+            style={{ zIndex: 1040, transition: 'opacity 0.3s ease-in-out' }}
+            onClick={closeMenu}></div>
         )}
-        
+
         {/* Sidebar deslizable (Offcanvas custom) */}
         <div className="position-fixed top-0 end-0 h-100 d-flex flex-column d-lg-none shadow-premium"
-             style={{
-                 width: '280px',
-                 backgroundColor: '#1F2A37',
-                 zIndex: 1050,
-                 transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
-                 transition: 'transform 0.3s ease-in-out',
-             }}>
-             {/* Header de la sidebar */}
-             <div className="d-flex justify-content-between align-items-center p-4 border-bottom border-secondary border-opacity-50">
-                <Link href="/" className="navbar-brand d-flex align-items-center" onClick={closeMenu}>
-                  <div className="bg-white rounded-circle d-flex align-items-center justify-content-center me-3 shadow-premium" style={{ width: '40px', height: '40px' }}>
-                     <i className="bi bi-geo-alt-fill text-primary" style={{ fontSize: '20px' }}></i>
-                  </div>
-                  <div className="d-flex flex-column justify-content-center">
-                    <span className="fw-bold text-white h5 mb-0 font-inter" style={{ letterSpacing: '-0.5px', lineHeight: 1 }}>
-                      Destino
-                    </span>
-                    <span className="fw-medium text-white-50 font-inter" style={{ fontSize: '13px', letterSpacing: '0.2px' }}>
-                      Río Cuarto
-                    </span>
-                  </div>
+          style={{
+            width: '280px',
+            backgroundColor: '#1F2A37',
+            zIndex: 1050,
+            transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
+            transition: 'transform 0.3s ease-in-out',
+          }}>
+          {/* Header de la sidebar */}
+          <div className="d-flex justify-content-between align-items-center p-4 border-bottom border-secondary border-opacity-50">
+            <Link href="/" className="navbar-brand d-flex align-items-center" onClick={closeMenu}>
+              <div className="bg-white rounded-circle d-flex align-items-center justify-content-center me-3 shadow-premium" style={{ width: '40px', height: '40px' }}>
+                <i className="bi bi-geo-alt-fill text-primary" style={{ fontSize: '20px' }}></i>
+              </div>
+              <div className="d-flex flex-column justify-content-center">
+                <span className="fw-bold text-white h5 mb-0 font-inter" style={{ letterSpacing: '-0.5px', lineHeight: 1 }}>
+                  Destino
+                </span>
+                <span className="fw-medium text-white-50 font-inter" style={{ fontSize: '13px', letterSpacing: '0.2px' }}>
+                  Río Cuarto
+                </span>
+              </div>
+            </Link>
+            <button className="btn p-0 border-0 shadow-none d-flex align-items-center justify-content-center" onClick={closeMenu}>
+              <i className="bi bi-x-lg text-white opacity-75 hover-opacity-100 transition-all" style={{ fontSize: '24px' }}></i>
+            </button>
+          </div>
+
+          {/* Opciones */}
+          <div className="d-flex flex-column flex-grow-1 overflow-auto p-4">
+            <ul className="navbar-nav flex-column gap-3 mb-auto">
+              <li className="nav-item">
+                <Link href="/"
+                  onClick={closeMenu}
+                  className="nav-link text-white fw-medium fs-5 border-bottom border-light border-opacity-10 pb-2">
+                  Inicio
                 </Link>
-                <button className="btn p-0 border-0 shadow-none d-flex align-items-center justify-content-center" onClick={closeMenu}>
-                   <i className="bi bi-x-lg text-white opacity-75 hover-opacity-100 transition-all" style={{fontSize: '24px'}}></i>
-                </button>
-             </div>
-             
-             {/* Opciones */}
-             <div className="d-flex flex-column flex-grow-1 overflow-auto p-4">
-               <ul className="navbar-nav flex-column gap-3 mb-auto">
-                  <li className="nav-item">
-                    <Link href="/" 
-                          onClick={closeMenu} 
-                          className="nav-link text-white fw-medium fs-5 border-bottom border-light border-opacity-10 pb-2">
-                      Inicio
-                    </Link>
-                  </li>
-                  {navLinks.map((link) => (
-                    <li key={link.href} className="nav-item">
-                      <Link href={link.href} 
-                            onClick={closeMenu} 
-                            className="nav-link text-white fw-medium fs-5 border-bottom border-light border-opacity-10 pb-2">
-                        {link.label}
-                      </Link>
-                    </li>
-                  ))}
-               </ul>
-               
-               {/* Call to action (Móvil) */}
-               <div className="mt-5">
-                  <Link href="/publicar" 
-                        onClick={closeMenu} 
-                        className="btn btn-primary bg-primary text-white w-100 py-3 border-0 rounded-2 fw-semibold shadow-premium d-flex align-items-center justify-content-center gap-2">
-                    <i className="bi bi-plus-circle"></i> Publicá Acá
+              </li>
+              {navLinks.map((link) => (
+                <li key={link.href} className="nav-item">
+                  <Link href={link.href}
+                    onClick={closeMenu}
+                    className="nav-link text-white fw-medium fs-5 border-bottom border-light border-opacity-10 pb-2">
+                    {link.label}
                   </Link>
-               </div>
-             </div>
+                </li>
+              ))}
+            </ul>
+
+            {/* Call to action (Móvil) */}
+            <div className="mt-5">
+              <Link href="/publicar"
+                onClick={closeMenu}
+                className="btn btn-primary bg-primary text-white w-100 py-3 border-0 rounded-2 fw-semibold shadow-premium d-flex align-items-center justify-content-center gap-2">
+                <i className="bi bi-plus-circle"></i> Publicá Acá
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </nav>
