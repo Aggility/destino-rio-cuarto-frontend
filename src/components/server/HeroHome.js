@@ -19,7 +19,7 @@ export default function HeroHome({ initialSlug = null }) {
 
   // Buscamos si la ruta actual coincide con alguna categoría
   const currentCategoryPath = categories.find(c => pathname.includes(`/${c.slug}`));
-  
+
   // O usamos la categoría actual de la ruta, o el slug inicial que pasamos
   const activeCategory = currentCategoryPath || categories.find(c => c.slug === initialSlug) || null;
 
@@ -36,7 +36,7 @@ export default function HeroHome({ initialSlug = null }) {
   };
 
   const getBackgroundImage = (slug) => {
-    switch(slug) {
+    switch (slug) {
       case 'eventos': return '/hero_eventos.jpg';
       case 'actividades': return '/hero_actividades.jpg';
       case 'experiencias': return '/hero_actividades.jpg'; // Fallback a actividades
@@ -45,7 +45,7 @@ export default function HeroHome({ initialSlug = null }) {
     }
   };
 
-  const bgImage = activeCategory 
+  const bgImage = activeCategory
     ? getBackgroundImage(activeCategory.slug)
     : '/hero_home.png';
 
@@ -58,35 +58,35 @@ export default function HeroHome({ initialSlug = null }) {
   if (!activeCategory) {
     displayTitle = (
       <>
-        {formatTitle("Descubrí qué cosas")} <br className="d-none d-md-block" /> 
+        {formatTitle("Descubrí qué cosas")} <br className="d-none d-md-block" />
         {formatTitle("podés hacer en")} <span className="text-white">Río Cuarto</span>
       </>
     );
   } else if (activeCategory.slug === 'actividades') {
     displayTitle = (
       <>
-        {formatTitle("Explorá")} <span style={coloredSpanStyle(activeCategory.color)}>{formatTitle(activeCategory.label)}</span> <br className="d-none d-md-block" /> 
+        {formatTitle("Explorá")} <span style={coloredSpanStyle(activeCategory.color)}>{formatTitle(activeCategory.label)}</span> <br className="d-none d-md-block" />
         {formatTitle("para vos en")} <span className="text-white">Río Cuarto</span>
       </>
     );
   } else if (activeCategory.slug === 'experiencias') {
     displayTitle = (
       <>
-        {formatTitle("Descubrí")} <span style={coloredSpanStyle(activeCategory.color)}>{formatTitle(activeCategory.label)}</span> <br className="d-none d-md-block" /> 
+        {formatTitle("Descubrí")} <span style={coloredSpanStyle(activeCategory.color)}>{formatTitle(activeCategory.label)}</span> <br className="d-none d-md-block" />
         {formatTitle("únicas en")} <span className="text-white">Río Cuarto</span>
       </>
     );
   } else {
     displayTitle = (
       <>
-        {formatTitle("Descubrí qué")} <span style={coloredSpanStyle(activeCategory.color)}>{formatTitle(activeCategory.label)}</span> {formatTitle("hay")} <br className="d-none d-md-block" /> 
+        {formatTitle("Descubrí qué")} <span style={coloredSpanStyle(activeCategory.color)}>{formatTitle(activeCategory.label)}</span> {formatTitle("hay")} <br className="d-none d-md-block" />
         {formatTitle("para vos en")} <span className="text-white">Río Cuarto</span>
       </>
     );
   }
 
   return (
-    <section className="position-relative overflow-hidden w-100" style={{ 
+    <section className="position-relative overflow-hidden w-100" style={{
       height: '440px', // Altura estricta para que no haya saltos de tamaño
       backgroundImage: `url('${bgImage}')`,
       backgroundSize: 'cover',
@@ -98,23 +98,23 @@ export default function HeroHome({ initialSlug = null }) {
     }}>
       {/* Overlay sutil para móvil (toda la pantalla) */}
       <div className="position-absolute top-0 start-0 w-100 h-100 d-md-none" style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)' }}></div>
-      
+
       {/* Overlay gradiente intenso para escritorio (izquierda a derecha) */}
       <div className="position-absolute top-0 start-0 w-100 h-100 d-none d-md-block" style={{ background: 'linear-gradient(to right, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0) 100%)' }}></div>
 
       <div className="container-xxl px-3 px-lg-5 h-100 d-flex flex-column w-100 position-relative z-1">
-        
+
         {/* Espacio superior para centrar visualmente el titulo si es necesario */}
         <div className="mt-auto"></div>
 
         {/* 1. Title Group */}
         <div>
-          <h1 className="hero-title text-white mb-0 text-center text-md-start mx-auto mx-md-0" style={{ 
-              maxWidth: '800px',
-              fontSize: 'clamp(42px, 11vw, 64px)',
-              lineHeight: '1.1',
-              letterSpacing: '-1.5px',
-              fontWeight: '700'
+          <h1 className="hero-title text-white mb-0 text-center text-md-start mx-auto mx-md-0" style={{
+            maxWidth: '800px',
+            fontSize: 'clamp(42px, 11vw, 64px)',
+            lineHeight: '1.1',
+            letterSpacing: '-1.5px',
+            fontWeight: '700'
           }}>
             {displayTitle}
           </h1>
@@ -126,27 +126,27 @@ export default function HeroHome({ initialSlug = null }) {
             const isActive = activeCategory?.slug === cat.slug;
             return (
               <div key={idx} className="col-6 col-md-auto">
-                  <Link 
-                        href={`/${cat.slug}`}
-                        className={`d-flex align-items-center justify-content-between bg-white border border-light-subtle rounded-3 p-1 ps-3 transition-all text-decoration-none shadow-sm ${isActive ? 'shadow-premium border-primary' : 'hover-lift'}`}
-                        style={{ 
-                            height: '52px', 
-                            width: '100%',
-                            outline: 'none'
-                        }}>
-                    <span className="font-inter fw-medium text-gray-700 text-truncate me-2" style={{ fontSize: '14px' }}>
-                      {cat.label}
-                    </span>
-                    <div className="rounded-2 d-flex align-items-center justify-content-center flex-shrink-0" 
-                         style={{ 
-                             backgroundColor: cat.color, 
-                             width: '34px', 
-                             height: '34px',
-                             marginRight: '2px'
-                         }}>
-                      <i className={`bi ${cat.icon} text-white`} style={{ fontSize: '14px' }}></i>
-                    </div>
-                  </Link>
+                <Link
+                  href={`/${cat.slug}`}
+                  className={`d-flex align-items-center justify-content-between bg-white border border-light-subtle rounded-3 p-1 ps-3 transition-all text-decoration-none shadow-sm ${isActive ? 'shadow-premium border-primary' : 'hover-lift'}`}
+                  style={{
+                    height: '52px',
+                    width: '100%',
+                    outline: 'none'
+                  }}>
+                  <span className="font-inter fw-medium text-gray-700 text-truncate me-2" style={{ fontSize: '14px' }}>
+                    {cat.label}
+                  </span>
+                  <div className="rounded-2 d-flex align-items-center justify-content-center flex-shrink-0"
+                    style={{
+                      backgroundColor: cat.color,
+                      width: '34px',
+                      height: '34px',
+                      marginRight: '2px'
+                    }}>
+                    <i className={`bi ${cat.icon} text-white`} style={{ fontSize: '14px' }}></i>
+                  </div>
+                </Link>
               </div>
             );
           })}

@@ -76,13 +76,15 @@ export default async function EventsPage() {
               <Link href="/calendario" className="btn btn-link p-0 text-primary fw-bold text-decoration-none small d-none d-md-block">Ver Calendario Completo</Link>
           </div>
           <div className="d-flex flex-column gap-3">
-            <MacroEventCard 
-              title="7° Festival Otoño Polifónico"
-              date="Miércoles 11 al domingo 15 de marzo"
-              time="20:00hs"
-              location="Teatro Municipal de Río Cuarto"
-              thumbnail={localThumbnail}
-            />
+            <Link href="/macro-evento/otono-polifonico" className="text-decoration-none">
+              <MacroEventCard 
+                title="7° Festival Otoño Polifónico"
+                date="Miércoles 11 al domingo 15 de marzo"
+                time="20:00hs"
+                location="Teatro Municipal de Río Cuarto"
+                thumbnail="/oto-polifono.webp"
+              />
+            </Link>
           </div>
         </div>
       </section>
