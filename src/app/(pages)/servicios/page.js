@@ -107,7 +107,7 @@ export default async function ServiciosPage() {
 
             {/* SIDEBAR DETACHED FOR MOBILE (Implicit Bootstrap) */}
             <div className="col-12 col-xl-4">
-               <div className="p-4 bg-white rounded-4 border shadow-premium">
+               <div className="p-4 bg-white rounded-4 border shadow-premium position-sticky" style={{ top: '120px', zIndex: 10 }}>
                   <h3 className="font-inter fw-bold text-gray-900 mb-4" style={{ fontSize: '24px', letterSpacing: '-0.5px' }}>
                     Destacados de la semana
                   </h3>

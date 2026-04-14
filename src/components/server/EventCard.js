@@ -17,32 +17,34 @@ export default function EventCard({
   thumbnail = "/Thumbnail.png" 
 }) {
   return (
-    <Link href={`/eventos/${id}`} className="text-decoration-none">
-      <div className="card h-100 border-0 bg-transparent shadow-none w-100">
+    <Link href={`/eventos/${id}`} className="text-decoration-none d-block h-100">
+      <div className="card h-100 border-0 bg-transparent shadow-none w-100" style={{ minWidth: 0 }}>
         
         {/* 1. Header (Thumbnail & Tag) — Figma ID I3781:19227;3389:3472 */}
-        <div className="position-relative overflow-hidden rounded-2 mb-2 card-zoom-effect" style={{ height: '207px', borderRadius: '8px' }}>
+        <div className="position-relative overflow-hidden rounded-2 mb-2 card-zoom-effect w-100" style={{ height: '207px', borderRadius: '8px' }}>
           <Image 
             src={thumbnail}
             alt={title}
             fill
-            className="object-cover"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-fit-cover"
+            style={{ objectFit: 'cover' }}
           />
           
           {/* Tag Overlay — Figma ID I3781:19227;3395:3977 */}
           <div className="position-absolute top-0 start-0 bg-black px-2 py-1" style={{ zIndex: 10 }}>
-            <span className="text-white fw-semibold font-inter" style={{ fontSize: '18px', letterSpacing: '-0.54px', lineHeight: '1.2' }}>
+            <span className="text-white fw-semibold font-inter" style={{ fontSize: 'clamp(14px, 4vw, 18px)', letterSpacing: '-0.54px', lineHeight: '1.2' }}>
               {date}
             </span>
           </div>
         </div>
 
         {/* 2. Body — Figma ID I3781:19227;3389:3474 */}
-        <div className="card-body p-0 pt-2">
+        <div className="card-body p-0 pt-2 d-flex flex-column" style={{ minWidth: 0 }}>
           
           {/* Badge Proyectivo — indigo-100/800 */}
           {category && category !== "Evento" && (
-             <div className="d-inline-block px-1 py-0 rounded-1 mb-1" style={{ backgroundColor: '#fff0f5' }}>
+             <div className="d-inline-block px-1 py-0 rounded-1 mb-1 align-self-start" style={{ backgroundColor: '#fff0f5' }}>
                 <span className="fw-medium font-inter" style={{ color: '#f54286', fontSize: '12px' }}>
                   {category}
                 </span>
@@ -50,8 +52,8 @@ export default function EventCard({
           )}
 
           {/* Title — Figma ID I3781:19227;3389:3478 */}
-          <h3 className="h5 fw-semibold text-gray-900 mb-1 font-inter text-truncate" style={{ 
-            fontSize: '22px', 
+          <h3 className="h5 fw-semibold text-gray-900 mb-1 font-inter text-truncate w-100" style={{ 
+            fontSize: 'clamp(18px, 5vw, 22px)', 
             letterSpacing: '-0.66px',
             lineHeight: '1.2'
           }}>
@@ -59,14 +61,14 @@ export default function EventCard({
           </h3>
 
           {/* Location — Figma ID I3781:19227;3389:3480 */}
-          <p className="text-gray-800 mb-1 font-inter text-truncate" style={{ fontSize: '16px', fontWeight: 400 }}>
+          <p className="text-gray-800 mb-1 font-inter text-truncate w-100" style={{ fontSize: 'clamp(14px, 4vw, 16px)', fontWeight: 400 }}>
             {location}
           </p>
 
           {/* Description — Figma ID I3781:19227;3679:33962 */}
           {description && (
-            <p className="text-gray-800 font-inter mb-0 overflow-hidden" style={{ 
-              fontSize: '15px', 
+            <p className="text-gray-800 font-inter mb-0 overflow-hidden w-100" style={{ 
+              fontSize: 'clamp(13px, 3.5vw, 15px)', 
               lineHeight: '1.5',
               opacity: 0.9,
               display: '-webkit-box',

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import ChatbotIcon from '@/components/server/ChatbotIcon';
 import EventCard from '@/components/server/EventCard';
 import EventDistanceBadge from '@/components/client/EventDistanceBadge';
-import { getNearbyLocations } from '@/utils/geo';
+import { getNearbyLocations, getDistance } from '@/utils/geo';
 
 /**
  * EventDetailPage - Destino Río Cuarto
@@ -83,15 +83,24 @@ export default async function EventDetailPage({ params }) {
   );
 
   // Fallback si no hay nada cerca para no dejar vacío el diseño (Mocks iniciales)
-  const finalAccommodation = accommodation.length > 0 ? accommodation.slice(0, 2) : [
-    { name: 'AMERIAN RÍO CUARTO APART & SUITES', address: 'AV. GUILLERMO MARCONI 771', phone: '08108102637' },
-    { name: 'Colores Rio Cuarto', address: 'Caseros 1012, Río Cuarto', phone: '3584225286' }
+  const fallbackAccommodation = [
+    { name: 'AMERIAN RÍO CUARTO APART & SUITES', address: 'AV. GUILLERMO MARCONI 771', phone: '08108102637', lat: -33.1235, lng: -64.3486 },
+    { name: 'Colores Rio Cuarto', address: 'Caseros 1012, Río Cuarto', phone: '3584225286', lat: -33.1260, lng: -64.3460 }
   ];
 
-  const finalRestaurants = restaurants.length > 0 ? restaurants.slice(0, 2) : [
-    { name: 'Abriles El Andino', address: 'Bv. General Roca 1020, Río Cuarto', phone: '0358 548-3882' },
-    { name: 'Al Dente Tradición Familiar', address: 'Fray Quirico Porreca 547, Río Cuarto', phone: '+54 9 358 425-5129' }
+  const fallbackRestaurants = [
+    { name: 'Abriles El Andino', address: 'Bv. General Roca 1020, Río Cuarto', phone: '0358 548-3882', lat: -33.1362, lng: -64.3470 },
+    { name: 'Al Dente Tradición Familiar', address: 'Fray Quirico Porreca 547, Río Cuarto', phone: '+54 9 358 425-5129', lat: -33.1110, lng: -64.3315 }
   ];
+
+  const computeDist = (item) => ({
+    ...item,
+    distance: getDistance(event.coords.lat, event.coords.lng, parseFloat(item.lat || item.addresses?.[0]?.latitude), parseFloat(item.lng || item.addresses?.[0]?.longitude))
+  });
+
+  const finalAccommodation = accommodation.length > 0 ? accommodation.slice(0, 2).map(computeDist) : fallbackAccommodation.map(computeDist);
+
+  const finalRestaurants = restaurants.length > 0 ? restaurants.slice(0, 2).map(computeDist) : fallbackRestaurants.map(computeDist);
 
   return (
     <div className="bg-light-gray min-vh-100 pb-5">
@@ -138,29 +147,32 @@ export default async function EventDetailPage({ params }) {
                   </button>
                 </div>
 
-                {/* Category & Title */}
-                <div className="d-flex align-items-center gap-2 mb-3">
-                    <div className="bg-pink-500 rounded-2 p-1 d-flex align-items-center justify-content-center" style={{ width: '32px', height: '32px', backgroundColor: '#f54286' }}>
-                        <i className="bi bi-star-fill text-white small"></i>
+                {/* Sticky Header block for Title and Category */}
+                <div className="position-sticky bg-white z-2" style={{ top: '80px', paddingTop: '10px', paddingBottom: '10px', marginTop: '-10px' }}>
+                    {/* Category & Title */}
+                    <div className="d-flex align-items-center gap-2 mb-3">
+                        <div className="bg-pink-500 rounded-2 p-1 d-flex align-items-center justify-content-center" style={{ width: '32px', height: '32px', backgroundColor: '#f54286' }}>
+                            <i className="bi bi-star-fill text-white small"></i>
+                        </div>
+                        <span className="text-pink-500 font-inter fw-semibold" style={{ color: '#f54286', borderBottom: '1px solid #f54286' }}>
+                            Eventos
+                        </span>
                     </div>
-                    <span className="text-pink-500 font-inter fw-semibold" style={{ color: '#f54286', borderBottom: '1px solid #f54286' }}>
-                        Eventos
-                    </span>
+                    
+                    <h1 className="display-5-custom fw-bold text-gray-900 font-inter mb-4" style={{ letterSpacing: '-1px' }}>
+                        {(() => {
+                            const connectors = ['de', 'del', 'en', 'y', 'a', 'e', 'o', 'u', 'por', 'para', 'con', 'sin', 'el', 'la', 'lo', 'los', 'las', 'un', 'una', 'unos', 'unas', 'que', 'qué', 'hay', 'vos', 'para'];
+                            const text = event.title;
+                            if (!text) return '';
+                            return text.split(' ').map((word, index) => {
+                                if (index === 0) return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                                const cleanWord = word.toLowerCase().replace(/[.,!?;:]/g, '');
+                                if (connectors.includes(cleanWord)) return word.toLowerCase();
+                                return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                            }).join(' ');
+                        })()}
+                    </h1>
                 </div>
-                
-                <h1 className="display-5-custom fw-bold text-gray-900 font-inter mb-4" style={{ letterSpacing: '-1px' }}>
-                    {(() => {
-                        const connectors = ['de', 'del', 'en', 'y', 'a', 'e', 'o', 'u', 'por', 'para', 'con', 'sin', 'el', 'la', 'lo', 'los', 'las', 'un', 'una', 'unos', 'unas', 'que', 'qué', 'hay', 'vos', 'para'];
-                        const text = event.title;
-                        if (!text) return '';
-                        return text.split(' ').map((word, index) => {
-                            if (index === 0) return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-                            const cleanWord = word.toLowerCase().replace(/[.,!?;:]/g, '');
-                            if (connectors.includes(cleanWord)) return word.toLowerCase();
-                            return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-                        }).join(' ');
-                    })()}
-                </h1>
 
                 {/* Info Bar */}
                 <div className="row g-3 mb-5 border-top border-bottom py-4 mx-0">

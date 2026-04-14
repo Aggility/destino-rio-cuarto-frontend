@@ -42,11 +42,11 @@ export default function NavBar() {
   ];
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark w-100" style={{
+    <nav className="navbar navbar-expand-lg navbar-dark w-100 position-sticky top-0" style={{
       minHeight: '97px',
       backgroundColor: '#1F2A37',
       boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-      zIndex: 1000
+      zIndex: 1040
     }}>
       <div className="container-xxl d-flex align-items-center h-100 px-lg-5">
 
