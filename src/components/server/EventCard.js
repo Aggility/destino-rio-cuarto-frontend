@@ -21,15 +21,20 @@ export default function EventCard({
 }) {
   return (
     <Link href={`/eventos/${id}`} className="text-decoration-none d-block h-100">
-      <div className="card h-100 border-0 bg-transparent shadow-none w-100" style={{ minWidth: 0 }}>
+      <div className="card h-100 border-0 bg-transparent shadow-none w-100 overflow-hidden" style={{ minWidth: 0 }}>
         
         {/* 1. Header (Thumbnail & Tag) — Figma ID I3781:19227;3389:3472 */}
-        <div className="position-relative overflow-hidden rounded-2 mb-2 card-zoom-effect w-100" style={{ height: '207px', borderRadius: '8px' }}>
+        <div className="position-relative overflow-hidden rounded-2 mb-2 card-zoom-effect w-100" 
+             style={{ 
+                aspectRatio: '16 / 10.5',
+                borderRadius: '8px',
+                width: '100%'
+             }}>
           <Image 
             src={thumbnail}
             alt={title}
             fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
             className="object-fit-cover"
             style={{ objectFit: 'cover' }}
           />
