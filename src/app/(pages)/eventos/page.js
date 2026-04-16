@@ -50,8 +50,10 @@ export default async function EventsPage() {
       category: evt.categories?.[0]?.name?.toUpperCase() || (idx % 2 === 0 ? "POP" : "KIDS"),
       typeColor: "#f54286",
       lat: evt.organization?.addresses?.[0]?.latitude,
-      lng: evt.organization?.addresses?.[0]?.longitude
+      lng: evt.organization?.addresses?.[0]?.longitude,
+      rawDate: evt.calendars?.[0]?.start_date
     };
+
   });
 
   // Fallback if empty to keep design intact

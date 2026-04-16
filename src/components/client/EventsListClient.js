@@ -38,7 +38,8 @@ export default function EventsListClient({ initialEvents }) {
       category: evt.categories?.[0]?.name?.toUpperCase() || (idx % 2 === 0 ? "POP" : "KIDS"),
       typeColor: "#f54286",
       lat: evt.organization?.addresses?.[0]?.latitude,
-      lng: evt.organization?.addresses?.[0]?.longitude
+      lng: evt.organization?.addresses?.[0]?.longitude,
+      rawDate: primaryCalendar?.start_date
     };
   };
 
@@ -82,100 +83,144 @@ export default function EventsListClient({ initialEvents }) {
     // category filter
     const matchesCategory = selectedCategory === 'Todos' || evt.category === selectedCategory;
 
-    return matchesSearch && matchesCategory;
+    // date filter
+    let matchesDate = true;
+    if (selectedDateFilter !== 'Todos' && evt.rawDate) {
+      const eventDate = new Date(evt.rawDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const eventNormalized = new Date(evt.rawDate);
+      eventNormalized.setHours(0, 0, 0, 0);
+
+      if (selectedDateFilter === 'HOY') {
+        matchesDate = eventNormalized.getTime() === today.getTime();
+      } else if (selectedDateFilter === 'Esta semana') {
+        const nextWeek = new Date(today);
+        nextWeek.setDate(today.getDate() + 7);
+        matchesDate = eventNormalized >= today && eventNormalized <= nextWeek;
+      } else if (selectedDateFilter === 'Este mes') {
+        matchesDate = eventNormalized.getMonth() === today.getMonth() && eventNormalized.getFullYear() === today.getFullYear();
+      }
+    }
+
+    return matchesSearch && matchesCategory && matchesDate;
   });
 
   const localThumbnail = "/Thumbnail.png";
 
   return (
     <>
-      {/* FILTERS SECTION — Optimizado para Mobile y Cliente */}
-      <section className="bg-white border-bottom pt-4 pb-4 pb-md-5 overflow-visible shadow-sm">
+      {/* FILTERS SECTION — Diseño Unificado y Optimizado Mobile */}
+      <section className="bg-white border-bottom pt-3 pt-md-4 pb-3 shadow-sm sticky-top-filters">
         <div className="container-xxl px-lg-5">
-          <div className="row g-3 align-items-end">
+          <div className="d-flex flex-column gap-3">
             
-            {/* Search Input */}
-            <div className="col-12 col-md-6 col-xl-5">
-              <div className="input-group">
-                <span className="input-group-text bg-gray-50 border-end-0 py-2 ps-3">
-                  <i className="bi bi-search text-muted"></i>
-                </span>
+            {/* 1. Buscador con Adaptación Mobile */}
+            <form onSubmit={(e) => e.preventDefault()} className="bg-white rounded-3 border d-flex align-items-center overflow-hidden" 
+                  style={{ height: '56px', border: '1px solid #e5e7eb' }}>
+                <div className="px-3 border-end h-100 d-flex align-items-center bg-gray-50">
+                    <i className="bi bi-search text-muted"></i>
+                </div>
                 <input 
-                   type="text" 
-                   value={searchTerm}
-                   onChange={(e) => setSearchTerm(e.target.value)}
-                   className="form-control bg-gray-50 border-start-0 border-end-0 py-2 shadow-none font-inter" 
-                   placeholder="Buscar un evento, artista, teatro..." 
-                   style={{ height: '52px' }} 
+                  type="text" 
+                  className="form-control border-0 shadow-none font-inter h-100 flex-grow-1" 
+                  placeholder="Buscar evento, artista..."
+                  style={{ fontSize: '15px' }}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
-                <button className="btn btn-primary d-md-none border-0 px-3" style={{ backgroundColor: '#f54286' }}>
-                   <i className="bi bi-search"></i>
+                <button 
+                  type="submit"
+                  className="btn h-100 px-3 px-md-4 fw-bold border-0 rounded-0 text-white" 
+                  style={{ backgroundColor: '#f54286', fontSize: '14px' }}
+                >
+                    <span className="d-none d-md-inline">BUSCAR</span>
+                    <i className="bi bi-arrow-right d-md-none"></i>
                 </button>
+            </form>
+
+            <div className="row g-4 mt-1">
+              {/* 2. Selector de Fechas (Chips) */}
+              <div className="col-12 col-lg-6">
+                <div className="d-flex flex-column gap-3">
+                  <div className="d-flex align-items-center justify-content-between px-1">
+                    <label className="font-inter fw-bold text-gray-900 mb-0" style={{ fontSize: '14px' }}>¿Cuándo?</label>
+                    <span className="text-muted d-lg-none" style={{ fontSize: '11px' }}>Desliza <i className="bi bi-chevron-right"></i></span>
+                  </div>
+                  <div className="mx-n3 px-3 overflow-auto hide-scrollbar">
+                    <div className="d-flex gap-2 pb-1">
+                      {['Todos', 'HOY', 'Esta semana', 'Este mes'].map((dateOpt) => {
+                        const isActive = selectedDateFilter === dateOpt;
+                        const label = dateOpt === 'Todos' ? 'Todas las fechas' : (dateOpt === 'HOY' ? 'Hoy' : dateOpt);
+                        return (
+                          <button
+                            key={dateOpt}
+                            onClick={() => setSelectedDateFilter(dateOpt)}
+                            className={`btn rounded-pill px-4 py-2 font-inter fw-medium transition-all ${
+                              isActive ? 'text-white shadow-sm' : 'bg-white text-gray-600'
+                            }`}
+                            style={{ 
+                              minWidth: 'fit-content', 
+                              whiteSpace: 'nowrap',
+                              backgroundColor: isActive ? '#f54286' : 'white',
+                              borderColor: isActive ? '#f54286' : '#e5e7eb',
+                              fontSize: '13px',
+                              borderWidth: '1px'
+                            }}
+                          >
+                            {label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 3. Selector de Categorías (Chips) */}
+              <div className="col-12 col-lg-6">
+                <div className="d-flex flex-column gap-3">
+                  <div className="d-flex align-items-center justify-content-between px-1">
+                    <label className="font-inter fw-bold text-gray-900 mb-0" style={{ fontSize: '14px' }}>Categoría</label>
+                    <span className="text-muted d-lg-none" style={{ fontSize: '11px' }}>Desliza <i className="bi bi-chevron-right"></i></span>
+                  </div>
+                  <div className="mx-n3 px-3 overflow-auto hide-scrollbar">
+                    <div className="d-flex gap-2 pb-1">
+                      {categories.map((cat) => {
+                        const isActive = selectedCategory === cat;
+                        return (
+                          <button
+                            key={cat}
+                            onClick={() => setSelectedCategory(cat)}
+                            className={`btn rounded-pill px-4 py-2 font-inter fw-medium transition-all ${
+                              isActive ? 'text-white shadow-sm' : 'bg-white text-gray-600'
+                            }`}
+                            style={{ 
+                              minWidth: 'fit-content', 
+                              whiteSpace: 'nowrap',
+                              backgroundColor: isActive ? '#f54286' : 'white',
+                              borderColor: isActive ? '#f54286' : '#e5e7eb',
+                              fontSize: '13px',
+                              borderWidth: '1px'
+                            }}
+                          >
+                            {cat}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Chips Scrollable Mobile */}
-            <div className="col-12 d-md-none mt-3">
-                <div className="d-flex gap-2 overflow-auto hide-scrollbar pb-2">
-                    {categories.map((cat, idx) => (
-                      <button 
-                        key={idx} 
-                        className={`btn rounded-pill px-4 btn-sm transition-all`} 
-                        style={{ 
-                          minWidth: 'fit-content',
-                          backgroundColor: selectedCategory === cat ? '#f54286' : 'transparent',
-                          color: selectedCategory === cat ? '#fff' : '#6b7280',
-                          border: `1px solid ${selectedCategory === cat ? '#f54286' : '#d1d5db'}`
-                        }}
-                        onClick={() => setSelectedCategory(cat)}
-                      >
-                        {cat}
-                      </button>
-                    ))}
-                </div>
-            </div>
-
-            {/* Desktop-only select filters */}
-            <div className="col-6 col-md-3 d-none d-md-block">
-              <label className="form-label font-inter fw-medium text-gray-700 small mb-1">Cuándo?</label>
-              <select 
-                 className="form-select bg-gray-50 py-3 shadow-none border font-inter" 
-                 style={{ height: '52px' }}
-                 value={selectedDateFilter}
-                 onChange={(e) => setSelectedDateFilter(e.target.value)}
-              >
-                <option value="Todos">Todas las fechas</option>
-                <option value="Esta semana">Esta semana</option>
-                <option value="Este mes">Este mes</option>
-              </select>
-            </div>
-
-            <div className="col-6 col-md-3 d-none d-md-block">
-              <label className="form-label font-inter fw-medium text-gray-700 small mb-1">Categoría</label>
-              <select 
-                 className="form-select bg-gray-50 py-3 shadow-none border font-inter" 
-                 style={{ height: '52px' }}
-                 value={selectedCategory}
-                 onChange={(e) => setSelectedCategory(e.target.value)}
-              >
-                {categories.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Desktop Search Button */}
-            <div className="col-12 col-xl-2 d-none d-md-block">
-              <button 
-                className="btn btn-primary w-100 fw-bold border-0 font-inter shadow-premium" 
-                style={{ height: '52px', backgroundColor: '#f54286' }}
-              >
-                FILTRAR
-              </button>
-            </div>
           </div>
         </div>
       </section>
+
+
+
 
       {/* LISTING GRID SECTION */}
       <section className="py-5 bg-listing-page">
