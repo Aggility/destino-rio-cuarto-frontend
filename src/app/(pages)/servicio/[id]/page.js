@@ -4,6 +4,7 @@ import ChatbotIcon from '@/components/server/ChatbotIcon';
 import SidebarListCard from '@/components/server/SidebarListCard';
 import ServiceListItem from '@/components/server/ServiceListItem';
 import ContactAndLocationWidget from '@/components/client/ContactAndLocationWidget';
+import EventDistanceBadge from '@/components/client/EventDistanceBadge';
 
 /**
  * ServicioDetailPage - Destino Río Cuarto
@@ -81,6 +82,9 @@ export default async function ServicioDetailPage({ params }) {
             <h1 className="display-4 fw-bold text-gray-900 font-inter mb-2" style={{ letterSpacing: '-1px' }}>
                 {service.name}
             </h1>
+            <div className="mb-3">
+                <EventDistanceBadge eventLat={service.lat} eventLng={service.lng} type="service" />
+            </div>
             <div className="d-inline-flex bg-primary-100 rounded-1 px-2 py-1 mb-3" style={{ backgroundColor: '#e1effe' }}>
                 <span className="font-inter fw-medium text-primary-800" style={{ color: '#1e429f', fontSize: '13px' }}>
                     {service.category}
@@ -102,7 +106,13 @@ export default async function ServicioDetailPage({ params }) {
                 {/* Ubicación y Contacto Component (Mini Mapa + Info + Routing) */}
                 <h2 className="h4 fw-bold font-inter text-gray-900 mb-4" style={{ fontSize: '24px' }}>Ubicación y Contacto</h2>
                 
-                <ContactAndLocationWidget service={service} />
+                <ContactAndLocationWidget 
+                    service={service} 
+                    type={
+                        service.category.toLowerCase().includes('alojamiento') ? 'alojamiento' : 
+                        service.category.toLowerCase().includes('gastronomía') ? 'gastronomia' : 'service'
+                    }
+                />
 
                 {/* Más Información */}
                 <div className="mb-5">

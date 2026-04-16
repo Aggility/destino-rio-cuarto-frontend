@@ -36,7 +36,9 @@ export default function EventsListClient({ initialEvents }) {
       description: descStr,
       thumbnail: evt.image_url || "/Thumbnail.png",
       category: evt.categories?.[0]?.name?.toUpperCase() || (idx % 2 === 0 ? "POP" : "KIDS"),
-      typeColor: "#f54286"
+      typeColor: "#f54286",
+      lat: evt.organization?.addresses?.[0]?.latitude,
+      lng: evt.organization?.addresses?.[0]?.longitude
     };
   };
 
@@ -201,6 +203,8 @@ export default function EventsListClient({ initialEvents }) {
                   thumbnail={event.thumbnail || localThumbnail}
                   category={event.category}
                   typeColor={event.typeColor}
+                  lat={event.lat}
+                  lng={event.lng}
                 />
               ))}
             </div>

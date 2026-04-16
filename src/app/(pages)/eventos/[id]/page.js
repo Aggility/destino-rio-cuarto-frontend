@@ -3,6 +3,7 @@ import Link from 'next/link';
 import ChatbotIcon from '@/components/server/ChatbotIcon';
 import EventCard from '@/components/server/EventCard';
 import EventDistanceBadge from '@/components/client/EventDistanceBadge';
+import ContactAndLocationWidget from '@/components/client/ContactAndLocationWidget';
 import { getNearbyLocations, getDistance } from '@/utils/geo';
 
 /**
@@ -172,6 +173,9 @@ export default async function EventDetailPage({ params }) {
                             }).join(' ');
                         })()}
                     </h1>
+                    <div className="mb-4">
+                        <EventDistanceBadge eventLat={event.coords.lat} eventLng={event.coords.lng} type="event" />
+                    </div>
                 </div>
 
                 {/* Info Bar */}
@@ -192,7 +196,6 @@ export default async function EventDetailPage({ params }) {
                                     {event.location}
                                 </span>
                             </div>
-                            <EventDistanceBadge eventLat={event.coords.lat} eventLng={event.coords.lng} />
                         </div>
                     </div>
                 </div>
@@ -211,17 +214,17 @@ export default async function EventDetailPage({ params }) {
 
                 {/* Location Box */}
                 <div className="mt-5 pt-4 border-top">
-                    <h2 className="font-inter fw-bold text-gray-900 mb-4" style={{ fontSize: '22px' }}>Ubicación</h2>
-                    <div className="d-flex flex-column flex-md-row gap-4 align-items-md-center bg-gray-50 p-4 rounded-4 border-1-5 border-dashed">
-                        <div className="flex-grow-1">
-                            <p className="font-inter fw-bold text-gray-900 mb-1">{event.fullLocation.name}</p>
-                            <p className="font-inter text-muted small mb-0">{event.fullLocation.address}</p>
-                            <p className="font-inter text-muted small mb-0">{event.fullLocation.city}</p>
-                        </div>
-                        <div className="rounded-3 overflow-hidden bg-white shadow-sm d-flex align-items-center justify-content-center" style={{ width: '140px', height: '100px', minWidth: '140px' }}>
-                            <i className="bi bi-geo-alt-fill text-muted fs-2"></i>
-                        </div>
-                    </div>
+                    <h2 className="font-inter fw-bold text-gray-900 mb-4" style={{ fontSize: '24px' }}>Ubicación y Contacto</h2>
+                    <ContactAndLocationWidget 
+                        service={{
+                            name: event.fullLocation.name,
+                            address: event.fullLocation.address,
+                            lat: event.coords.lat,
+                            lng: event.coords.lng,
+                            phones: eventData?.organization?.phone ? [eventData.organization.phone] : []
+                        }} 
+                        type="event" 
+                    />
                 </div>
             </div>
           </div>

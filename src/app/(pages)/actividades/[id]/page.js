@@ -3,6 +3,7 @@ import Link from 'next/link';
 import ChatbotIcon from '@/components/server/ChatbotIcon';
 import EventCard from '@/components/server/EventCard';
 import SidebarListCard from '@/components/server/SidebarListCard';
+import EventDistanceBadge from '@/components/client/EventDistanceBadge';
 
 /**
  * ActivityDetailPage - Destino Río Cuarto
@@ -80,6 +81,9 @@ export default async function ActivityDetailPage({ params }) {
                   }).join(' ');
               })()}
             </h1>
+            <div className="mt-3">
+               <EventDistanceBadge eventLat={activity.location?.lat} eventLng={activity.location?.lng} type="activity" />
+            </div>
           </div>
         </div>
       </section>

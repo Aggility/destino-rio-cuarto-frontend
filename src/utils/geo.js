@@ -1,25 +1,32 @@
 /**
- * Calcula la distancia entre dos puntos geográficos usando la fórmula de Haversine.
+ * Calcula la distancia entre dos puntos geográficos usando la fórmula de MapLibre (Spherical Law of Cosines).
  * @param {number} lat1 - Latitud del punto 1
  * @param {number} lon1 - Longitud del punto 1
  * @param {number} lat2 - Latitud del punto 2
  * @param {number} lon2 - Longitud del punto 2
- * @returns {number} Distancia en metros
+ * @returns {number|null} Distancia en metros o null si los datos son inválidos
  */
 export function getDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371e3; // Radio de la Tierra en metros
-    const φ1 = lat1 * Math.PI / 180;
-    const φ2 = lat2 * Math.PI / 180;
-    const Δφ = (lat2 - lat1) * Math.PI / 180;
-    const Δλ = (lon2 - lon1) * Math.PI / 180;
+    const l1 = parseFloat(lat1);
+    const n1 = parseFloat(lon1);
+    const l2 = parseFloat(lat2);
+    const n2 = parseFloat(lon2);
 
-    const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-              Math.cos(φ1) * Math.cos(φ2) *
-              Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    if (isNaN(l1) || isNaN(n1) || isNaN(l2) || isNaN(n2)) return null;
+
+    const R = 6371000; // Radio de la Tierra en metros (Estándar MapLibre)
+    const rad = Math.PI / 180;
     
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const lat1Rad = l1 * rad;
+    const lat2Rad = l2 * rad;
+    
+    const a = Math.sin(lat1Rad) * Math.sin(lat2Rad) +
+              Math.cos(lat1Rad) * Math.cos(lat2Rad) * Math.cos((n2 - n1) * rad);
 
-    return R * c; // Distancia en metros
+    // Clamp value between -1 and 1 to avoid NaN from rounding errors in acos
+    const maxA = Math.max(-1, Math.min(1, a));
+    
+    return R * Math.acos(maxA);
 }
 
 /**

@@ -1,6 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import EventDistanceBadge from '@/components/client/EventDistanceBadge';
 
 /**
  * EventCard - Destino Río Cuarto
@@ -14,7 +15,9 @@ export default function EventCard({
   description = "Llego Iván Noble a la esquina de Elvis con “canciones traspapeladas”", 
   category = "Evento",
   typeColor = "#1a56d8",
-  thumbnail = "/Thumbnail.png" 
+  thumbnail = "/Thumbnail.png",
+  lat = null,
+  lng = null
 }) {
   return (
     <Link href={`/eventos/${id}`} className="text-decoration-none d-block h-100">
@@ -53,16 +56,20 @@ export default function EventCard({
 
           {/* Title — Figma ID I3781:19227;3389:3478 */}
           <h3 className="h5 fw-semibold text-gray-900 mb-1 font-inter text-truncate w-100" style={{ 
-            fontSize: 'clamp(18px, 5vw, 22px)', 
-            letterSpacing: '-0.66px',
+            fontSize: 'clamp(15px, 4vw, 22px)', 
+            letterSpacing: '-0.5px',
             lineHeight: '1.2'
           }}>
             {title}
           </h3>
 
+          <div className="mb-2">
+            <EventDistanceBadge eventLat={lat} eventLng={lng} type="event" minimal={true} />
+          </div>
+
           {/* Location — Figma ID I3781:19227;3389:3480 */}
-          <p className="text-gray-800 mb-1 font-inter text-truncate w-100" style={{ fontSize: 'clamp(14px, 4vw, 16px)', fontWeight: 400 }}>
-            {location}
+          <p className="text-gray-800 mb-1 font-inter text-truncate w-100" style={{ fontSize: 'clamp(12px, 3.5vw, 16px)', fontWeight: 400 }}>
+            <i className="bi bi-geo-alt me-1"></i>{location}
           </p>
 
           {/* Description — Figma ID I3781:19227;3679:33962 */}

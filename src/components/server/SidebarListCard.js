@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import EventDistanceBadge from '@/components/client/EventDistanceBadge';
 
 /**
  * SidebarListCard - Destino Río Cuarto
@@ -13,7 +14,9 @@ export default function SidebarListCard({
   subtitle = "Lugar o ubicación",
   badge = "10 NOV",
   thumbnail = "/Thumbnail.png",
-  href = "#"
+  href = "#",
+  lat = null,
+  lng = null
 }) {
   const isActivity = type === "activity";
   
@@ -45,6 +48,7 @@ export default function SidebarListCard({
                style={{ fontSize: '14px', lineHeight: '1.3' }}>
               {subtitle}
             </p>
+            <EventDistanceBadge eventLat={lat} eventLng={lng} minimal={true} type={isActivity ? "activity" : "event"} />
           </div>
 
           <div className="d-inline-flex px-2 py-1 rounded-1 mt-1 w-fit-content" 

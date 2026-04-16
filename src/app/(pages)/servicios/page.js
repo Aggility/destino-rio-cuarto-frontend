@@ -91,18 +91,6 @@ export default async function ServiciosPage() {
             {/* MAIN LIST */}
             <div className="col-12 col-xl-8">
               <ServicesListClient initialServices={services} />
-
-              {/* LOAD MORE */}
-              <div className="text-center mt-5">
-                <button className="btn btn-outline-primary px-5 py-2 rounded-2 shadow-premium fw-bold" style={{ 
-                   minWidth: '220px',
-                   height: '56px',
-                   borderColor: '#1a56db',
-                   color: '#1a56d8'
-                }}>
-                  CARGAR MÁS RESULTADOS
-                </button>
-              </div>
             </div>
 
             {/* SIDEBAR DETACHED FOR MOBILE (Implicit Bootstrap) */}
