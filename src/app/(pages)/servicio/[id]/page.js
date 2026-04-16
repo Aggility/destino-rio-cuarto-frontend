@@ -42,19 +42,64 @@ export default async function ServicioDetailPage({ params }) {
     image: orgData?.image_url || '/Thumbnail.png'
   };
 
-  // Mocks para 'Otras ubicaciones'
-  const relatedServices = [
-    { title: '3G Bebidas S.A.S', category: 'Tienda de Bebidas', address: 'Hipólito Irigoyen 3076, Río Cuarto', phone: '358 475-4624 / 358 422-1360', thumbnail: '/Thumbnail.png' },
-    { title: '3G Bebidas S.A.S', category: 'Tienda de Bebidas', address: 'Hipólito Irigoyen 3076, Río Cuarto', phone: '358 475-4624 / 358 422-1360', thumbnail: '/Thumbnail.png' },
-    { title: '3G Bebidas S.A.S', category: 'Tienda de Bebidas', address: 'Hipólito Irigoyen 3076, Río Cuarto', phone: '358 475-4624 / 358 422-1360', thumbnail: '/Thumbnail.png' },
-    { title: '3G Bebidas S.A.S', category: 'Tienda de Bebidas', address: 'Hipólito Irigoyen 3076, Río Cuarto', phone: '358 475-4624 / 358 422-1360', thumbnail: '/Thumbnail.png' }
+  // 3. Obtener Datos para Recomendaciones (Eventos y Organizaciones Relacionadas)
+  let nearbyEvents = [];
+  let relatedOrgs = [];
+
+  try {
+    // Buscar eventos cercanos
+    const resEvents = await fetch(`http://destbackdev.aggility.io/api/v1/events`, { cache: 'no-store' });
+    if (resEvents.ok) {
+       const allEvents = (await resEvents.json()).data || [];
+       const formattedEvents = allEvents.map(ev => ({
+         ...ev,
+         lat: ev.organization?.addresses?.[0]?.latitude,
+         lng: ev.organization?.addresses?.[0]?.longitude
+       }));
+       // Filtrar por cercanía (3km)
+       const center = { lat: service.lat, lng: service.lng };
+       const nearby = getNearbyLocations(center, formattedEvents, 3000);
+       
+       nearbyEvents = nearby.slice(0, 3).map(ev => ({
+         id: ev.id,
+         title: ev.title,
+         subtitle: ev.organization?.name || 'Río Cuarto',
+         badge: ev.calendars?.[0]?.start_date ? new Date(ev.calendars[0].start_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' }).toUpperCase() : 'PRÓXIMAMENTE',
+         type: 'event',
+         thumbnail: ev.image_url || '/Thumbnail.png',
+         lat: ev.lat,
+         lng: ev.lng
+       }));
+    }
+
+    // Buscar organizaciones relacionadas (mismo rubro)
+    const resOrgs = await fetch(`http://destbackdev.aggility.io/api/v1/organizations?per_page=50`, { cache: 'no-store' });
+    if (resOrgs.ok) {
+        const allOrgs = (await resOrgs.json()).data || [];
+        relatedOrgs = allOrgs
+          .filter(org => org.id !== service.id && org.categories?.some(c => c.name === service.category))
+          .slice(0, 4)
+          .map(org => ({
+            id: org.id,
+            title: org.name,
+            category: org.categories?.[0]?.name || 'Servicio',
+            address: org.addresses?.[0]?.address?.split(',')[0] || 'Río Cuarto',
+            phone: org.phone || 'Consultar contacto',
+            thumbnail: org.image_url || '/Thumbnail.png'
+          }));
+    }
+  } catch (err) {
+    console.error("Error fetching recommendations:", err);
+  }
+
+  // Fallbacks si no hay datos reales suficientes
+  const finalRelated = relatedOrgs.length > 0 ? relatedOrgs : [
+    { title: '3G Bebidas S.A.S', category: 'Tienda de Bebidas', address: 'Hipólito Irigoyen 3076, Río Cuarto', phone: '358 475-4624', thumbnail: '/Thumbnail.png' },
+    { title: '3G Bebidas S.A.S', category: 'Tienda de Bebidas', address: 'Hipólito Irigoyen 3076, Río Cuarto', phone: '358 475-4624', thumbnail: '/Thumbnail.png' }
   ];
 
-  // Mocks para 'También te puede interesar'
-  const suggestedEvents = [
-    { title: 'Event Name', subtitle: 'Opus Costanera', badge: '10 NOV', type: 'event', thumbnail: '/Thumbnail.png', href: '#' },
-    { title: 'Event Name', subtitle: 'Opus Costanera', badge: '10 NOV', type: 'event', thumbnail: '/Thumbnail.png', href: '#' },
-    { title: 'Event Name', subtitle: 'Opus Costanera', badge: '10 NOV', type: 'event', thumbnail: '/Thumbnail.png', href: '#' }
+  const finalEvents = nearbyEvents.length > 0 ? nearbyEvents : [
+    { title: 'Cine Bajo las Estrellas', subtitle: 'Parque Sarmiento', badge: '15 DIC', type: 'event', thumbnail: '/Thumbnail.png', href: '#' }
   ];
 
   const suggestedActivities = [
@@ -126,10 +171,10 @@ export default async function ServicioDetailPage({ params }) {
                 <div className="p-4 p-md-5 rounded-4 shadow-sm" style={{ backgroundColor: '#f0f7ff', border: '1px solid #e1effe' }}>
                     <h3 className="fw-bold font-inter mb-4" style={{ color: '#1e429f', fontSize: '22px' }}>Otras ubicaciones relacionadas</h3>
                     <div className="row g-3 mb-4">
-                        {relatedServices.map((rs, i) => (
+                        {finalRelated.map((rs, i) => (
                             <div className="col-12 col-md-6" key={i}>
                                 <ServiceListItem 
-                                    id={i + 1}
+                                    id={rs.id}
                                     title={rs.title}
                                     category={rs.category}
                                     address={rs.address}

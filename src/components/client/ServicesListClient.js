@@ -41,10 +41,10 @@ export default function ServicesListClient({ initialServices }) {
     const nextPage = currentPage + 1;
     
     try {
-      const res = await fetch(`/api/organizations?page=${nextPage}`);
+      const res = await fetch(`/api/organizations?page=${nextPage}&per_page=20`);
       if (res.ok) {
         const data = await res.json();
-        const newApiOrgs = Array.isArray(data) ? data : (data.data || []);
+        const newApiOrgs = data.data || (Array.isArray(data) ? data : []);
         
         if (newApiOrgs.length === 0) {
           setHasMore(false);
@@ -62,7 +62,11 @@ export default function ServicesListClient({ initialServices }) {
           
           setServices(prev => [...prev, ...formatted]);
           setCurrentPage(nextPage);
-          if (newApiOrgs.length < 15) setHasMore(false);
+          
+          // Verificar si hay más páginas
+          if (data.current_page >= data.last_page || newApiOrgs.length < 20) {
+            setHasMore(false);
+          }
         }
       }
     } catch (error) {
