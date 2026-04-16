@@ -180,7 +180,12 @@ export default function EventsListClient({ initialEvents }) {
       {/* LISTING GRID SECTION */}
       <section className="py-5 bg-listing-page">
         <div className="container-xxl px-lg-5">
-          <h2 className="font-inter fw-bold text-gray-900 mb-4" style={{ fontSize: 'clamp(22px, 3.5vw, 28px)', letterSpacing: '-0.5px' }}>
+          <h2 className="font-inter fw-bold text-gray-900 mb-4" 
+              style={{ 
+                fontSize: 'clamp(28px, 7vw, 36px)', 
+                letterSpacing: '-1px',
+                lineHeight: '1.1'
+              }}>
               Descubrí más Eventos
           </h2>
           

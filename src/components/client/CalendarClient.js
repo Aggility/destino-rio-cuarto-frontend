@@ -84,7 +84,12 @@ export default function CalendarClient({ initialEvents = [] }) {
             <div className="d-flex flex-column gap-4">
                 <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                     <div>
-                        <h1 className="display-6 fw-bold text-gray-900 font-inter mb-1" style={{ letterSpacing: '-1.2px' }}>
+                        <h1 className="fw-bold text-gray-900 font-inter mb-1" 
+                            style={{ 
+                                fontSize: 'clamp(32px, 8vw, 42px)', 
+                                letterSpacing: '-1.5px',
+                                lineHeight: '1.1'
+                            }}>
                             Agenda de Eventos
                         </h1>
                         <p className="text-muted small mb-0 font-inter">Descubrí qué hacer en la ciudad día por día.</p>
