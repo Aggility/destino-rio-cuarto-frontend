@@ -64,11 +64,11 @@ export default function EventDistanceBadge({ eventLat, eventLng, distance: initi
 
   if (minimal) {
     return (
-      <div className="d-flex align-items-center gap-2 mt-1 flex-nowrap overflow-hidden">
-        <span className="font-inter fw-bold d-flex align-items-center gap-1" style={{ fontSize: '11px', color: theme.dark, whiteSpace: 'nowrap' }}>
+      <div className="d-flex align-items-center gap-x-2 gap-y-1 mt-1 flex-wrap overflow-hidden" style={{ minWidth: 0 }}>
+        <span className="font-inter fw-bold d-flex align-items-center gap-1" style={{ fontSize: '10px', color: theme.dark, whiteSpace: 'nowrap' }}>
           <i className="bi bi-car-front-fill" style={{ color: theme.color }}></i> {drivingTime}m <small className="opacity-50 fw-normal">({formatDist(drivingDist)})</small>
         </span>
-        <span className="font-inter fw-bold d-flex align-items-center gap-1" style={{ fontSize: '11px', color: theme.dark, whiteSpace: 'nowrap' }}>
+        <span className="font-inter fw-bold d-flex align-items-center gap-1" style={{ fontSize: '10px', color: theme.dark, whiteSpace: 'nowrap' }}>
           <i className="bi bi-person-walking" style={{ color: theme.color }}></i> {walkingTime}m <small className="opacity-50 fw-normal">({formatDist(walkingDist)})</small>
         </span>
       </div>
