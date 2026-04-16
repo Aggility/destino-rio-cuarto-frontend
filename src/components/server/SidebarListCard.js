@@ -18,7 +18,6 @@ export default function SidebarListCard({
   lat = null,
   lng = null
 }) {
-}) {
   const isActivity = type === "activity";
   const isService = type === "service";
   
@@ -31,14 +30,14 @@ export default function SidebarListCard({
   const theme = getColors();
 
   return (
-    <Link href={href} className="sidebar-list-card text-decoration-none transition-all hover-lift d-block group">
-      <div className="d-flex align-items-center gap-3 py-2">
+    <Link href={href} className="sidebar-list-card text-decoration-none transition-all hover-lift d-block group overflow-hidden">
+      <div className="d-flex align-items-center gap-2 py-2">
         
         {/* Thumbnail - Diferentes proporciones según tipo */}
         <div className="flex-shrink-0 overflow-hidden rounded-2 shadow-sm card-zoom-effect" 
              style={{ 
-                width: isActivity || isService ? '100px' : '83px', 
-                height: '83px' 
+                width: '80px', 
+                height: '80px' 
              }}>
           <img 
             src={thumbnail} 
@@ -49,30 +48,32 @@ export default function SidebarListCard({
 
         {/* Content */}
         <div className="flex-grow-1 d-flex flex-column gap-1 min-w-0">
-          <div className="min-w-0">
-            <h5 className="font-inter fw-bold text-gray-900 mb-0 text-truncate" 
-                style={{ fontSize: '15px', lineHeight: '1.3' }}>
+          <div className="min-w-0 overflow-hidden">
+            <h5 className="font-inter fw-bold text-gray-900 mb-0 text-truncate w-100" 
+                style={{ fontSize: '14px', lineHeight: '1.2' }}>
               {title}
             </h5>
-            <p className="font-inter text-gray-700 mb-0 text-truncate" 
-               style={{ fontSize: '14px', lineHeight: '1.3' }}>
+            <p className="font-inter text-gray-500 mb-0 text-truncate w-100" 
+               style={{ fontSize: '13px', lineHeight: '1.2' }}>
               {subtitle}
             </p>
-            <EventDistanceBadge eventLat={lat} eventLng={lng} minimal={true} type={type} />
+            <div className="mt-1">
+              <EventDistanceBadge eventLat={lat} eventLng={lng} minimal={true} type={type} />
+            </div>
           </div>
 
-          <div className="d-inline-flex px-2 py-1 rounded-1 mt-1 w-fit-content" 
+          <div className="d-inline-flex px-2 py-0-5 rounded-1 mt-1 w-fit-content" 
                style={{ backgroundColor: isService ? '#e1effe' : (isActivity ? '#8a38f5' : '#f54286'), width: 'fit-content' }}>
             <span className="font-inter fw-bold shadow-sm" 
-                  style={{ fontSize: '10px', lineHeight: '1', color: isService ? '#1a56db' : 'white' }}>
+                  style={{ fontSize: '9px', lineHeight: '1.2', color: isService ? '#1a56db' : 'white' }}>
               {badge.toUpperCase()}
             </span>
           </div>
         </div>
 
         {/* Arrow (Figma I3804:30290;3613:24634) */}
-        <div className="ms-2 opacity-50 group-hover:opacity-100 transition-opacity d-none d-sm-block">
-            <i className="bi bi-chevron-right" style={{ color: theme.arrow }}></i>
+        <div className="ms-auto ps-1 opacity-25 group-hover:opacity-100 transition-opacity d-none d-sm-block">
+            <i className="bi bi-chevron-right" style={{ color: theme.arrow, fontSize: '12px' }}></i>
         </div>
       </div>
     </Link>

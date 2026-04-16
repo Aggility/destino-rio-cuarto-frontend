@@ -51,46 +51,12 @@ export default async function ServiciosPage() {
       {/* GLOBAL HERO SECTION */}
       <HeroHome initialSlug="servicios" />
 
-      {/* 3. FILTERS & SEARCH */}
-      <section className="bg-white border-bottom pt-4 pb-4 pb-md-5 overflow-visible shadow-sm">
-        <div className="container-xxl px-lg-5">
-          <div className="row g-3 align-items-end">
-             {/* Search Input */}
-             <div className="col-12 col-xl-8">
-              <div className="input-group">
-                <span className="input-group-text bg-gray-50 border-end-0 py-2 ps-3">
-                  <i className="bi bi-search text-muted"></i>
-                </span>
-                <input type="text" className="form-control bg-gray-50 border-start-0 border-end-0 py-2 shadow-none font-inter" 
-                       placeholder="¿Qué estás buscando? (Ej: Hotel, Parrilla, Taxi)" style={{ height: '52px' }} />
-                <button className="btn btn-primary border-0 px-4 fw-bold" style={{ backgroundColor: '#1a56db' }}>
-                   BUSCAR
-                </button>
-              </div>
-            </div>
-
-            {/* Chips Scrollable (Categorías) */}
-            <div className="col-12 mt-3">
-                <div className="d-flex gap-2 overflow-auto hide-scrollbar pb-2">
-                    <button className="btn btn-primary rounded-pill px-4 btn-sm fw-bold" style={{ minWidth: 'fit-content' }}>Todos</button>
-                    {categories.map((cat, idx) => (
-                        <button key={idx} className="btn btn-outline-secondary rounded-pill px-4 btn-sm fw-medium shadow-sm transition-all hover-lift" 
-                                style={{ minWidth: 'fit-content', backgroundColor: 'white' }}>
-                            {cat}
-                        </button>
-                    ))}
-                </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* 4. CONTENT GRID */}
       <section className="py-5 bg-listing-page">
         <div className="container-xxl px-lg-5">
           <div className="row g-5">
             
-            {/* MAIN LIST */}
+            {/* MAIN LIST & FILTERS */}
             <div className="col-12 col-xl-8">
               <ServicesListClient initialServices={services} />
             </div>

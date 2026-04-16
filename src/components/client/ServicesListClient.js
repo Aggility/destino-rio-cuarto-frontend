@@ -98,23 +98,42 @@ export default function ServicesListClient({ initialServices }) {
   }, [userLocation, services]);
 
   const [selectedFilter, setSelectedFilter] = useState('Todos');
+  const [searchTerm, setSearchTerm] = useState('');
 
-  // Obtener categorías únicas presentes en la lista actual
-  const uniqueCategories = Array.from(new Set(services.map(s => s.category))).filter(Boolean).sort();
-  const filters = ['Todos', 'Cercanos', ...uniqueCategories];
+  // Chips definidos por el usuario + Dinámicos si hay más
+  const staticFilters = ['Todos', 'Cercanos', 'Comer', 'Dormir', 'Disfrutar', 'Viajar', 'Servicios generales o al turista'];
+  const uniqueApiCategories = Array.from(new Set(services.map(s => s.category))).filter(c => !staticFilters.includes(c));
+  const allFilters = [...staticFilters, ...uniqueApiCategories];
 
   // Aplicar filtrado y ordenamiento dinámico
   const getFilteredServices = () => {
     let result = [...services];
     
+    // 1. Filtro por búsqueda de texto
+    if (searchTerm.trim() !== '') {
+      const term = searchTerm.toLowerCase();
+      result = result.filter(s => 
+        s.title.toLowerCase().includes(term) || 
+        s.category.toLowerCase().includes(term) ||
+        s.address.toLowerCase().includes(term)
+      );
+    }
+
+    // 2. Filtro por chips
     if (selectedFilter === 'Cercanos') {
-      // Filtrar los que tienen distancia conocida y ordenar
       return result
         .filter(s => s.distance !== undefined && s.distance !== null)
         .sort((a, b) => a.distance - b.distance);
     } else if (selectedFilter !== 'Todos') {
-      // Filtrar por categoría
-      result = result.filter(s => s.category === selectedFilter);
+      // Mapeo flexible para categorías comunes
+      const filterLower = selectedFilter.toLowerCase();
+      result = result.filter(s => {
+        const catLower = s.category.toLowerCase();
+        if (filterLower === 'comer') return catLower.includes('gastro') || catLower.includes('restaurante') || catLower.includes('comer') || catLower.includes('parrilla');
+        if (filterLower === 'dormir') return catLower.includes('alojamiento') || catLower.includes('hotel') || catLower.includes('dormir');
+        if (filterLower === 'viajar') return catLower.includes('transporte') || catLower.includes('agencia') || catLower.includes('viaje');
+        return catLower === filterLower;
+      });
     }
     
     return result;
@@ -125,15 +144,32 @@ export default function ServicesListClient({ initialServices }) {
   return (
     <div className="d-flex flex-column gap-4">
       
-      {/* Selector de Categorías (Chips) */}
-      <div className="d-flex gap-2 overflow-auto hide-scrollbar pb-2 mb-2">
-        {filters.map((filter) => {
+      {/* 1. Buscador (Estilo Foto) */}
+      <div className="bg-white rounded-2 shadow-sm border d-flex align-items-center overflow-hidden mb-2" style={{ height: '60px' }}>
+          <div className="px-3 border-end h-100 d-flex align-items-center bg-gray-50">
+              <i className="bi bi-search text-muted"></i>
+          </div>
+          <input 
+            type="text" 
+            className="form-control border-0 shadow-none font-inter h-100" 
+            placeholder="¿Qué estás buscando? (Ej: Hotel, Parrilla, Taxi)"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <button className="btn btn-primary h-100 px-4 fw-bold border-0 rounded-0" style={{ backgroundColor: '#1a56db', minWidth: '130px' }}>
+              BUSCAR
+          </button>
+      </div>
+
+      {/* 2. Selector de Categorías (Chips del diseño) */}
+      <div className="d-flex gap-2 overflow-auto hide-scrollbar pb-2">
+        {allFilters.map((filter) => {
           const isActive = selectedFilter === filter;
           return (
             <button
               key={filter}
               onClick={() => setSelectedFilter(filter)}
-              className={`btn rounded-pill px-4 py-2 font-inter fw-medium transition-all shadow-premium-subtle ${
+              className={`btn rounded-pill px-4 py-2 font-inter fw-medium transition-all ${
                 isActive ? 'btn-primary text-white' : 'btn-outline-secondary bg-white text-muted'
               }`}
               style={{ 
@@ -141,18 +177,18 @@ export default function ServicesListClient({ initialServices }) {
                 whiteSpace: 'nowrap',
                 backgroundColor: isActive ? '#1a56db' : 'white',
                 borderColor: isActive ? '#1a56db' : '#dee2e6',
-                fontSize: '14px'
+                fontSize: '14px',
+                borderWidth: '1px'
               }}
             >
-              {filter === 'Cercanos' && <i className="bi bi-geo-alt-fill me-1"></i>}
               {filter}
             </button>
           );
         })}
       </div>
 
-      {/* Lista de Servicios Filtrada */}
-      <div className="d-flex flex-column gap-3">
+      {/* 3. Lista de Resultados */}
+      <div className="d-flex flex-column gap-3 mt-2">
         {filteredServices.length > 0 ? (
           filteredServices.map((service, idx) => (
             <ServiceListItem 
@@ -171,17 +207,12 @@ export default function ServicesListClient({ initialServices }) {
         ) : (
           <div className="text-center py-5 bg-white rounded-4 border shadow-sm">
             <i className="bi bi-search fs-1 text-muted mb-3 d-block"></i>
-            <p className="text-muted font-inter">No se encontraron servicios en esta categoría.</p>
-            {selectedFilter === 'Cercanos' && (
-              <p className="small text-primary" style={{ cursor: 'pointer' }} onClick={() => window.dispatchEvent(new CustomEvent('open_geo_popup'))}>
-                ¿Activaste tu ubicación?
-              </p>
-            )}
+            <p className="text-muted font-inter">No se encontraron servicios que coincidan con tu búsqueda.</p>
           </div>
         )}
       </div>
 
-      {hasMore && selectedFilter === 'Todos' && (
+      {hasMore && selectedFilter === 'Todos' && searchTerm === '' && (
         <div className="text-center mt-4">
           <button 
             onClick={loadMoreServices}
