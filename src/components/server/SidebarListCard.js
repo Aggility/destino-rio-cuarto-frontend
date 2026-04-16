@@ -18,8 +18,18 @@ export default function SidebarListCard({
   lat = null,
   lng = null
 }) {
+}) {
   const isActivity = type === "activity";
+  const isService = type === "service";
   
+  const getColors = () => {
+    if (isActivity) return { bg: '#8a38f5', text: '#white', arrow: '#8a38f5' };
+    if (isService) return { bg: '#ebf5ff', text: '#1a56db', arrow: '#1a56db' };
+    return { bg: '#fdf2f8', text: '#f54286', arrow: '#f54286' }; // Default event (pink)
+  };
+
+  const theme = getColors();
+
   return (
     <Link href={href} className="sidebar-list-card text-decoration-none transition-all hover-lift d-block group">
       <div className="d-flex align-items-center gap-3 py-2">
@@ -27,7 +37,7 @@ export default function SidebarListCard({
         {/* Thumbnail - Diferentes proporciones según tipo */}
         <div className="flex-shrink-0 overflow-hidden rounded-2 shadow-sm card-zoom-effect" 
              style={{ 
-                width: isActivity ? '122px' : '83px', 
+                width: isActivity || isService ? '100px' : '83px', 
                 height: '83px' 
              }}>
           <img 
@@ -48,21 +58,21 @@ export default function SidebarListCard({
                style={{ fontSize: '14px', lineHeight: '1.3' }}>
               {subtitle}
             </p>
-            <EventDistanceBadge eventLat={lat} eventLng={lng} minimal={true} type={isActivity ? "activity" : "event"} />
+            <EventDistanceBadge eventLat={lat} eventLng={lng} minimal={true} type={type} />
           </div>
 
           <div className="d-inline-flex px-2 py-1 rounded-1 mt-1 w-fit-content" 
-               style={{ backgroundColor: !isActivity ? '#f54286' : '#374151', width: 'fit-content' }}>
-            <span className="font-inter fw-medium text-white shadow-sm" 
-                  style={{ fontSize: '12px', lineHeight: '1' }}>
-              {badge}
+               style={{ backgroundColor: isService ? '#e1effe' : (isActivity ? '#8a38f5' : '#f54286'), width: 'fit-content' }}>
+            <span className="font-inter fw-bold shadow-sm" 
+                  style={{ fontSize: '10px', lineHeight: '1', color: isService ? '#1a56db' : 'white' }}>
+              {badge.toUpperCase()}
             </span>
           </div>
         </div>
 
         {/* Arrow (Figma I3804:30290;3613:24634) */}
         <div className="ms-2 opacity-50 group-hover:opacity-100 transition-opacity d-none d-sm-block">
-            <i className="bi bi-chevron-right" style={{ color: !isActivity ? '#f54286' : '#1a56db' }}></i>
+            <i className="bi bi-chevron-right" style={{ color: theme.arrow }}></i>
         </div>
       </div>
     </Link>

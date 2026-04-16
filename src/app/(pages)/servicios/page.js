@@ -1,7 +1,7 @@
 import React from 'react';
 import ServiceListItem from '@/components/server/ServiceListItem';
 import ServicesListClient from '@/components/client/ServicesListClient';
-import EventCard from '@/components/server/EventCard';
+import SidebarListCard from '@/components/server/SidebarListCard';
 import ChatbotIcon from '@/components/server/ChatbotIcon';
 import HeroHome from '@/components/server/HeroHome';
 
@@ -33,12 +33,14 @@ export default async function ServiciosPage() {
   }));
 
   const services = formattedServices.length > 0 ? formattedServices : [
-    { id: 1, title: '3G Bebidas S.A.S', category: 'Tienda de Bebidas', address: 'Hipólito Irigoyen 3076, Río Cuarto', phone: '358 475-4624' },
-    { id: 2, title: 'A Mi Manera', category: 'Casa de té', address: 'Alvear 734, Río Cuarto', phone: '358 462-1360' },
-    { id: 3, title: 'Hotel Opera', category: 'Alojamiento', address: '25 de Mayo 55, Río Cuarto', phone: '358 464-1011' },
-    { id: 4, title: 'Restaurante Central', category: 'Gastronomía', address: 'Sobremonte 654, Río Cuarto', phone: '358 462-0012' },
-    { id: 5, title: 'Alquiler de Autos RC', category: 'Transporte', address: 'Aeropuerto Local, Río Cuarto', phone: '358 465-9876' },
+    { id: '1', title: '3G Bebidas S.A.S', category: 'Tienda de Bebidas', address: 'Hipólito Irigoyen 3076, Río Cuarto', phone: '358 475-4624' },
+    { id: '2', title: 'A Mi Manera', category: 'Casa de té', address: 'Alvear 734, Río Cuarto', phone: '358 462-1360' },
+    { id: '3', title: 'Hotel Opera', category: 'Alojamiento', address: '25 de Mayo 55, Río Cuarto', phone: '358 464-1011' },
+    { id: '4', title: 'Restaurante Central', category: 'Gastronomía', address: 'Sobremonte 654, Río Cuarto', phone: '358 462-0012' },
+    { id: '5', title: 'Alquiler de Autos RC', category: 'Transporte', address: 'Aeropuerto Local, Río Cuarto', phone: '358 465-9876' },
   ];
+
+  const topSearched = services.slice(0, 5);
 
   const categories = ["Comer", "Dormir", "Disfrutar", "Viajar", "Servicios generales o al turista"];
   const localThumbnail = "/Thumbnail.png";
@@ -93,33 +95,31 @@ export default async function ServiciosPage() {
               <ServicesListClient initialServices={services} />
             </div>
 
-            {/* SIDEBAR DETACHED FOR MOBILE (Implicit Bootstrap) */}
+            {/* SIDEBAR */}
             <div className="col-12 col-xl-4">
-               <div className="p-4 bg-white rounded-4 border shadow-premium position-sticky" style={{ top: '120px', zIndex: 10 }}>
+               <div className="p-4 bg-white rounded-4 border shadow-sm position-sticky" style={{ top: '120px', zIndex: 10 }}>
                   <h3 className="font-inter fw-bold text-gray-900 mb-4" style={{ fontSize: '24px', letterSpacing: '-0.5px' }}>
-                    Destacados de la semana
+                    Más Buscados
                   </h3>
                   
-                  <div className="d-flex flex-column gap-4">
-                    <EventCard 
-                      title="Hotel Opera"
-                      date="RECOMENDADO"
-                      location="25 de Mayo 55"
-                      category="ALOJAMIENTO"
-                      thumbnail={localThumbnail}
-                      description="El hotel más emblemático del centro de la ciudad."
-                    />
-                    <EventCard 
-                      title="Restaurante Central"
-                      date="RECOMENDADO"
-                      location="Sobremonte 654"
-                      category="GASTRONOMÍA"
-                      thumbnail={localThumbnail}
-                      description="Sabor regional y platos gourmet en un ambiente familiar."
-                    />
+                  <div className="d-flex flex-column gap-2 mb-4">
+                    {topSearched.map((s, idx) => (
+                      <SidebarListCard 
+                        key={s.id || idx}
+                        id={s.id}
+                        title={s.title}
+                        subtitle={s.address}
+                        badge={s.category}
+                        type="service"
+                        thumbnail={s.thumbnail || localThumbnail}
+                        href={`/servicio/${s.id}`}
+                        lat={s.lat}
+                        lng={s.lng}
+                      />
+                    ))}
                   </div>
 
-                  <div className="mt-5 p-4 bg-blue-50 rounded-4 text-center border border-blue-100 shadow-sm" style={{ backgroundColor: '#f0f7ff' }}>
+                  <div className="mt-4 p-4 bg-blue-50 rounded-4 text-center border border-blue-100 shadow-sm" style={{ backgroundColor: '#f0f7ff' }}>
                     <h4 className="font-inter fw-bold text-primary mb-2">¿Sumamos tu negocio?</h4>
                     <p className="small text-gray-600 font-inter mb-4">Llegá a más turistas y vecinos registrando tu comercio gratis.</p>
                     <button className="btn btn-primary w-100 rounded-3 shadow-premium py-2 fw-bold" style={{ backgroundColor: '#1a56db' }}>

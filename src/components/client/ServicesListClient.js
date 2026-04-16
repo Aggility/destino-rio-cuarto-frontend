@@ -97,24 +97,91 @@ export default function ServicesListClient({ initialServices }) {
     }
   }, [userLocation, services]);
 
-  return (
-    <div className="d-flex flex-column gap-3">
-      {services.map((service, idx) => (
-        <ServiceListItem 
-          key={service.id || idx}
-          id={service.id}
-          title={service.title}
-          category={service.category}
-          address={service.address}
-          phone={service.phone}
-          thumbnail={service.thumbnail}
-          distance={service.distance}
-          lat={service.lat}
-          lng={service.lng}
-        />
-      ))}
+  const [selectedFilter, setSelectedFilter] = useState('Todos');
 
-      {hasMore && (
+  // Obtener categorías únicas presentes en la lista actual
+  const uniqueCategories = Array.from(new Set(services.map(s => s.category))).filter(Boolean).sort();
+  const filters = ['Todos', 'Cercanos', ...uniqueCategories];
+
+  // Aplicar filtrado y ordenamiento dinámico
+  const getFilteredServices = () => {
+    let result = [...services];
+    
+    if (selectedFilter === 'Cercanos') {
+      // Filtrar los que tienen distancia conocida y ordenar
+      return result
+        .filter(s => s.distance !== undefined && s.distance !== null)
+        .sort((a, b) => a.distance - b.distance);
+    } else if (selectedFilter !== 'Todos') {
+      // Filtrar por categoría
+      result = result.filter(s => s.category === selectedFilter);
+    }
+    
+    return result;
+  };
+
+  const filteredServices = getFilteredServices();
+
+  return (
+    <div className="d-flex flex-column gap-4">
+      
+      {/* Selector de Categorías (Chips) */}
+      <div className="d-flex gap-2 overflow-auto hide-scrollbar pb-2 mb-2">
+        {filters.map((filter) => {
+          const isActive = selectedFilter === filter;
+          return (
+            <button
+              key={filter}
+              onClick={() => setSelectedFilter(filter)}
+              className={`btn rounded-pill px-4 py-2 font-inter fw-medium transition-all shadow-premium-subtle ${
+                isActive ? 'btn-primary text-white' : 'btn-outline-secondary bg-white text-muted'
+              }`}
+              style={{ 
+                minWidth: 'fit-content', 
+                whiteSpace: 'nowrap',
+                backgroundColor: isActive ? '#1a56db' : 'white',
+                borderColor: isActive ? '#1a56db' : '#dee2e6',
+                fontSize: '14px'
+              }}
+            >
+              {filter === 'Cercanos' && <i className="bi bi-geo-alt-fill me-1"></i>}
+              {filter}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Lista de Servicios Filtrada */}
+      <div className="d-flex flex-column gap-3">
+        {filteredServices.length > 0 ? (
+          filteredServices.map((service, idx) => (
+            <ServiceListItem 
+              key={service.id || idx}
+              id={service.id}
+              title={service.title}
+              category={service.category}
+              address={service.address}
+              phone={service.phone}
+              thumbnail={service.thumbnail}
+              distance={service.distance}
+              lat={service.lat}
+              lng={service.lng}
+            />
+          ))
+        ) : (
+          <div className="text-center py-5 bg-white rounded-4 border shadow-sm">
+            <i className="bi bi-search fs-1 text-muted mb-3 d-block"></i>
+            <p className="text-muted font-inter">No se encontraron servicios en esta categoría.</p>
+            {selectedFilter === 'Cercanos' && (
+              <p className="small text-primary" style={{ cursor: 'pointer' }} onClick={() => window.dispatchEvent(new CustomEvent('open_geo_popup'))}>
+                ¿Activaste tu ubicación?
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+
+      {hasMore && selectedFilter === 'Todos' && (
         <div className="text-center mt-4">
           <button 
             onClick={loadMoreServices}
