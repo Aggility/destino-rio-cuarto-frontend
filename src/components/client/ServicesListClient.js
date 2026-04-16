@@ -13,14 +13,18 @@ export default function ServicesListClient({ initialServices }) {
 
   const fetchLocation = () => {
     if (typeof navigator !== 'undefined' && navigator.geolocation && localStorage.getItem('geo_permission_granted') === 'true') {
+      if (window._userLocCache) {
+        setUserLocation(window._userLocCache);
+        return;
+      }
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          const { latitude, longitude } = position.coords;
-          setUserLocation({ lat: latitude, lng: longitude });
+          const loc = { lat: position.coords.latitude, lng: position.coords.longitude };
+          window._userLocCache = loc;
+          setUserLocation(loc);
         },
-        (error) => {
-          console.error("Error getting user location:", error);
-        }
+        (error) => console.error("Error getting user location:", error),
+        { enableHighAccuracy: false, maximumAge: 600000, timeout: 5000 }
       );
     }
   };

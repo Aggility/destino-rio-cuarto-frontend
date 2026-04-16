@@ -25,57 +25,66 @@ export default function EventDistanceBadge({ eventLat, eventLng, distance: initi
     }
     
     if (typeof navigator !== 'undefined' && navigator.geolocation && eventLat && eventLng) {
+      // 1. Verificar cache global en window para evitar múltiples llamadas al sistema
+      if (window._userLocCache) {
+        const dist = getDistance(window._userLocCache.lat, window._userLocCache.lng, parseFloat(eventLat), parseFloat(eventLng));
+        setDistance(dist);
+        return;
+      }
+
+      // 2. Si no hay cache, pedir ubicación con opciones de velocidad
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          const dist = getDistance(
-            latitude,
-            longitude,
-            parseFloat(eventLat),
-            parseFloat(eventLng)
-          );
+          window._userLocCache = { lat: latitude, lng: longitude }; // Cachear
+          const dist = getDistance(latitude, longitude, parseFloat(eventLat), parseFloat(eventLng));
           setDistance(dist);
         },
-        () => {}
+        () => {},
+        { 
+          enableHighAccuracy: false, // Más rápido
+          timeout: 5000, 
+          maximumAge: 600000 // Usar ubicación cacheada del sistema de hasta 10 min
+        }
       );
     }
   }, [eventLat, eventLng, initialDistance]);
 
   if (distance === null) return null;
 
-  // Multiplicadores aproximados para ruta real vs línea recta
-  const drivingDist = distance * 1.3;
-  const walkingDist = distance * 1.1;
+  // Multiplicadores diferenciados para reflejar que las rutas son distintas
+  const drivingDist = distance * 1.35; // Un poco más largo por calles
+  const walkingDist = distance * 1.05; // Más directo por peatones
 
   const formatDist = (d) => d < 1000 ? `${Math.round(d)}m` : `${(d / 1000).toFixed(1)}km`;
 
   if (minimal) {
     return (
-      <div className="d-flex align-items-center gap-2 mt-1">
-        <span className="font-inter fw-medium" style={{ fontSize: '11px', color: theme.dark }}>
-          <i className="bi bi-car-front-fill me-1"></i> {formatDist(drivingDist)}
+      <div className="d-flex align-items-center gap-2 mt-1 flex-nowrap overflow-hidden">
+        <span className="font-inter fw-bold d-flex align-items-center gap-1" style={{ fontSize: '11px', color: theme.dark, whiteSpace: 'nowrap' }}>
+          <i className="bi bi-car-front-fill" style={{ color: theme.color }}></i> {formatDist(drivingDist)}
         </span>
-        <span className="font-inter fw-medium" style={{ fontSize: '11px', color: theme.dark }}>
-          <i className="bi bi-person-walking me-1"></i> {formatDist(walkingDist)}
+        <span className="font-inter fw-bold d-flex align-items-center gap-1" style={{ fontSize: '11px', color: theme.dark, whiteSpace: 'nowrap' }}>
+          <i className="bi bi-person-walking" style={{ color: theme.color }}></i> {formatDist(walkingDist)}
         </span>
       </div>
     );
   }
 
   return (
-    <div className="d-flex flex-wrap gap-2 align-items-center">
+    <div className="d-flex flex-row flex-nowrap gap-2 align-items-center overflow-auto hide-scrollbar pt-1">
         {/* Car Badge */}
-        <div className="rounded-1 px-2 py-1 d-flex align-items-center" 
-             style={{ backgroundColor: theme.bg, border: `1px solid ${theme.color}22` }}>
-            <span className="font-inter fw-bold" style={{ color: theme.dark, fontSize: '12px' }}>
+        <div className="rounded-1 px-2 py-1 d-flex align-items-center shadow-sm" 
+             style={{ backgroundColor: theme.bg, border: `1px solid ${theme.color}33`, whiteSpace: 'nowrap' }}>
+            <span className="font-inter fw-bold d-flex align-items-center" style={{ color: theme.dark, fontSize: '12px' }}>
               <i className="bi bi-car-front-fill me-1" style={{ color: theme.color }}></i>
               {formatDist(drivingDist)}
             </span>
         </div>
         {/* Walking Badge */}
-        <div className="rounded-1 px-2 py-1 d-flex align-items-center" 
-             style={{ backgroundColor: theme.bg, border: `1px solid ${theme.color}22` }}>
-            <span className="font-inter fw-bold" style={{ color: theme.dark, fontSize: '12px' }}>
+        <div className="rounded-1 px-2 py-1 d-flex align-items-center shadow-sm" 
+             style={{ backgroundColor: theme.bg, border: `1px solid ${theme.color}33`, whiteSpace: 'nowrap' }}>
+            <span className="font-inter fw-bold d-flex align-items-center" style={{ color: theme.dark, fontSize: '12px' }}>
               <i className="bi bi-person-walking me-1" style={{ color: theme.color }}></i>
               {formatDist(walkingDist)}
             </span>

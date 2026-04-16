@@ -25,9 +25,21 @@ export default function ContactAndLocationWidget({ service, type = 'service' }) 
   // Al abrir el modal, buscamos la ruta
   useEffect(() => {
     if (showMap && localStorage.getItem('geo_permission_granted') === 'true') {
+      // 1. Intentar usar cache global primero
+      if (window._userLocCache) {
+        setUserLoc(window._userLocCache);
+        return;
+      }
+
+      // 2. Si no, pedir ubicación optimizada
       navigator.geolocation.getCurrentPosition(
-        (pos) => setUserLoc({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-        (err) => console.log("Map: error location", err)
+        (pos) => {
+          const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          window._userLocCache = loc;
+          setUserLoc(loc);
+        },
+        (err) => console.log("Map: error location", err),
+        { enableHighAccuracy: false, maximumAge: 600000, timeout: 5000 }
       );
     }
   }, [showMap]);
