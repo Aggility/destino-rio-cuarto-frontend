@@ -216,13 +216,7 @@ export default function EventsListClient({ initialEvents }) {
               <button 
                 onClick={loadMoreEvents}
                 disabled={isLoading}
-                className="btn btn-outline-primary px-5 py-2 rounded-2 shadow-premium fw-bold" 
-                style={{ 
-                  minWidth: '220px',
-                  height: '56px',
-                  borderColor: '#f54286',
-                  color: '#f54286'
-                }}
+                className="btn btn-load-more-pink shadow-premium" 
               >
                 {isLoading ? (
                   <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>

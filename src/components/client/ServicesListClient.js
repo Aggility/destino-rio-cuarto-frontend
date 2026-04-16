@@ -151,12 +151,12 @@ export default function ServicesListClient({ initialServices }) {
           </div>
           <input 
             type="text" 
-            className="form-control border-0 shadow-none font-inter h-100" 
+            className="form-control border-0 shadow-none font-inter h-100 flex-grow-1" 
             placeholder="¿Qué estás buscando? (Ej: Hotel, Parrilla, Taxi)"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <button className="btn btn-primary h-100 px-4 fw-bold border-0 rounded-0" style={{ backgroundColor: '#1a56db', minWidth: '130px' }}>
+          <button className="btn btn-primary h-100 px-3 px-md-4 fw-bold border-0 rounded-0" style={{ backgroundColor: '#1a56db' }}>
               BUSCAR
           </button>
       </div>
@@ -217,13 +217,7 @@ export default function ServicesListClient({ initialServices }) {
           <button 
             onClick={loadMoreServices}
             disabled={isLoading}
-            className="btn btn-outline-primary px-5 py-2 rounded-2 shadow-premium fw-bold" 
-            style={{ 
-              minWidth: '220px',
-              height: '56px',
-              borderColor: '#1a56db',
-              color: '#1a56db'
-            }}
+            className="btn btn-load-more-blue shadow-premium" 
           >
             {isLoading ? (
               <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>

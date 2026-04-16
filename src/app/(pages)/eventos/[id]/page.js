@@ -31,8 +31,12 @@ export default async function EventDetailPage({ params }) {
     date: eventData?.calendars?.[0]?.start_date ? new Date(eventData.calendars[0].start_date).toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'sáb, 7 de mar, 21 hs',
     location: eventData?.organization?.name ? `${eventData.organization.name} / ${eventData.organization.addresses?.[0]?.address?.split(',')[0] || eventData.organization.address || ''}` : 'Opus Costanera / Río Grande 688, Río Cuarto',
     coords: {
-        lat: parseFloat(eventData?.organization?.addresses?.[0]?.latitude) || -33.1190, // Coord aprox Opus
-        lng: parseFloat(eventData?.organization?.addresses?.[0]?.longitude) || -64.3400
+        lat: parseFloat(eventData?.organization?.addresses?.[0]?.latitude) || 
+             parseFloat(eventData?.organization?.latitude) || 
+             parseFloat(eventData?.latitude) || -33.1232,
+        lng: parseFloat(eventData?.organization?.addresses?.[0]?.longitude) || 
+             parseFloat(eventData?.organization?.longitude) || 
+             parseFloat(eventData?.longitude) || -64.3493
     },
     fullLocation: {
         name: eventData?.organization?.name || 'Opus Costanera',

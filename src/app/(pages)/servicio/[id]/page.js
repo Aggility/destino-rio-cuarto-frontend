@@ -4,6 +4,7 @@ import ChatbotIcon from '@/components/server/ChatbotIcon';
 import SidebarListCard from '@/components/server/SidebarListCard';
 import ServiceListItem from '@/components/server/ServiceListItem';
 import ContactAndLocationWidget from '@/components/client/ContactAndLocationWidget';
+import { getNearbyLocations } from "@/utils/geo";
 import EventDistanceBadge from '@/components/client/EventDistanceBadge';
 
 /**
@@ -206,7 +207,7 @@ export default async function ServicioDetailPage({ params }) {
                             <h4 className="font-inter fw-bold m-0" style={{ color: '#f54286', fontSize: '18px' }}>Eventos</h4>
                         </div>
                         <div className="d-flex flex-column mb-3 border-bottom pb-2">
-                            {suggestedEvents.map((ev, i) => (
+                            {finalEvents.map((ev, i) => (
                                 <div key={i} className={i !== 0 ? 'border-top pt-1 mt-1' : ''}>
                                     <SidebarListCard {...ev} />
                                 </div>

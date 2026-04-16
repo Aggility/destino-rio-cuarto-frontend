@@ -46,7 +46,7 @@ export default async function ServiciosPage() {
   const localThumbnail = "/Thumbnail.png";
 
   return (
-    <div className="bg-listing-page min-vh-100 position-relative">
+    <div className="bg-listing-page min-vh-100 position-relative" style={{ overflowX: 'hidden' }}>
       
       {/* GLOBAL HERO SECTION */}
       <HeroHome initialSlug="servicios" />

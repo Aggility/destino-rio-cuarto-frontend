@@ -122,7 +122,16 @@ export default function ContactAndLocationWidget({ service, type = 'service' }) 
 
       {/* Modal Popup (Trazador de Ruta) */}
       {showMap && (
-        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column" style={{ zIndex: 10000, backgroundColor: 'white' }}>
+        <div className="position-fixed" style={{ 
+            top: '97px', 
+            left: 0, 
+            width: '100%', 
+            height: 'calc(100vh - 97px)', 
+            zIndex: 1030, 
+            backgroundColor: 'white',
+            display: 'flex',
+            flexDirection: 'column'
+        }}>
           
           {/* Header del Trazador */}
           <div className="d-flex align-items-center justify-content-between p-3 border-bottom shadow-sm bg-white position-relative" style={{ zIndex: 10 }}>
@@ -140,28 +149,38 @@ export default function ContactAndLocationWidget({ service, type = 'service' }) 
             {/* Selector de modo y estadísticas */}
             <div className="position-absolute top-0 start-50 translate-middle-x mt-3 d-flex flex-column align-items-center gap-2 w-100 px-3" style={{ zIndex: 10 }}>
                
-               {/* Modo Selector */}
-               <div className="bg-white rounded-pill shadow-premium p-1 d-flex gap-1 border">
+               {/* Modo Selector (Premium Floating Pill) */}
+               <div className="bg-white rounded-pill shadow-premium p-1 d-flex gap-1 border animate-fade-in" style={{ maxWidth: 'fit-content' }}>
                   <button 
                     onClick={() => setTravelMode('driving')}
-                    className={`btn rounded-pill px-3 py-1 font-inter fw-bold small d-flex align-items-center gap-2 transition-all ${travelMode === 'driving' ? 'text-white' : 'text-muted'}`}
-                    style={{ backgroundColor: travelMode === 'driving' ? theme.color : 'transparent', border: 'none' }}>
-                    <i className="bi bi-car-front-fill"></i> Auto
+                    className={`btn rounded-pill px-3 py-2 font-inter fw-bold small d-flex align-items-center gap-2 transition-all border-0 ${travelMode === 'driving' ? 'text-white shadow-sm' : 'text-muted opacity-75'}`}
+                    style={{ 
+                        backgroundColor: travelMode === 'driving' ? theme.color : 'white',
+                        fontSize: '13px',
+                        transform: travelMode === 'driving' ? 'scale(1.05)' : 'scale(1)'
+                    }}>
+                    <i className={`bi bi-car-front-fill ${travelMode === 'driving' ? 'text-white' : ''}`}></i> Auto
                   </button>
                   <button 
                     onClick={() => setTravelMode('walking')}
-                    className={`btn rounded-pill px-3 py-1 font-inter fw-bold small d-flex align-items-center gap-2 transition-all ${travelMode === 'walking' ? 'text-white' : 'text-muted'}`}
-                    style={{ backgroundColor: travelMode === 'walking' ? theme.color : 'transparent', border: 'none' }}>
-                    <i className="bi bi-person-walking"></i> Caminando
+                    className={`btn rounded-pill px-3 py-2 font-inter fw-bold small d-flex align-items-center gap-2 transition-all border-0 ${travelMode === 'walking' ? 'text-white shadow-sm' : 'text-muted opacity-75'}`}
+                    style={{ 
+                        backgroundColor: travelMode === 'walking' ? theme.color : 'white',
+                        fontSize: '13px',
+                        transform: travelMode === 'walking' ? 'scale(1.05)' : 'scale(1)'
+                    }}>
+                    <i className={`bi bi-person-walking ${travelMode === 'walking' ? 'text-white' : ''}`}></i> Caminando
                   </button>
                </div>
 
                {/* Stats de Ruta */}
                {routeStats && (
-                  <div className="bg-white px-3 py-1 rounded-pill shadow-sm border animate-fade-in">
-                    <span className="font-inter fw-medium text-gray-800" style={{ fontSize: '13px' }}>
-                       <i className="bi bi-clock-history me-1 opacity-75"></i>
-                       {Math.round(routeStats.duration / 60)} min — {routeStats.distance < 1000 ? `${Math.round(routeStats.distance)}m` : `${(routeStats.distance / 1000).toFixed(1)}km`}
+                  <div className="bg-white px-3 py-1-5 rounded-pill shadow-premium border animate-fade-in-up" style={{ fontSize: '12px' }}>
+                    <span className="font-inter fw-bold text-gray-900 d-flex align-items-center gap-2">
+                       <i className="bi bi-clock-fill" style={{ color: theme.color }}></i>
+                       <span>{Math.round(routeStats.duration / 60)} min</span>
+                       <span className="text-muted opacity-50 px-1">•</span>
+                       <span>{routeStats.distance < 1000 ? `${Math.round(routeStats.distance)}m` : `${(routeStats.distance / 1000).toFixed(1)}km`}</span>
                     </span>
                   </div>
                )}

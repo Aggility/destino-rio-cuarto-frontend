@@ -388,3 +388,44 @@
     }
   }
 }
+
+// 5. LOAD MORE BUTTONS (Eventos & Servicios)
+.btn-load-more-custom {
+  min-width: 220px;
+  height: 56px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  background-color: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+}
+
+.btn-load-more-pink {
+  @extend .btn-load-more-custom;
+  border: 1px solid #f54286 !important;
+  color: #f54286 !important;
+  
+  &:hover {
+    background-color: #f54286 !important;
+    color: white !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(245, 66, 134, 0.3);
+  }
+}
+
+.btn-load-more-blue {
+  @extend .btn-load-more-custom;
+  border: 1px solid #1a56db !important;
+  color: #1a56db !important;
+  
+  &:hover {
+    background-color: #1a56db !important;
+    color: white !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(26, 86, 219, 0.3);
+  }
+}
