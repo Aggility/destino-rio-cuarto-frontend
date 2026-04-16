@@ -12,10 +12,11 @@ import HeroHome from '@/components/server/HeroHome';
 export default async function ServiciosPage() {
   let apiServices = [];
   try {
-    const res = await fetch('http://destbackdev.aggility.io/api/v1/organizations', { cache: 'no-store' });
+    // Fetch initial data from the API
+    const res = await fetch('http://destbackdev.aggility.io/api/v1/organizations?page=1', { cache: 'no-store' });
     if (res.ok) {
       const data = await res.json();
-      apiServices = Array.isArray(data) ? data : (data.data || []);
+      apiServices = data.data || (Array.isArray(data) ? data : []);
     }
   } catch (error) {
     console.error("Error fetching organizations API: ", error);
@@ -29,21 +30,17 @@ export default async function ServiciosPage() {
     phone: org.phone || 'Consultar contacto',
     thumbnail: org.image_url || "/Thumbnail.png",
     lat: org.addresses?.[0]?.latitude,
-    lng: org.addresses?.[0]?.longitude
+    lng: org.addresses?.[0]?.longitude,
+    description: org.description || ''
   }));
 
-  const services = formattedServices.length > 0 ? formattedServices : [
-    { id: '1', title: '3G Bebidas S.A.S', category: 'Tienda de Bebidas', address: 'Hipólito Irigoyen 3076, Río Cuarto', phone: '358 475-4624' },
-    { id: '2', title: 'A Mi Manera', category: 'Casa de té', address: 'Alvear 734, Río Cuarto', phone: '358 462-1360' },
-    { id: '3', title: 'Hotel Opera', category: 'Alojamiento', address: '25 de Mayo 55, Río Cuarto', phone: '358 464-1011' },
-    { id: '4', title: 'Restaurante Central', category: 'Gastronomía', address: 'Sobremonte 654, Río Cuarto', phone: '358 462-0012' },
-    { id: '5', title: 'Alquiler de Autos RC', category: 'Transporte', address: 'Aeropuerto Local, Río Cuarto', phone: '358 465-9876' },
-  ];
+  // Mostramos 9 inicialmente como pidió el usuario
+  const initialServices = formattedServices.slice(0, 9);
+  const remainingServices = formattedServices.slice(9);
 
-  const topSearched = services.slice(0, 5);
-
-  const categories = ["Comer", "Dormir", "Disfrutar", "Viajar", "Servicios generales o al turista"];
+  const topSearched = initialServices.slice(0, 5);
   const localThumbnail = "/Thumbnail.png";
+
 
   return (
     <div className="bg-listing-page min-vh-100 position-relative" style={{ overflowX: 'hidden' }}>
@@ -58,8 +55,9 @@ export default async function ServiciosPage() {
             
             {/* MAIN LIST & FILTERS */}
             <div className="col-12 col-xl-8">
-              <ServicesListClient initialServices={services} />
+              <ServicesListClient initialServices={initialServices} leftoverFromFirstPage={remainingServices} />
             </div>
+
 
             {/* SIDEBAR */}
             <div className="col-12 col-xl-4">

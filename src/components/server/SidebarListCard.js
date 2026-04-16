@@ -26,8 +26,9 @@ export default function SidebarListCard({
   const getColors = () => {
     if (isCalendar) return { bg: '#fdf2f8', text: '#f54286', arrow: '#f54286', sub: '#f54286' };
     if (isActivity) return { bg: '#8a38f5', text: '#white', arrow: '#8a38f5', sub: '#6b7280' };
-    if (isService) return { bg: '#ebf5ff', text: '#1a56db', arrow: '#1a56db', sub: '#6b7280' };
+    if (isService) return { bg: '#ebf5ff', text: '#000000', arrow: '#0d6efd', sub: '#000000' };
     return { bg: '#fdf2f8', text: '#f54286', arrow: '#f54286', sub: '#6b7280' }; // Default event (pink)
+
   };
 
   const theme = getColors();
@@ -61,8 +62,9 @@ export default function SidebarListCard({
             
             {!isCalendar && (
               <>
-                <p className="font-inter text-gray-500 mb-0 text-truncate w-100" 
-                   style={{ fontSize: '13px', lineHeight: '1.2' }}>
+                <p className="font-inter mb-0 text-truncate w-100" 
+                   style={{ fontSize: '13px', lineHeight: '1.2', color: theme.sub }}>
+
                   {subtitle}
                 </p>
                 <div className="mt-1">
