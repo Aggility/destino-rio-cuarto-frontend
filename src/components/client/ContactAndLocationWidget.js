@@ -15,6 +15,19 @@ export default function ContactAndLocationWidget({ service, type = 'service' }) 
   const targetLat = parseFloat(service?.lat) || -33.1232;
   const targetLng = parseFloat(service?.lng) || -64.3493;
 
+  const getTheme = () => {
+    switch (type) {
+      case 'event': return { icon: 'bi-star-fill', color: '#f54286', bg: '#fdf2f8' };
+      case 'actividad': return { icon: 'bi-person-walking', color: '#8a38f5', bg: '#f5f3ff' };
+      case 'experiencia': return { icon: 'bi-stars', color: '#ff5a1f', bg: '#fff7ed' };
+      case 'alojamiento': return { icon: 'bi-house-heart-fill', color: '#1a56db', bg: '#ebf5ff' };
+      case 'gastronomia': return { icon: 'bi-cup-hot-fill', color: '#ff5a1f', bg: '#fff7ed' };
+      default: return { icon: 'bi-geo-alt-fill', color: '#1a56db', bg: '#ebf5ff' };
+    }
+  };
+
+  const theme = getTheme();
+
   // Manejo del body scroll para el modal extendido
   useEffect(() => {
     if (showMap) document.body.style.overflow = 'hidden';
@@ -25,13 +38,10 @@ export default function ContactAndLocationWidget({ service, type = 'service' }) 
   // Al abrir el modal, buscamos la ruta
   useEffect(() => {
     if (showMap && localStorage.getItem('geo_permission_granted') === 'true') {
-      // 1. Intentar usar cache global primero
       if (window._userLocCache) {
         setUserLoc(window._userLocCache);
         return;
       }
-
-      // 2. Si no, pedir ubicación optimizada
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
@@ -63,19 +73,6 @@ export default function ContactAndLocationWidget({ service, type = 'service' }) 
     }
   }, [userLoc, targetLat, targetLng, travelMode]);
 
-  const getTheme = () => {
-    switch (type) {
-      case 'event': return { icon: 'bi-star-fill', color: '#f54286' };
-      case 'actividad': return { icon: 'bi-person-walking', color: '#8a38f5' };
-      case 'experiencia': return { icon: 'bi-stars', color: '#ff5a1f' };
-      case 'alojamiento': return { icon: 'bi-house-heart-fill', color: '#1a56db' };
-      case 'gastronomia': return { icon: 'bi-cup-hot-fill', color: '#ff5a1f' };
-      default: return { icon: 'bi-geo-alt-fill', color: '#1a56db' };
-    }
-  };
-
-  const theme = getTheme();
-
   const routeLayer = {
     id: 'route',
     type: 'line',
@@ -94,7 +91,7 @@ export default function ContactAndLocationWidget({ service, type = 'service' }) 
   return (
     <>
       {/* Componente Integrado: Mini Mapa + Datos de Contacto */}
-      <div className="rounded-4 shadow-premium border-0 p-4 mb-5" style={{ backgroundColor: '#e1effe' }}>
+      <div className="rounded-4 shadow-premium border-0 p-4 mb-5" style={{ backgroundColor: theme.bg }}>
           <div className="row g-4 align-items-center">
               
               {/* Miniatura del Mapa */}
@@ -107,10 +104,10 @@ export default function ContactAndLocationWidget({ service, type = 'service' }) 
                   />
               </div>
 
-              {/* Botones de Acción (Se quitan los datos restantes como se solicitó) */}
+              {/* Botones de Acción */}
               <div className="col-12 col-md-7">
-                 <div className="d-flex flex-column h-100 justify-content-center p-md-2">
-                     <h3 className="font-inter fw-bold mb-1" style={{ color: '#1e429f', fontSize: '20px' }}>Contactate con nosotros</h3>
+                 <div className="d-flex flex-column h-100 justify-content-center p-md-2 text-center text-md-start">
+                     <h3 className="font-inter fw-bold mb-1" style={{ color: theme.color, fontSize: '20px' }}>Contactate con nosotros</h3>
                      <p className="font-inter text-muted small mb-3">Hacé clic en el mapa para ver cómo llegar o usá los botones de contacto.</p>
                      
                      <ContactButtons 
