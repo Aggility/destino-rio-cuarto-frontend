@@ -219,7 +219,7 @@ export default function ServicesListClient({ initialServices, leftoverFromFirstP
             type="submit"
             disabled={isLoading}
             className="btn btn-primary h-100 px-3 px-md-4 fw-bold border-0 rounded-0" 
-            style={{ backgroundColor: '#0d6efd' }}
+            style={{ backgroundColor: '#1a56db' }}
           >
               {isSearching ? '...' : 'BUSCAR'}
           </button>
@@ -239,8 +239,8 @@ export default function ServicesListClient({ initialServices, leftoverFromFirstP
               style={{ 
                 minWidth: 'fit-content', 
                 whiteSpace: 'nowrap',
-                backgroundColor: isActive ? '#0d6efd' : 'white',
-                borderColor: isActive ? '#0d6efd' : '#dee2e6',
+                backgroundColor: isActive ? '#1a56db' : 'white',
+                borderColor: isActive ? '#1a56db' : '#dee2e6',
                 fontSize: '14px',
                 borderWidth: '1px'
               }}

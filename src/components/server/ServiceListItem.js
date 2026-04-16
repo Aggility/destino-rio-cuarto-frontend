@@ -23,7 +23,7 @@ export default function ServiceListItem({
     <div className="service-list-item bg-white border border-light-subtle rounded-3 transition-all shadow-sm w-100 position-relative"
          style={{ 
             border: '1px solid #d1d5db',
-            borderLeft: '4px solid #0d6efd',
+            borderLeft: '4px solid #1a56db',
             padding: '12px 16px',
             borderRadius: '8px'
          }}>
@@ -57,8 +57,8 @@ export default function ServiceListItem({
                 <div className="d-flex flex-column gap-1">
                    <EventDistanceBadge eventLat={lat} eventLng={lng} distance={distance} type="service" />
                    <div className="rounded-1 px-2 py-0-5 w-fit-content" 
-                        style={{ backgroundColor: '#e7f0ff' }}>
-                       <span className="font-inter fw-medium" style={{ color: '#0d6efd', fontSize: '12px' }}>
+                        style={{ backgroundColor: '#ebf5ff' }}>
+                       <span className="font-inter fw-medium" style={{ color: '#1a56db', fontSize: '12px' }}>
                        {category}
                        </span>
                    </div>

@@ -21,7 +21,7 @@ export default function ContactAndLocationWidget({ service, type = 'service' }) 
       case 'actividad': return { icon: 'bi-person-walking', color: '#8a38f5', bg: '#f5f3ff' };
       case 'experiencia': return { icon: 'bi-stars', color: '#ff5a1f', bg: '#fff7ed' };
       case 'alojamiento': return { icon: 'bi-house-heart-fill', color: '#1a56db', bg: '#ebf5ff' };
-      case 'gastronomia': return { icon: 'bi-cup-hot-fill', color: '#ff5a1f', bg: '#fff7ed' };
+      case 'gastronomia': return { icon: 'bi-cup-hot-fill', color: '#1a56db', bg: '#ebf5ff' };
       default: return { icon: 'bi-geo-alt-fill', color: '#1a56db', bg: '#ebf5ff' };
     }
   };

@@ -10,7 +10,7 @@ export default function MapPreview({ lat, lng, onClick, type = 'service' }) {
       case 'actividad': return { icon: 'bi-person-walking', color: '#8a38f5' };
       case 'experiencia': return { icon: 'bi-stars', color: '#ff5a1f' };
       case 'alojamiento': return { icon: 'bi-house-heart-fill', color: '#1a56db' };
-      case 'gastronomia': return { icon: 'bi-cup-hot-fill', color: '#ff5a1f' };
+      case 'gastronomia': return { icon: 'bi-cup-hot-fill', color: '#1a56db' };
       default: return { icon: 'bi-geo-alt-fill', color: '#1a56db' };
     }
   };
@@ -38,7 +38,7 @@ export default function MapPreview({ lat, lng, onClick, type = 'service' }) {
         
         {/* Overlay CTA */}
         <div className="position-absolute bottom-0 start-0 w-100 py-3 text-center" style={{ background: 'linear-gradient(to top, rgba(255,255,255,1), rgba(255,255,255,0.8))' }}>
-           <span className="font-inter fw-bold" style={{ fontSize: '15px', color: '#1a56db' }}>
+           <span className="font-inter fw-bold" style={{ fontSize: '15px', color: theme.color }}>
               <i className="bi bi-cursor-fill me-2"></i>Ver ruta para llegar
            </span>
         </div>

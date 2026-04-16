@@ -170,14 +170,14 @@ export default function CalendarClient({ initialEvents = [] }) {
                     return (
                         <div key={dayNum} className="col-12 col-md-6 col-lg-4 col-xl-7-cols">
                             <div className={`calendar-day-box h-100 bg-white p-3 transition-all border rounded-4 ${dayEvents.length > 0 ? 'bg-pink-50/10' : ''} ${isToday ? 'border-primary border-2 shadow-sm' : 'border-light-subtle'}`}
-                                 style={{ borderColor: isToday ? '#1a56db' : '#f1f1f1' }}>
+                                 style={{ borderColor: isToday ? '#f54286' : '#f1f1f1' }}>
                                 
                                 <div className="d-flex justify-content-between align-items-start mb-3">
                                     <span className={`day-number font-inter fs-4 fw-bold ${dayEvents.length > 0 ? 'text-pink-600' : 'text-gray-400'}`} style={{ color: dayEvents.length > 0 ? '#f54286' : '#9ca3af' }}>
                                         {dayNum}
                                     </span>
                                     {isToday && (
-                                        <span className="badge rounded-pill bg-primary px-2" style={{ fontSize: '10px' }}>HOY</span>
+                                        <span className="badge rounded-pill px-2" style={{ fontSize: '10px', backgroundColor: '#f54286' }}>HOY</span>
                                     )}
                                 </div>
 
