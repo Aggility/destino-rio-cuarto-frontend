@@ -104,8 +104,8 @@ export default function CalendarClient({ initialEvents = [] }) {
                         >
                             <i className="bi bi-chevron-left"></i>
                         </button>
-                        <div className="px-4 text-center" style={{ minWidth: '180px' }}>
-                            <h2 className="h5 fw-bold mb-0 font-inter text-pink-600" style={{ color: '#f54286' }}>
+                        <div className="px-2 px-md-4 text-center" style={{ minWidth: 'min(180px, 40vw)' }}>
+                            <h2 className="fw-bold mb-0 font-inter text-pink-600" style={{ color: '#f54286', fontSize: 'clamp(14px, 4vw, 18px)' }}>
                                 {monthNames[currentMonth]} {currentYear}
                             </h2>
                         </div>

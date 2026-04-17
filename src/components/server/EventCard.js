@@ -9,18 +9,19 @@ import EventDistanceBadge from '@/components/client/EventDistanceBadge';
  */
 export default function EventCard({ 
   id = "1",
-  title = "Título del Evento", 
-  date = "jue, 12 mar, 21:00", 
+  title = "Título", 
+  date = "", 
   location = "Lugar no especificado", 
-  description = "Llego Iván Noble a la esquina de Elvis con “canciones traspapeladas”", 
-  category = "Evento",
+  description = "", 
+  category = "",
   typeColor = "#1a56d8",
   thumbnail = "/Thumbnail.png",
   lat = null,
-  lng = null
+  lng = null,
+  basePath = "eventos"
 }) {
   return (
-    <Link href={`/eventos/${id}`} className="text-decoration-none d-block h-100">
+    <Link href={`/${basePath}/${id}`} className="text-decoration-none d-block h-100">
       <div className="card h-100 border-0 bg-transparent shadow-none w-100 overflow-hidden" style={{ minWidth: 0 }}>
         
         {/* 1. Header (Thumbnail & Tag) — Figma ID I3781:19227;3389:3472 */}
@@ -50,11 +51,11 @@ export default function EventCard({
         {/* 2. Body — Figma ID I3781:19227;3389:3474 */}
         <div className="card-body p-0 pt-2 d-flex flex-column" style={{ minWidth: 0 }}>
           
-          {/* Badge Proyectivo — indigo-100/800 */}
-          {category && category !== "Evento" && (
-             <div className="d-inline-block px-1 py-0 rounded-1 mb-1 align-self-start" style={{ backgroundColor: '#fdf2f8' }}>
-                <span className="fw-medium font-inter" style={{ color: '#f54286', fontSize: '12px' }}>
-                  {category}
+          {/* Badge Proyectivo */}
+          {category && (
+             <div className="d-inline-block px-2 py-0 rounded-1 mb-1 align-self-start" style={{ backgroundColor: `${typeColor}15` }}>
+                <span className="fw-bold font-inter" style={{ color: typeColor, fontSize: '12px' }}>
+                   {category}
                 </span>
              </div>
           )}
@@ -73,7 +74,7 @@ export default function EventCard({
           </div>
 
           {/* Location — Figma ID I3781:19227;3389:3480 */}
-          <p className="text-gray-800 mb-1 font-inter text-truncate w-100" style={{ fontSize: 'clamp(12px, 3.5vw, 16px)', fontWeight: 400 }}>
+          <p className="text-gray-800 mb-1 font-inter text-truncate w-100" style={{ fontSize: '13px', fontWeight: 400 }}>
             <i className="bi bi-geo-alt me-1"></i>{location}
           </p>
 

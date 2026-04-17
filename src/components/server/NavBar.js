@@ -37,6 +37,7 @@ export default function NavBar() {
   const navLinks = [
     { label: 'Eventos', href: '/eventos' },
     { label: 'Actividades', href: '/actividades' },
+    { label: 'Experiencias', href: '/experiencias' },
     { label: 'Servicios', href: '/servicios' },
     { label: 'Calendario', href: '/calendario' },
   ];

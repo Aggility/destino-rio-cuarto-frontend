@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import HeroHome from '@/components/server/HeroHome';
 import EventCard from '@/components/server/EventCard';
+import ActivityCard from '@/components/server/ActivityCard';
 
 /**
  * Home - Destino Río Cuarto (Home V2 Fidelity)
@@ -47,13 +48,14 @@ export default async function Home() {
   const sections = [
     { id: 1, title: 'Eventos Destacados', slug: 'eventos', color: '#f54286' },
     { id: 2, title: 'Recorré la Ciudad', slug: 'servicios', color: '#8a38f5' },
-    { id: 3, title: 'Actividades Populares', slug: 'actividades', color: '#ff5a1f' },
+    { id: 3, title: 'Actividades Populares', slug: 'actividades', color: '#8a38f5' },
+    { id: 4, title: 'Experiencias Únicas', slug: 'experiencias', color: '#ff5a1f' },
   ];
 
   const localThumbnail = "/Thumbnail.png";
 
   const renderCards = (cat, index) => {
-    // Si estamos en Eventos y tenemos datos de la API
+    // 1. EVENTOS (API)
     if (cat.slug === 'eventos' && formatedHomeEvents.length > 0) {
       return formatedHomeEvents.map((evt) => (
         <div key={evt.id} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)' }}>
@@ -70,7 +72,54 @@ export default async function Home() {
       ));
     }
 
-    // Para el rest de secciones o si falla la API
+    // 2. ACTIVIDADES (ActivityCard)
+    if (cat.slug === 'actividades') {
+        const items = [
+            { id: 'trencito', title: 'Trencito Rio IV', time: '15:00 a 19:00', address: 'Plaza Roca', schedule: 'Fines de semana' },
+            { id: 'parque-ecologico', title: 'Parque Ecológico', time: '10:00 a 18:00', address: 'Ruta A005', schedule: 'Todos los días' }
+        ];
+
+        return items.map((item) => (
+            <div key={item.id} className="flex-shrink-0" style={{ width: 'clamp(240px, 70vw, 280px)' }}>
+                <ActivityCard 
+                    id={item.id}
+                    title={item.title}
+                    time={item.time}
+                    address={item.address}
+                    schedule={item.schedule}
+                    description=""
+                    thumbnail={localThumbnail}
+                    type={cat.slug}
+                />
+            </div>
+        ));
+    }
+
+    // 3. EXPERIENCIAS (EventCard)
+    if (cat.slug === 'experiencias') {
+        const items = [
+            { id: 'respira-aire-libre', title: 'Respira Aire Libre', time: 'Todo el día', address: 'Parque Sarmiento', schedule: 'Todos los días' },
+            { id: 'recorrido-7-iglesias', title: 'Recorrido 7 Iglesias', time: '3 a 4 horas', address: 'Microcentro', schedule: 'Semana Santa' }
+        ];
+
+        return items.map((item) => (
+            <div key={item.id} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)' }}>
+                <EventCard 
+                    id={item.id}
+                    title={item.title}
+                    date={item.time}
+                    location={item.address}
+                    category={item.schedule}
+                    description=""
+                    thumbnail={localThumbnail}
+                    basePath="experiencias"
+                    typeColor={cat.color}
+                />
+            </div>
+        ));
+    }
+
+    // 4. FALLBACK (Servicios u otros)
     return [1, 2, 3, 4, 5].map((i) => (
       <div key={i} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)' }}>
         <EventCard
@@ -96,7 +145,7 @@ export default async function Home() {
 
         <div className="d-flex flex-column gap-5 align-items-start position-relative w-100">
           {sections.map((cat, index) => (
-            <div key={cat.id} className="w-100">
+            <div key={cat.id} className="w-100 animate-fade-in" style={{ animationDelay: `${index * 150}ms` }}>
 
               {/* SECTION HEADER — Figma ID 3781:19222 */}
               <div className="d-flex justify-content-between align-items-center mb-3 mb-md-4">
@@ -129,8 +178,8 @@ export default async function Home() {
                       style={{
                         minWidth: '180px',
                         height: '48px',
-                        borderColor: '#1a56db',
-                        color: '#1a56d8',
+                        borderColor: cat.color,
+                        color: cat.color,
                         fontSize: '15px',
                         display: 'inline-flex',
                         alignItems: 'center',

@@ -111,7 +111,7 @@ export default function ActivitiesPage() {
       <section className="py-5 bg-listing-page">
         <div className="container-xxl px-lg-5">
           <h2 className="font-inter fw-bold text-gray-900 mb-4" style={{ fontSize: 'clamp(22px, 3.5vw, 28px)', letterSpacing: '-0.5px' }}>
-              Explora todas las Experiencias
+              Explora todas las Actividades
           </h2>
           
           <div className="row g-4 pb-5">
@@ -125,6 +125,7 @@ export default function ActivitiesPage() {
                   schedule={act.schedule}
                   description={act.description}
                   thumbnail={act.thumbnail}
+                  type="actividades"
                 />
               </div>
             ))}

@@ -1,5 +1,5 @@
 import React from 'react';
-import ActivityCard from '@/components/server/ActivityCard';
+import EventCard from '@/components/server/EventCard';
 import ChatbotIcon from '@/components/server/ChatbotIcon';
 import HeroHome from '@/components/server/HeroHome';
 
@@ -11,39 +11,30 @@ import HeroHome from '@/components/server/HeroHome';
 export default function ExperiencesPage() {
   const experiences = [
     { 
-        id: 'gastronomia-regional', 
-        title: 'Gastronomía Regional', 
-        time: 'Almuerzo y Cena', 
-        address: 'Polo Gastronómico Centro', 
-        schedule: 'Todos los días', 
-        description: 'Disfrutá de los sabores típicos del sur cordobés con opciones para toda la familia.', 
-        thumbnail: '/Thumbnail.png' 
-    },
-    { 
-        id: 'ruta-cervezas', 
-        title: 'Ruta de la Cerveza Artesanal', 
-        time: 'A partir de las 18:00 hs', 
-        address: 'Diversos Bares de la Ciudad', 
-        schedule: 'Jueves a Domingos', 
-        description: 'Tours guiados por las cervecerías artesanales más premiadas de Río Cuarto.', 
-        thumbnail: '/Thumbnail.png' 
-    },
-    { 
-        id: 'cata-vinos', 
-        title: 'Cata de Vinos Locales', 
-        time: '20:00 a 23:00 hs', 
-        address: 'Vinotecas Céntricas', 
-        schedule: 'Viernes', 
-        description: 'Noches exclusivas de degustación y maridaje con expertos sommeliers locales.', 
-        thumbnail: '/Thumbnail.png' 
-    },
-    { 
-        id: 'polo-turismo', 
-        title: 'Turismo Rural y Estancias', 
+        id: 'respira-aire-libre', 
+        title: 'Respira Aire Libre', 
         time: 'Todo el día', 
-        address: 'Afueras de Río Cuarto', 
-        schedule: 'Fines de semana', 
-        description: 'Viví un día de campo inolvidable con cabalgatas y asado criollo.', 
+        address: 'Parque Sarmiento', 
+        schedule: 'Todos los días', 
+        description: 'Disfrutá de la naturaleza en el pulmón verde de la ciudad. Incluye trencito, botes y feria.', 
+        thumbnail: '/Thumbnail.png' 
+    },
+    { 
+        id: 'recorrido-7-iglesias', 
+        title: 'Recorrido 7 Iglesias', 
+        time: '3 a 4 horas', 
+        address: 'Puntos varios del microcentro', 
+        schedule: 'Semana Santa / Permanente', 
+        description: 'Circuito de fe y arquitectura por los templos más emblemáticos de Río Cuarto.', 
+        thumbnail: '/Thumbnail.png' 
+    },
+    { 
+        id: 'recorrido-historico-cultural', 
+        title: 'Recorrido Histórico Cultural', 
+        time: '2 a 3 horas', 
+        address: 'Microcentro histórico', 
+        schedule: 'Lunes a Sábados', 
+        description: 'Conocé el Palacio Municipal, el Teatro y el Museo Histórico en un paseo inolvidable.', 
         thumbnail: '/Thumbnail.png' 
     }
   ];
@@ -118,14 +109,16 @@ export default function ExperiencesPage() {
           <div className="row g-4 pb-5">
             {experiences.map((exp, idx) => (
               <div key={idx} className="col-12 col-md-6 col-lg-4 col-xl-3">
-                <ActivityCard 
+                <EventCard 
                   id={exp.id}
                   title={exp.title}
-                  time={exp.time}
-                  address={exp.address}
-                  schedule={exp.schedule}
+                  date={exp.time}
+                  location={exp.address}
+                  category={exp.schedule}
                   description={exp.description}
                   thumbnail={exp.thumbnail}
+                  basePath="experiencias"
+                  typeColor={themeColor}
                 />
               </div>
             ))}

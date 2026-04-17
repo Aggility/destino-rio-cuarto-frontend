@@ -398,15 +398,12 @@ h3 {
 
 // 13. MACROEVENTCARD THUMB FIX
 .macro-event-card {
-  .macro-thumb {
+  .macro-thumb-container {
     width: 100%;
-    max-width: 300px;
-    height: 180px;
-    flex-basis: auto;
-
+    
     @media (min-width: 768px) {
-      width: 154px !important;
-      height: 115px !important;
+      width: 55% !important;
+      flex-basis: 55% !important;
     }
   }
 }
