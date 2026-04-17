@@ -223,18 +223,18 @@ export default function ContactAndLocationWidget({ service, type = 'service' }) 
             
             {/* Elemento Informativo Flotante */}
             {userLoc && routeGeoJson && (
-                <div className="position-absolute bottom-0 start-50 translate-middle-x mb-4 bg-white px-4 py-3 rounded-pill shadow-lg border text-center" style={{ minWidth: '90%', maxWidth: '340px' }}>
-                    <span className="font-inter fw-bold text-gray-900 d-block m-0" style={{ fontSize: '15px' }}>
-                        <i className={`bi ${travelMode === 'driving' ? 'bi-car-front-fill' : 'bi-person-walking'} me-2`} style={{ color: theme.color }}></i>
+                <div className="position-absolute bottom-0 start-50 translate-middle-x mb-4 bg-white px-3 py-2 rounded-pill shadow-lg border text-center" style={{ width: 'clamp(280px, 90%, 340px)' }}>
+                    <span className="font-inter fw-bold text-gray-900 d-block m-0" style={{ fontSize: '14px' }}>
+                        <i className={`bi ${travelMode === 'driving' ? 'bi-car-front-fill' : 'bi-person-walking'} me-1`} style={{ color: theme.color }}></i>
                         Ruta optimizada hasta {service.name}
                     </span>
                 </div>
             )}
             
             {!userLoc && (
-                <div className="position-absolute bottom-0 start-50 translate-middle-x mb-4 bg-dark text-white px-4 py-2 rounded-pill shadow-lg border text-center" style={{ minWidth: '90%', maxWidth: '320px' }}>
-                    <span className="font-inter d-block" style={{ fontSize: '14px' }}>
-                        <i className="bi bi-geo-alt-fill me-2" style={{ color: theme.color }}></i> 
+                <div className="position-absolute bottom-0 start-50 translate-middle-x mb-4 bg-dark text-white px-3 py-2 rounded-pill shadow-lg border text-center" style={{ width: 'clamp(280px, 90%, 320px)' }}>
+                    <span className="font-inter d-block" style={{ fontSize: '13px' }}>
+                        <i className="bi bi-geo-alt-fill me-1" style={{ color: theme.color }}></i> 
                         Activa tu ubicación para ver el recorrido.
                     </span>
                 </div>

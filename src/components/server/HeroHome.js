@@ -94,7 +94,8 @@ export default function HeroHome({ initialSlug = null }) {
       display: 'flex',
       flexDirection: 'column',
       padding: '0',
-      transition: 'background-image 0.4s ease-in-out'
+      transition: 'background-image 0.4s ease-in-out',
+      overflowX: 'clip'
     }}>
       {/* Overlay sutil para móvil (toda la pantalla) */}
       <div className="position-absolute top-0 start-0 w-100 h-100 d-md-none" style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)' }}></div>

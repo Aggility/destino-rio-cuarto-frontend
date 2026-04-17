@@ -41,7 +41,7 @@ export default function ExperienceInteractiveMap({ stops = [], themeColor = '#ff
   };
 
   return (
-    <div className="position-relative w-100 rounded-4 overflow-hidden shadow-premium" style={{ height: '500px', border: '1px solid #e5e7eb' }}>
+    <div className="position-relative w-100 rounded-4 overflow-hidden shadow-premium" style={{ height: 'clamp(350px, 50vh, 500px)', border: '1px solid #e5e7eb' }}>
       <Map
         initialViewState={{
           longitude: initialLng,
@@ -74,8 +74,8 @@ export default function ExperienceInteractiveMap({ stops = [], themeColor = '#ff
           >
             <div className="cursor-pointer transition-all hover-scale" style={{ transform: selectedStop?.id === stop.id ? 'scale(1.2)' : 'scale(1)' }}>
                 <div className="d-flex align-items-center justify-content-center bg-white rounded-circle shadow-lg" 
-                     style={{ width: '36px', height: '36px', border: `3px solid ${themeColor}` }}>
-                    <span className="fw-bold" style={{ color: themeColor, fontSize: '13px' }}>{i + 1}</span>
+                     style={{ width: '32px', height: '32px', border: `3px solid ${themeColor}` }}>
+                    <span className="fw-bold" style={{ color: themeColor, fontSize: '12px' }}>{i + 1}</span>
                 </div>
             </div>
           </Marker>
@@ -91,24 +91,23 @@ export default function ExperienceInteractiveMap({ stops = [], themeColor = '#ff
             closeButton={true}
             className="font-inter"
           >
-            <div className="p-1">
-              <h6 className="fw-bold mb-1" style={{ color: themeColor }}>{selectedStop.name}</h6>
-              <p className="small text-muted mb-0">{selectedStop.description}</p>
+            <div className="p-1" style={{ maxWidth: '200px' }}>
+              <h6 className="fw-bold mb-1" style={{ color: themeColor, fontSize: '14px' }}>{selectedStop.name}</h6>
+              <p className="small text-muted mb-0" style={{ fontSize: '12px' }}>{selectedStop.description}</p>
             </div>
           </Popup>
         )}
       </Map>
 
       {/* Info Overlay (Tourist Help) */}
-      <div className="position-absolute bottom-0 start-0 m-3 p-3 bg-white rounded-3 shadow-lg border-start border-4 transition-all" 
-           style={{ maxWidth: '280px', borderColor: themeColor, zIndex: 10 }}>
-        <h6 className="fw-bold mb-2 d-flex align-items-center gap-2">
+      <div className="position-absolute bottom-0 start-0 m-2 m-md-3 p-2 p-md-3 bg-white rounded-3 shadow-lg border-start border-4 transition-all" 
+           style={{ maxWidth: 'calc(100% - 20px)', width: '220px', borderColor: themeColor, zIndex: 10 }}>
+        <h6 className="fw-bold mb-1 d-flex align-items-center gap-2" style={{ fontSize: '14px' }}>
           <i className="bi bi-info-circle-fill" style={{ color: themeColor }}></i>
           Ayuda al Turista
         </h6>
-        <p className="small text-muted mb-0" style={{ fontSize: '12px', lineHeight: '1.4' }}>
-          Esta experiencia incluye {stops.length} paradas clave. Haz clic en los números para ver detalles de cada lugar. 
-          El recorrido sugerido está marcado con puntos.
+        <p className="small text-muted mb-0" style={{ fontSize: '11px', lineHeight: '1.3' }}>
+          Esta experiencia incluye {stops.length} paradas clave. Haz clic en los números para ver detalles. 
         </p>
       </div>
     </div>

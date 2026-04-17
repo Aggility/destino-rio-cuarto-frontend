@@ -265,37 +265,29 @@
   }
 }
 
-// 7. RESPONSIVE
-@media (max-width: 768px) {
-  .hero-title {
-    font-size: 32px !important;
-    letter-spacing: -0.96px !important;
-  }
-  .carousel-arrow {
-    width: 32px !important;
-    height: 32px !important;
-    i { font-size: 16px !important; }
-  }
+// ═══════════════════════════════════════════════════════════
+// GLOBAL SAFETY & RESET
+// ═══════════════════════════════════════════════════════════
+html, body {
+  overflow-x: clip; // Prevenir scroll horizontal sin romper 'sticky'
+  width: 100%;
+  position: relative;
 }
 
-.cursor-pointer {
-  cursor: pointer;
+main {
+  overflow-x: clip; 
 }
 
-.transition-all {
-  transition: all 0.3s ease;
-}
-
+.cursor-pointer { cursor: pointer; }
+.transition-all { transition: all 0.3s ease; }
 .hover-lift {
+  transition: all 0.3s ease;
   &:hover {
     transform: translateY(-4px);
     box-shadow: 0 10px 20px rgba(0,0,0,0.1);
   }
 }
-
-.border-dashed {
-  border-style: dashed !important;
-}
+.border-dashed { border-style: dashed !important; }
 
 // 10. TEXT UTILITIES
 .text-truncate-2 {
@@ -314,6 +306,30 @@
 
 .w-fit-content {
   width: fit-content !important;
+}
+
+.breadcrumb-item {
+  font-size: 13px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  
+  @media (max-width: 768px) {
+    font-size: 11px !important;
+  }
+}
+
+// 7. RESPONSIVE
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: clamp(28px, 9vw, 36px) !important;
+    letter-spacing: -0.8px !important;
+    line-height: 1 !important;
+  }
+  .carousel-arrow {
+    width: 32px !important;
+    height: 32px !important;
+    i { font-size: 16px !important; }
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
