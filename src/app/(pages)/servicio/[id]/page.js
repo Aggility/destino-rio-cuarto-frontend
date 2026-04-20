@@ -62,16 +62,20 @@ export default async function ServicioDetailPage({ params }) {
        const center = { lat: service.lat, lng: service.lng };
        const nearby = getNearbyLocations(center, formattedEvents, 3000);
        
-       nearbyEvents = nearby.slice(0, 3).map(ev => ({
-         id: ev.id,
-         title: ev.title,
-         subtitle: ev.organization?.name || 'Río Cuarto',
-         badge: ev.calendars?.[0]?.start_date ? new Date(ev.calendars[0].start_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' }).toUpperCase() : 'PRÓXIMAMENTE',
-         type: 'event',
-         thumbnail: ev.image_url || '/Thumbnail.png',
-         lat: ev.lat,
-         lng: ev.lng
-       }));
+       nearbyEvents = nearby
+          .filter(ev => ev.status?.toLowerCase() !== 'inactive')
+          .slice(0, 3)
+          .map(ev => ({
+            id: ev.id,
+            title: ev.title,
+            subtitle: ev.organization?.name || 'Río Cuarto',
+            badge: ev.calendars?.[0]?.start_date ? new Date(ev.calendars[0].start_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' }).toUpperCase() : 'PRÓXIMAMENTE',
+            type: 'event',
+            thumbnail: ev.media?.cover || ev.media?.gallery?.[0] || ev.image_url || '/Thumbnail.png',
+            lat: ev.lat,
+            lng: ev.lng,
+            href: `/eventos/${ev.id}`
+          }));
     }
 
     // Buscar organizaciones relacionadas (mismo rubro)
@@ -104,13 +108,13 @@ export default async function ServicioDetailPage({ params }) {
   ];
 
   const finalEvents = nearbyEvents.length > 0 ? nearbyEvents : [
-    { title: 'Cine Bajo las Estrellas', subtitle: 'Parque Sarmiento', badge: '15 DIC', type: 'event', thumbnail: '/Thumbnail.png', href: '#' }
+    { title: 'Cine Bajo las Estrellas', subtitle: 'Parque Sarmiento', badge: '15 DIC', type: 'event', thumbnail: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=300', href: '#' }
   ];
 
   const suggestedActivities = [
-    { title: 'Circuito del Bienestar', subtitle: 'Río Cuarto', badge: '4 Lugares', type: 'activity', thumbnail: '/Thumbnail.png', href: '#' },
-    { title: 'Circuito del Bienestar', subtitle: 'Río Cuarto', badge: '4 Lugares', type: 'activity', thumbnail: '/Thumbnail.png', href: '#' },
-    { title: 'Circuito del Bienestar', subtitle: 'Río Cuarto', badge: '4 Lugares', type: 'activity', thumbnail: '/Thumbnail.png', href: '#' }
+    { title: 'Circuito del Bienestar', subtitle: 'Río Cuarto', badge: '4 Lugares', type: 'activity', thumbnail: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=300', href: '#' },
+    { title: 'Circuito del Bienestar', subtitle: 'Río Cuarto', badge: '4 Lugares', type: 'activity', thumbnail: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=300', href: '#' },
+    { title: 'Circuito del Bienestar', subtitle: 'Río Cuarto', badge: '4 Lugares', type: 'activity', thumbnail: 'https://images.unsplash.com/photo-1599443015574-be5fe8a05783?auto=format&fit=crop&q=80&w=300', href: '#' }
   ];
 
   return (

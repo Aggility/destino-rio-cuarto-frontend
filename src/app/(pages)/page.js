@@ -77,8 +77,8 @@ export default async function Home() {
     // 2. ACTIVIDADES (ActivityCard)
     if (cat.slug === 'actividades') {
         const items = [
-            { id: 'trencito', title: 'Trencito Rio IV', time: '15:00 a 19:00', address: 'Plaza Roca', schedule: 'Fines de semana' },
-            { id: 'parque-ecologico', title: 'Parque Ecológico', time: '10:00 a 18:00', address: 'Ruta A005', schedule: 'Todos los días' }
+            { id: 'trencito', title: 'Trencito Rio IV', time: '15:00 a 19:00', address: 'Plaza Roca', schedule: 'Fines de semana', thumbnail: '/trencito.jfif' },
+            { id: 'parque-ecologico', title: 'Parque Ecológico', time: '10:00 a 18:00', address: 'Ruta A005', schedule: 'Todos los días', thumbnail: '/peu.webp' }
         ];
 
         return items.map((item) => (
@@ -90,7 +90,7 @@ export default async function Home() {
                     address={item.address}
                     schedule={item.schedule}
                     description=""
-                    thumbnail={localThumbnail}
+                    thumbnail={item.thumbnail}
                     type={cat.slug}
                 />
             </div>
@@ -100,8 +100,8 @@ export default async function Home() {
     // 3. EXPERIENCIAS (EventCard)
     if (cat.slug === 'experiencias') {
         const items = [
-            { id: 'respira-aire-libre', title: 'Respira Aire Libre', time: 'Todo el día', address: 'Parque Sarmiento', schedule: 'Todos los días' },
-            { id: 'recorrido-7-iglesias', title: 'Recorrido 7 Iglesias', time: '3 a 4 horas', address: 'Microcentro', schedule: 'Semana Santa' }
+            { id: 'respira-aire-libre', title: 'Respira Aire Libre', time: 'Todo el día', address: 'Parque Sarmiento', schedule: 'Todos los días', thumbnail: '/psarmiento.jfif' },
+            { id: 'recorrido-7-iglesias', title: 'Recorrido 7 Iglesias', time: '3 a 4 horas', address: 'Microcentro', schedule: 'Semana Santa', thumbnail: 'https://images.unsplash.com/photo-1548625235-36af58169128?auto=format&fit=crop&q=80&w=600' }
         ];
 
         return items.map((item) => (
@@ -113,7 +113,7 @@ export default async function Home() {
                     location={item.address}
                     category={item.schedule}
                     description=""
-                    thumbnail={localThumbnail}
+                    thumbnail={item.thumbnail}
                     basePath="experiencias"
                     typeColor={cat.color}
                 />

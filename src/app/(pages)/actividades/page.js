@@ -18,7 +18,7 @@ export default function ActivitiesPage() {
         address: 'Salida desde Plaza Roca', 
         schedule: 'Sáb, Dom y Feriados', 
         description: 'Un recorrido histórico por los puntos más emblemáticos del centro de la ciudad.', 
-        thumbnail: '/Thumbnail.png' 
+        thumbnail: '/trencito.jfif' 
     },
     { 
         id: 'circuito-saludable', 
@@ -27,7 +27,7 @@ export default function ActivitiesPage() {
         address: 'Parque Sarmiento / Costanera', 
         schedule: 'Todos los días', 
         description: 'Recorrido por estaciones de ejercicio al aire libre y senderos de caminata.', 
-        thumbnail: '/Thumbnail.png' 
+        thumbnail: '/psarmiento.jfif' 
     },
     { 
         id: 'museo-historico', 
@@ -36,7 +36,7 @@ export default function ActivitiesPage() {
         address: 'Fotheringham 178', 
         schedule: 'Mar a Sáb', 
         description: 'Conocé la historia de los fundadores y la evolución de nuestra región.', 
-        thumbnail: '/Thumbnail.png' 
+        thumbnail: '/museo-historico.jpg' 
     },
     { 
         id: 'parque-ecologico', 
@@ -45,7 +45,7 @@ export default function ActivitiesPage() {
         address: 'Ruta A005 Km 7.5', 
         schedule: 'Fines de Semana', 
         description: 'Contacto directo con la flora y fauna autóctona en un entorno protegido.', 
-        thumbnail: '/Thumbnail.png' 
+        thumbnail: '/peu.webp' 
     }
   ];
 

@@ -12,32 +12,75 @@ import EventDistanceBadge from '@/components/client/EventDistanceBadge';
 export default async function ActivityDetailPage({ params }) {
   const { id } = await params;
 
-  const activity = {
-    id: id || 'trencito',
-    title: 'Trencito de Rio Cuarto',
-    category: 'Actividades Turísticas',
-    categoryColor: '#8a38f5',
-    tagline: 'Un recorrido histórico por el corazón de la ciudad.',
-    description: [
-      'El Trencito de Río Cuarto es un clásico paseos para grandes y chicos. Un recorrido que atraviesa los puntos más emblemáticos de la ciudad, permitiendo conocer su historia y arquitectura desde una perspectiva diferente.',
-      'Durante el trayecto, se visitan monumentos, plazas principales y sectores residenciales históricos, acompañados de una guía que relata leyendas y anécdotas locales.'
-    ],
-    details: {
-      horarios: 'Sáb, Dom y Feriados 15 a 19 hs.',
-      duracion: '45 minutos aprox.',
-      precio: 'Consultar tarifas'
+  const activityData = {
+    'trencito': {
+      title: 'Trencito de Rio Cuarto',
+      category: 'Actividades Turísticas',
+      categoryColor: '#8a38f5',
+      tagline: 'Un recorrido histórico por el corazón de la ciudad.',
+      description: [
+        'El Trencito de Río Cuarto es un clásico paseos para grandes y chicos. Un recorrido que atraviesa los puntos más emblemáticos de la ciudad, permitiendo conocer su historia y arquitectura desde una perspectiva diferente.',
+        'Durante el trayecto, se visitan monumentos, plazas principales y sectores residenciales históricos, acompañados de una guía que relata leyendas y anécdotas locales.'
+      ],
+      details: { horarios: 'Sáb, Dom y Feriados 15 a 19 hs.', duracion: '45 minutos aprox.', precio: 'Consultar tarifas' },
+      location: { name: 'Salida desde Plaza Roca', address: 'Constitución 600, Río Cuarto', city: 'Río Cuarto, Córdoba' },
+      images: ['/trencito.jfif'],
+      recommendedServices: [
+          { name: 'HOTEL OPERA', address: '25 de Mayo 55', phone: '0358 464-1100' },
+          { name: 'LA PARRILLA DE PANCHO', address: 'San Martín 2500', phone: '0358 426-6430' }
+      ]
     },
-    location: {
-      name: 'Salida desde Plaza Roca',
-      address: 'Constitución 600, Río Cuarto',
-      city: 'Río Cuarto, Córdoba'
+    'circuito-saludable': {
+      title: 'Circuito del Bienestar',
+      category: 'Salud y Deporte',
+      categoryColor: '#22c55e',
+      tagline: 'Senderos de caminata y estaciones de ejercicio al aire libre.',
+      description: [
+        'Disfrutá del aire puro en el trayecto que une el Parque Sarmiento con la Costanera del Río Cuarto. Un espacio pensado para el movimiento y la salud.',
+        'Cuenta con estaciones de gimnasia, bebederos y senderos señalizados para running o caminatas tranquilas frente al río.'
+      ],
+      details: { horarios: 'Todo el día', duracion: 'Libre', precio: 'Acceso gratuito' },
+      location: { name: 'Parque Sarmiento / Costanera', address: 'Av. Marcelo T. de Alvear, Río Cuarto', city: 'Río Cuarto, Córdoba' },
+      images: ['/psarmiento.jfif'],
+      recommendedServices: [
+          { name: 'HOTEL OPERA', address: '25 de Mayo 55', phone: '0358 464-1100' }
+      ]
     },
-    images: ['/Thumbnail.png'],
-    recommendedServices: [
-        { name: 'HOTEL OPERA', address: '25 de Mayo 55', phone: '0358 464-1100' },
-        { name: 'LA PARRILLA DE PANCHO', address: 'San Martín 2500', phone: '0358 426-6430' }
-    ]
+    'museo-historico': {
+      title: 'Museo Histórico Regional',
+      category: 'Cultura',
+      categoryColor: '#f59e0b',
+      tagline: 'Un viaje al pasado de nuestra región.',
+      description: [
+        'El Museo Histórico Regional resguarda el patrimonio cultural de los pioneros de la región, con salas dedicadas a la arqueología y la historia local.',
+        'Ubicado en una casona histórica, ofrece visitas guiadas para escuelas y turistas interesados en nuestras raíces.'
+      ],
+      details: { horarios: 'Mar a Sáb 09:00 a 18:00 hs.', duracion: '1 hora aprox.', precio: 'Entrada libre y gratuita' },
+      location: { name: 'Museo Histórico Regional', address: 'Fotheringham 178, Río Cuarto', city: 'Río Cuarto, Córdoba' },
+      images: ['/museo-historico.jpg'],
+      recommendedServices: [
+          { name: 'BIBLIOTECA MARIANO MORENO', address: 'Sobremonte 820', phone: '0358 467-1234' }
+      ]
+    },
+    'parque-ecologico': {
+      title: 'Parque Ecológico Urbano',
+      category: 'Naturaleza',
+      categoryColor: '#059669',
+      tagline: 'Contacto directo con la flora y fauna autóctona.',
+      description: [
+        'Un pulmón verde dedicado a la preservación y educación ambiental. Ideal para pasar el día en familia aprendiendo sobre animales rehabilitados.',
+        'El parque cuenta con amplios senderos, áreas de picnic y es un centro de rescate y rehabilitación de especies silvestres.'
+      ],
+      details: { horarios: 'Fines de semana 10:00 a 18:30 hs.', duracion: '3 horas aprox.', precio: 'Consultar tarifas' },
+      location: { name: 'Parque Ecológico Urbano (PEU)', address: 'Ruta A005 Km 7.5, Río Cuarto', city: 'Río Cuarto, Córdoba' },
+      images: ['/peu.webp'],
+      recommendedServices: [
+          { name: 'CAFÉ DEL PARQUE', address: 'Ruta A005', phone: '0358 123-4567' }
+      ]
+    }
   };
+
+  const activity = activityData[id] || activityData['trencito'];
 
   return (
     <div className="bg-light-gray min-vh-100 pb-5">
@@ -149,16 +192,16 @@ export default async function ActivityDetailPage({ params }) {
                             subtitle="Parque Sarmiento"
                             badge="DIARIO"
                             type="activity"
-                            thumbnail="/Thumbnail.png"
-                            href="/actividades/id"
+                            thumbnail="/psarmiento.jfif"
+                            href="/actividades/circuito-saludable"
                           />
                           <SidebarListCard 
                             title="Museo Histórico"
                             subtitle="Fotheringham 178"
                             badge="CULTURAL"
                             type="activity"
-                            thumbnail="/Thumbnail.png"
-                            href="/actividades/id"
+                            thumbnail="/museo-historico.jpg"
+                            href="/actividades/museo-historico"
                           />
                       </div>
                       <Link href="/actividades" className="btn btn-outline-primary w-100 mt-4 py-2 fw-bold text-decoration-none" 
