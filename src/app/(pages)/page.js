@@ -49,9 +49,8 @@ export default async function Home() {
 
   const sections = [
     { id: 1, title: 'Eventos Destacados', slug: 'eventos', color: '#f54286' },
-    { id: 2, title: 'Recorré la Ciudad', slug: 'servicios', color: '#8a38f5' },
-    { id: 3, title: 'Actividades Populares', slug: 'actividades', color: '#8a38f5' },
-    { id: 4, title: 'Experiencias Únicas', slug: 'experiencias', color: '#ff5a1f' },
+    { id: 2, title: 'Vivi tu propia experiencia', slug: 'experiencias', color: '#ff5a1f' },
+    { id: 3, title: 'Actividades para Disfrutar', slug: 'actividades', color: '#8a38f5' },
   ];
 
   const localThumbnail = "/Thumbnail.png";
@@ -74,24 +73,26 @@ export default async function Home() {
       ));
     }
 
-    // 2. ACTIVIDADES (ActivityCard)
+    // 2. ACTIVIDADES (EventCard)
     if (cat.slug === 'actividades') {
         const items = [
-            { id: 'trencito', title: 'Trencito Rio IV', time: '15:00 a 19:00', address: 'Plaza Roca', schedule: 'Fines de semana', thumbnail: '/trencito.jfif' },
-            { id: 'parque-ecologico', title: 'Parque Ecológico', time: '10:00 a 18:00', address: 'Ruta A005', schedule: 'Todos los días', thumbnail: '/peu.webp' }
+            { id: 'trencito', title: 'Trencito Rio IV', time: '15:00 a 19:00', address: 'Parque Sarmiento', schedule: 'Fines de semana', thumbnail: '/trencito.jfif' },
+            { id: 'parque-ecologico', title: 'Parque Ecológico', time: '10:00 a 18:00', address: 'Ruta A005', schedule: 'Todo el año', thumbnail: '/peu.webp' },
+            { id: 'museo-historico', title: 'Museo Histórico Regional', time: '09:00 a 13:00', address: 'Fotheringham 178', schedule: 'Mar a Dom', thumbnail: '/museo-historico.jpg' }
         ];
 
         return items.map((item) => (
-            <div key={item.id} className="flex-shrink-0" style={{ width: 'clamp(240px, 70vw, 280px)' }}>
-                <ActivityCard 
+            <div key={item.id} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)' }}>
+                <EventCard 
                     id={item.id}
                     title={item.title}
-                    time={item.time}
-                    address={item.address}
-                    schedule={item.schedule}
+                    date={item.time}
+                    location={item.address}
+                    category={item.schedule}
                     description=""
                     thumbnail={item.thumbnail}
-                    type={cat.slug}
+                    basePath="actividades"
+                    typeColor={cat.color}
                 />
             </div>
         ));
@@ -100,8 +101,9 @@ export default async function Home() {
     // 3. EXPERIENCIAS (EventCard)
     if (cat.slug === 'experiencias') {
         const items = [
-            { id: 'respira-aire-libre', title: 'Respira Aire Libre', time: 'Todo el día', address: 'Parque Sarmiento', schedule: 'Todos los días', thumbnail: '/psarmiento.jfif' },
-            { id: 'recorrido-7-iglesias', title: 'Recorrido 7 Iglesias', time: '3 a 4 horas', address: 'Microcentro', schedule: 'Semana Santa', thumbnail: 'https://images.unsplash.com/photo-1548625235-36af58169128?auto=format&fit=crop&q=80&w=600' }
+            { id: 'respira-aire-libre', title: 'Respira Aire Libre', time: 'Todo el día', address: 'Parque Sarmiento', schedule: 'Naturaleza', thumbnail: '/psarmiento.jfif' },
+            { id: 'recorrido-7-iglesias', title: 'Recorrido 7 Iglesias', time: '3 a 4 horas', address: 'Microcentro', schedule: 'Patrimonio', thumbnail: 'https://images.unsplash.com/photo-1548625235-36af58169128?auto=format&fit=crop&q=80&w=600' },
+            { id: 'recorrido-historico-cultural', title: 'Histórico Cultural', time: '2.5 horas', address: 'Palacio de Mójica', schedule: 'Historia', thumbnail: '/museo-historico.jpg' }
         ];
 
         return items.map((item) => (
@@ -121,20 +123,7 @@ export default async function Home() {
         ));
     }
 
-    // 4. FALLBACK (Servicios u otros)
-    return [1, 2, 3, 4, 5].map((i) => (
-      <div key={i} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)' }}>
-        <EventCard
-          id={i}
-          title={`${cat.title} ${i}`}
-          date={index === 0 ? "12 mar, 21:00hs" : "Temporada 2026"}
-          location={index === 0 ? "Elvis RockandBar" : "Puntos Emblemáticos"}
-          category={cat.title.split(' ')[0].toUpperCase()}
-          typeColor={cat.color}
-          thumbnail={localThumbnail}
-        />
-      </div>
-    ));
+    return null;
   };
 
   return (
@@ -176,18 +165,17 @@ export default async function Home() {
 
               {/* SEE MORE CTA — Figma ID 3781:19232 */}
               <div className="text-center mt-2">
-                <Link href={`/${cat.slug}`} className="btn btn-outline-primary px-4 py-2 rounded-2 shadow-premium fw-semibold font-inter transition-all hover-lift" 
-                      style={{
-                        minWidth: '180px',
-                        height: '48px',
-                        borderColor: cat.color,
-                        color: cat.color,
-                        fontSize: '15px',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}>
-                  Ver más {cat.title.toLowerCase()}
+                <Link href={`/${cat.slug}`} className="btn px-4 py-2 rounded-2 fw-semibold font-inter btn-invert-hover shadow-premium" 
+                       style={{
+                         minWidth: '180px',
+                         height: '48px',
+                         '--btn-theme-color': cat.color,
+                         fontSize: '15px',
+                         display: 'inline-flex',
+                         alignItems: 'center',
+                         justifyContent: 'center'
+                       }}>
+                   Ver más {cat.title.toLowerCase()}
                 </Link>
               </div>
 

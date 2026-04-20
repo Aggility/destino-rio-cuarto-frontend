@@ -210,8 +210,6 @@ export default async function ExperienceDetailPage({ params }) {
         </div>
       </section>
 
-      <ChatbotIcon />
-
     </div>
   );
 }

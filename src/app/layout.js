@@ -28,6 +28,7 @@ export const metadata = {
 };
 
 import GeolocationPopup from "@/components/client/GeolocationPopup";
+import ChatbotIcon from "@/components/server/ChatbotIcon";
 
 export default function RootLayout({ children }) {
   return (
@@ -39,6 +40,7 @@ export default function RootLayout({ children }) {
         </main>
         <Footer />
         <GeolocationPopup />
+        <ChatbotIcon />
         
         {/* Bootstrap JS para interactividad */}
         <script

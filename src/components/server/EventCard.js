@@ -58,10 +58,11 @@ export default function EventCard({
           )}
 
           {/* Title — Figma ID I3781:19227;3389:3478 */}
-          <h3 className="h5 fw-semibold text-gray-900 mb-1 font-inter text-truncate w-100" style={{ 
-            fontSize: 'clamp(15px, 4vw, 22px)', 
-            letterSpacing: '-0.5px',
-            lineHeight: '1.2'
+          <h3 className="fw-semibold text-gray-900 mb-1 font-inter text-truncate-2 w-100" style={{ 
+            fontSize: 'clamp(13px, 3.5vw, 16px)', 
+            letterSpacing: '-0.2px',
+            lineHeight: '1.2',
+            minHeight: '2.4em'
           }}>
             {title}
           </h3>

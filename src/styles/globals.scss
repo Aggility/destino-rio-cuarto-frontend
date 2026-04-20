@@ -503,3 +503,18 @@ h3 {
   transform: scale(2); // Zoom para el nuevo bot.png
   object-position: center;
 }
+
+// 15. DYNAMIC BUTTON HOVER INVERT
+.btn-invert-hover {
+  background-color: transparent !important;
+  color: var(--btn-theme-color) !important;
+  border: 1px solid var(--btn-theme-color) !important;
+  transition: all 0.3s ease !important;
+  
+  &:hover {
+    background-color: var(--btn-theme-color) !important;
+    color: white !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+}
