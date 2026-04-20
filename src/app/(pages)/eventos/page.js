@@ -18,6 +18,8 @@ export default async function EventsPage() {
     if (res.ok) {
       const data = await res.json();
       apiEvents = Array.isArray(data) ? data : (data.data || []);
+      // Excluir eventos con status inactivo
+      apiEvents = apiEvents.filter(evt => evt.status?.toLowerCase() !== 'inactive');
     }
   } catch (error) {
     console.error("Error fetching events API: ", error);
@@ -46,7 +48,7 @@ export default async function EventsPage() {
       date: dateStr,
       location: evt.organization?.name || 'Ubicación a confirmar',
       description: descStr,
-      thumbnail: evt.image_url || "/Thumbnail.png", // Usa image_url si existe
+      thumbnail: evt.media?.cover || evt.media?.gallery?.[0] || evt.image_url || "/Thumbnail.png",
       category: evt.categories?.[0]?.name?.toUpperCase() || (idx % 2 === 0 ? "POP" : "KIDS"),
       typeColor: "#f54286",
       lat: evt.organization?.addresses?.[0]?.latitude,

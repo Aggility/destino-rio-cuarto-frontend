@@ -1,7 +1,7 @@
 import React from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import EventDistanceBadge from '@/components/client/EventDistanceBadge';
+import EventImageWithFallback from '@/components/client/EventImageWithFallback';
 
 /**
  * EventCard - Destino Río Cuarto
@@ -31,13 +31,10 @@ export default function EventCard({
                 borderRadius: '8px',
                 width: '100%'
              }}>
-          <Image 
+          <EventImageWithFallback
             src={thumbnail}
             alt={title}
-            fill
             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-            className="object-fit-cover"
-            style={{ objectFit: 'cover' }}
           />
           
           {/* Tag Overlay — Figma ID I3781:19227;3395:3977 */}

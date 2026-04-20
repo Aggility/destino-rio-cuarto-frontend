@@ -45,7 +45,7 @@ export default async function EventDetailPage({ params }) {
     },
     description: eventData?.description?.replace(/<[^>]*>?/gm, '') || 'Regresa Ulises Bueno para una noche inolvidable...',
     fullDescription: [eventData?.description?.replace(/<[^>]*>?/gm, '') || 'Regresa Ulises Bueno para una noche inolvidable...'],
-    thumbnail: eventData?.image_url || '/Thumbnail.png',
+    thumbnail: eventData?.media?.cover || eventData?.media?.gallery?.[0] || eventData?.image_url || '/Thumbnail.png',
     relatedEvents: []
   };
 

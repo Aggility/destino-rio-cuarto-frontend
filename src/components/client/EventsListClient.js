@@ -34,7 +34,7 @@ export default function EventsListClient({ initialEvents }) {
       date: dateStr,
       location: evt.organization?.name || 'Ubicación a confirmar',
       description: descStr,
-      thumbnail: evt.image_url || "/Thumbnail.png",
+      thumbnail: evt.media?.cover || evt.media?.gallery?.[0] || evt.image_url || "/Thumbnail.png",
       category: evt.categories?.[0]?.name?.toUpperCase() || (idx % 2 === 0 ? "POP" : "KIDS"),
       typeColor: "#f54286",
       lat: evt.organization?.addresses?.[0]?.latitude,

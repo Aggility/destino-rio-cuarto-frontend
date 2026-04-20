@@ -17,6 +17,8 @@ export default async function Home() {
     if (res.ok) {
       const data = await res.json();
       apiEvents = Array.isArray(data) ? data : (data.data || []);
+      // Excluir eventos con status inactivo
+      apiEvents = apiEvents.filter(evt => evt.status?.toLowerCase() !== 'inactive');
       apiEvents = apiEvents.slice(0, 5); // Solo tomar 5 para portada
     }
   } catch (error) {
@@ -41,7 +43,7 @@ export default async function Home() {
       location: evt.organization?.name || 'A confirmar',
       category: evt.categories?.[0]?.name?.toUpperCase() || 'EVENTO',
       typeColor: '#f54286',
-      thumbnail: evt.image_url || "/Thumbnail.png"
+      thumbnail: evt.media?.cover || evt.media?.gallery?.[0] || evt.image_url || "/Thumbnail.png"
     };
   });
 
