@@ -5,40 +5,10 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 
 export default function ExperienceInteractiveMap({ stops = [], themeColor = '#ff5a1f' }) {
   const [selectedStop, setSelectedStop] = useState(null);
-  const [routeGeoJson, setRouteGeoJson] = useState(null);
-  const [userLoc, setUserLoc] = useState(null);
 
   // Center the map on the first stop
   const initialLat = stops[0]?.lat || -33.1232;
   const initialLng = stops[0]?.lng || -64.3493;
-
-  useEffect(() => {
-    if (stops.length > 1) {
-      const coords = stops.map(s => `${s.lng},${s.lat}`).join(';');
-      const url = `https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson`;
-      
-      fetch(url)
-        .then(r => r.json())
-        .then(data => {
-          if (data.routes && data.routes[0]) {
-            setRouteGeoJson(data.routes[0].geometry);
-          }
-        }).catch(e => console.error("Error fetching experience route", e));
-    }
-  }, [stops]);
-
-  const routeLayer = {
-    id: 'experience-route',
-    type: 'line',
-    source: 'route-source',
-    layout: { 'line-join': 'round', 'line-cap': 'round' },
-    paint: {
-      'line-color': themeColor,
-      'line-width': 4,
-      'line-opacity': 0.6,
-      'line-dasharray': [2, 1]
-    }
-  };
 
   return (
     <div className="position-relative w-100 rounded-4 overflow-hidden shadow-premium" style={{ height: 'clamp(350px, 50vh, 500px)', border: '1px solid #e5e7eb' }}>
@@ -52,13 +22,6 @@ export default function ExperienceInteractiveMap({ stops = [], themeColor = '#ff
         style={{ width: '100%', height: '100%' }}
       >
         <NavigationControl position="bottom-right" />
-
-        {/* Route Line */}
-        {routeGeoJson && (
-          <Source id="route-source" type="geojson" data={routeGeoJson}>
-            <Layer {...routeLayer} />
-          </Source>
-        )}
 
         {/* Stops Markers */}
         {stops.map((stop, i) => (
@@ -74,9 +37,18 @@ export default function ExperienceInteractiveMap({ stops = [], themeColor = '#ff
           >
             <div className="cursor-pointer transition-all hover-scale" style={{ transform: selectedStop?.id === stop.id ? 'scale(1.2)' : 'scale(1)' }}>
                 <div className="d-flex align-items-center justify-content-center bg-white rounded-circle shadow-lg" 
-                     style={{ width: '32px', height: '32px', border: `3px solid ${themeColor}` }}>
-                    <span className="fw-bold" style={{ color: themeColor, fontSize: '12px' }}>{i + 1}</span>
+                     style={{ width: '38px', height: '38px', border: `2px solid ${themeColor}` }}>
+                    <i className={`bi ${stop.icon || 'bi-geo-alt-fill'}`} style={{ color: themeColor, fontSize: '18px' }}></i>
                 </div>
+                {/* Pointer tip */}
+                <div className="mx-auto shadow-sm" style={{ 
+                    width: '0', 
+                    height: '0', 
+                    borderLeft: '8px solid transparent', 
+                    borderRight: '8px solid transparent', 
+                    borderTop: `10px solid ${themeColor}`,
+                    marginTop: '-2px'
+                }}></div>
             </div>
           </Marker>
         ))}
@@ -104,10 +76,10 @@ export default function ExperienceInteractiveMap({ stops = [], themeColor = '#ff
            style={{ maxWidth: 'calc(100% - 20px)', width: '220px', borderColor: themeColor, zIndex: 10 }}>
         <h6 className="fw-bold mb-1 d-flex align-items-center gap-2" style={{ fontSize: '14px' }}>
           <i className="bi bi-info-circle-fill" style={{ color: themeColor }}></i>
-          Ayuda al Turista
+          Puntos de Interés
         </h6>
         <p className="small text-muted mb-0" style={{ fontSize: '11px', lineHeight: '1.3' }}>
-          Esta experiencia incluye {stops.length} paradas clave. Haz clic en los números para ver detalles. 
+          Toca los marcadores para conocer más sobre cada sitio histórico.
         </p>
       </div>
     </div>

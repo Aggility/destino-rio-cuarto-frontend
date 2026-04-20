@@ -19,33 +19,33 @@ export default async function ExperienceDetailPage({ params }) {
         reviews: 89,
         description: 'Disfrutá de la naturaleza en el pulmón verde más grande de Río Cuarto. Un paseo ideal para familias.',
         fullDescription: 'El Parque Sarmiento ofrece una variedad de actividades recreativas. Comenzaremos con el clásico paseo en trencito que recorre todo el predio, luego disfrutaremos de un momento de paz en el lago con los botes a pedal, y terminaremos visitando la feria de emprendedores locales donde podrás encontrar artesanías únicas.',
-        thumbnail: '/Thumbnail.png',
+        thumbnail: '/psarmiento.jfif',
         price: 'Gratis / Pago x Actividad',
         stops: [
-            { id: 1, name: 'Trencito Parque Sarmiento', lat: -33.1110, lng: -64.3320, description: 'Recorrido histórico por el parque.' },
-            { id: 2, name: 'Botes en el Lago', lat: -33.1125, lng: -64.3335, description: 'Paseo relajante por el agua.' },
-            { id: 3, name: 'Feria de Emprendedores', lat: -33.1140, lng: -64.3310, description: 'Artesanías y productos regionales.' }
+            { id: 1, name: 'Parque Sarmiento', lat: -33.10636300, lng: -64.33748200, description: 'Pulmón verde de la ciudad con recreación y naturaleza.', icon: 'bi-tree' },
+            { id: 2, name: 'Anfiteatro Atahualpa Yupanqui', lat: -33.10602300, lng: -64.33399800, description: 'Escenario de grandes eventos en el corazón del parque.', icon: 'bi-mic-fill' },
+            { id: 3, name: 'Botes en el Lago', lat: -33.10750000, lng: -64.33500000, description: 'Paseo relajante por el lago artificial del Parque Sarmiento.', icon: 'bi-water' }
         ]
     },
     'recorrido-7-iglesias': {
         title: 'Recorrido de las 7 Iglesias',
         category: 'Religioso',
-        duration: '3 horas',
+        duration: '3 a 4 horas',
         language: 'Español',
         rating: 4.9,
         reviews: 56,
-        description: 'Un circuito de reflexión y patrimonio arquitectónico por el centro de la ciudad.',
-        fullDescription: 'Este recorrido tradicional te lleva por los templos más significativos de Río Cuarto. Desde la imponente Catedral frente a Plaza Roca hasta pequeñas capillas con historias fascinantes. Ideal para realizar en Semana Santa o como un tour arquitectónico permanente.',
-        thumbnail: '/Thumbnail.png',
+        description: 'Un circuito de reflexión y patrimonio arquitectónico por los templos más significativos del centro.',
+        fullDescription: 'Este recorrido tradicional, emblemático de Semana Santa, te lleva por siete templos significativos de Río Cuarto. Iniciamos en la Catedral frente a Plaza Roca y recorremos los hitos espirituales y arquitectónicos que definen la identidad de la ciudad.',
+        thumbnail: 'https://images.unsplash.com/photo-1548625235-36af58169128?auto=format&fit=crop&q=80&w=600',
         price: 'Gratis',
         stops: [
-            { id: 1, name: 'Catedral Inmaculada Concepción', lat: -33.1237, lng: -64.3488, description: 'Principal templo frente a Plaza Roca.' },
-            { id: 2, name: 'Iglesia San Francisco de Asís', lat: -33.1252, lng: -64.3512, description: 'Ubicada en Alvear y San Martín.' },
-            { id: 3, name: 'Parroquia Ntra. Sra. del Carmen', lat: -33.1217, lng: -64.3441, description: 'Esquina de Sobremonte y Gral. Paz.' },
-            { id: 4, name: 'Parroquia Sagrados Corazones', lat: -33.1221, lng: -64.3465, description: 'Ubicada en calle Cabrera 742.' },
-            { id: 5, name: 'Parroquia Santa Teresita', lat: -33.1290, lng: -64.3350, description: 'Centro espiritual en calle Santa Fe.' },
-            { id: 6, name: 'Iglesia de la Merced', lat: -33.1312, lng: -64.3592, description: 'Punto histórico de la zona sur.' },
-            { id: 7, name: 'Santuario San Pantaleón', lat: -33.1415, lng: -64.3455, description: 'Lugar de promesas y devoción.' }
+            { id: 1, name: 'Catedral (Villa de la Concepción)', lat: -33.12373200, lng: -64.35115100, description: 'Sede de la Diócesis, frente a Plaza Roca.', icon: 'bi-bank' },
+            { id: 2, name: 'Iglesia San Francisco Solano', lat: -33.12226900, lng: -64.35029400, description: 'Histórico templo con gran valor patrimonial.', icon: 'bi-bank' },
+            { id: 3, name: 'Parroquia San Roque', lat: -33.11482100, lng: -64.35757800, description: 'Ubicada en una zona residencial histórica.', icon: 'bi-bank' },
+            { id: 4, name: 'Santuario Ntra. Sra. de Fátima', lat: -33.12281800, lng: -64.36166400, description: 'Lugar de gran devoción mariana.', icon: 'bi-bank' },
+            { id: 5, name: 'Parroquia Ntra. Sra. de Luján', lat: -33.13154900, lng: -64.35654600, description: 'Dedicada a la patrona de la Argentina.', icon: 'bi-bank' },
+            { id: 6, name: 'Parroquia de La Merced', lat: -33.13396600, lng: -64.33442500, description: 'Emblemática iglesia de la zona sur.', icon: 'bi-bank' },
+            { id: 7, name: 'Parroquia Santa Lucía', lat: -33.14415700, lng: -64.34496200, description: 'Ubicada en el sector de Banda Norte.', icon: 'bi-bank' }
         ]
     },
     'recorrido-historico-cultural': {
@@ -56,13 +56,13 @@ export default async function ExperienceDetailPage({ params }) {
         rating: 4.8,
         reviews: 42,
         description: 'Viaja en el tiempo conociendo los edificios más emblemáticos del poder y el arte local.',
-        fullDescription: 'Río Cuarto respira historia en sus muros. En este paseo visitaremos el Palacio Municipal, joya arquitectónica del centro, el Teatro Municipal donde late el arte riocuartense, y culminaremos en el Museo Histórico Regional para entender nuestras raíces.',
-        thumbnail: '/Thumbnail.png',
+        fullDescription: 'Río Cuarto respira historia en sus muros. En este paseo visitaremos el Palacio Municipal, joya arquitectónica del centro, el Teatro Municipal donde late el arte riocuartense, y culminaremos en el Paseo del Andino para entender nuestras raíces ferroviarias.',
+        thumbnail: '/museo-historico.jpg',
         price: 'Gratis',
         stops: [
-            { id: 1, name: 'Palacio Municipal', lat: -33.1235, lng: -64.3495, description: 'Sede del gobierno municipal, ícono arquitectónico.' },
-            { id: 2, name: 'Teatro Municipal', lat: -33.1238, lng: -64.3508, description: 'Escenario principal de la cultura local.' },
-            { id: 3, name: 'Museo Histórico Regional', lat: -33.1230, lng: -64.3475, description: 'Resguardo de la memoria y el pasado de la ciudad.' }
+            { id: 1, name: 'Teatro Municipal', lat: -33.12565000, lng: -64.35014100, description: 'Icono del arte y la cultura de Río Cuarto.', icon: 'bi-music-note-beamed' },
+            { id: 2, name: 'Museo Histórico Regional', lat: -33.12108900, lng: -64.34935500, description: 'Resguardo de la memoria local en la casa Fotheringham.', icon: 'bi-compass' },
+            { id: 3, name: 'Museo del Riel', lat: -33.12987100, lng: -64.34008000, description: 'Memoria ferroviaria en el predio del Andino.', icon: 'bi-train-front' }
         ]
     }
   };
@@ -72,14 +72,6 @@ export default async function ExperienceDetailPage({ params }) {
 
   return (
     <div className="bg-white min-vh-100">
-      
-      {/* 0. NAVIGATION / BACK LINK */}
-      <div className="container-xxl px-lg-5 pt-3 mb-2">
-          <Link href="/experiencias" className="d-inline-flex align-items-center gap-2 text-decoration-none transition-all hover-translate-x-n2" style={{ color: themeColor }}>
-              <i className="bi bi-arrow-left"></i>
-              <span className="fw-bold font-inter text-uppercase small" style={{ letterSpacing: '0.5px' }}>Volver a todas las experiencias</span>
-          </Link>
-      </div>
       
       {/* 1. HERO SECTION (Premium) */}
       <section className="position-relative w-100" style={{ height: '60vh', minHeight: '400px' }}>
@@ -94,12 +86,6 @@ export default async function ExperienceDetailPage({ params }) {
         
         <div className="position-absolute bottom-0 start-0 w-100 p-4 p-md-5">
             <div className="container-xxl px-lg-5">
-                <nav aria-label="breadcrumb" className="mb-3 animate-fade-in">
-                    <ol className="breadcrumb mb-0">
-                        <li className="breadcrumb-item"><Link href="/experiencias" className="text-white opacity-75 text-decoration-none">Experiencias</Link></li>
-                        <li className="breadcrumb-item active text-white fw-bold" aria-current="page">{experience.category}</li>
-                    </ol>
-                </nav>
                 <h1 className="text-white fw-bold mb-2 animate-fade-in-up" style={{ fontSize: 'clamp(32px, 6vw, 56px)', letterSpacing: '-1.5px' }}>
                     {experience.title}
                 </h1>
