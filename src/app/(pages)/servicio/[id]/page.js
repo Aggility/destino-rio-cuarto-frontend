@@ -6,6 +6,7 @@ import ServiceListItem from '@/components/server/ServiceListItem';
 import ContactAndLocationWidget from '@/components/client/ContactAndLocationWidget';
 import { getNearbyLocations } from "@/utils/geo";
 import EventDistanceBadge from '@/components/client/EventDistanceBadge';
+import EventImageWithFallback from '@/components/client/EventImageWithFallback';
 
 /**
  * ServicioDetailPage - Destino Río Cuarto
@@ -40,7 +41,7 @@ export default async function ServicioDetailPage({ params }) {
       { type: 'facebook', label: 'facebook', url: '#', icon: 'bi-facebook' }
     ],
     description: orgData?.description || 'Empresa que brinda servicio de transporte automotor interurbano regular de pasajeros y servicio de transporte automotor turístico de pasajeros.',
-    image: orgData?.image_url || '/Thumbnail.png'
+    image: orgData?.media?.cover || orgData?.media?.gallery?.[0] || orgData?.image_url || '/Thumbnail.png'
   };
 
   // 3. Obtener Datos para Recomendaciones (Eventos y Organizaciones Relacionadas)
@@ -76,7 +77,10 @@ export default async function ServicioDetailPage({ params }) {
     // Buscar organizaciones relacionadas (mismo rubro)
     const resOrgs = await fetch(`http://destbackdev.aggility.io/api/v1/organizations?per_page=50`, { cache: 'no-store' });
     if (resOrgs.ok) {
-        const allOrgs = (await resOrgs.json()).data || [];
+        let allOrgs = (await resOrgs.json()).data || [];
+        // Filtramos servicios inactivos
+        allOrgs = allOrgs.filter(org => org.status?.toLowerCase() !== 'inactive');
+
         relatedOrgs = allOrgs
           .filter(org => org.id !== service.id && org.categories?.some(c => c.name === service.category))
           .slice(0, 4)
@@ -86,7 +90,7 @@ export default async function ServicioDetailPage({ params }) {
             category: org.categories?.[0]?.name || 'Servicio',
             address: org.addresses?.[0]?.address?.split(',')[0] || 'Río Cuarto',
             phone: org.phone || 'Consultar contacto',
-            thumbnail: org.image_url || '/Thumbnail.png'
+            thumbnail: org.media?.cover || org.media?.gallery?.[0] || org.image_url || '/Thumbnail.png'
           }));
     }
   } catch (err) {
@@ -145,8 +149,12 @@ export default async function ServicioDetailPage({ params }) {
             <div className="col-12 col-lg-8">
                 
                 {/* Featured Image */}
-                <div className="w-100 bg-gray-200 rounded-3 mb-5 overflow-hidden" style={{ height: 'clamp(300px, 50vh, 450px)' }}>
-                    <img src={service.image} className="w-100 h-100 object-fit-cover" style={{ objectFit: 'cover', objectPosition: 'center' }} alt={service.name} />
+                <div className="w-100 bg-gray-200 rounded-3 mb-5 overflow-hidden position-relative" style={{ height: 'clamp(300px, 50vh, 450px)' }}>
+                    <EventImageWithFallback 
+                        src={service.image} 
+                        alt={service.name} 
+                        sizes="100vw"
+                    />
                 </div>
 
                 {/* Ubicación y Contacto Component (Mini Mapa + Info + Routing) */}

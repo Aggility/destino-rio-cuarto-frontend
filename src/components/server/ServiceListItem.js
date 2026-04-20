@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import EventDistanceBadge from '@/components/client/EventDistanceBadge';
+import EventImageWithFallback from '@/components/client/EventImageWithFallback';
 
 /**
  * ServiceListItem - Destino Río Cuarto
@@ -39,12 +40,13 @@ export default function ServiceListItem({
                 style={{ 
                     width: '90px', 
                     height: '65px',
-                    borderColor: '#d1d5db'
+                    borderColor: '#d1d5db',
+                    position: 'relative'
                 }}>
-                <img 
+                <EventImageWithFallback 
                     src={thumbnail} 
                     alt={title} 
-                    className="w-100 h-100 object-cover"
+                    sizes="90px"
                 />
             </div>
 

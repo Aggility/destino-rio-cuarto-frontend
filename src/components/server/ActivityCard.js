@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import EventImageWithFallback from '@/components/client/EventImageWithFallback';
 
 /**
  * ActivityCard - Destino Río Cuarto
@@ -24,10 +24,10 @@ export default function ActivityCard({
         
         {/* 1. Image Section with Zoom Effect */}
         <div className="position-relative overflow-hidden card-zoom-effect" style={{ height: '160px' }}>
-          <img 
+          <EventImageWithFallback 
             src={thumbnail} 
             alt={title} 
-            className="w-100 h-100 object-cover"
+            sizes="(max-width: 768px) 100vw, 300px"
           />
           {/* Badge Overlay */}
           <div className="position-absolute top-0 start-0 m-2 px-2 py-1 rounded-1 shadow-sm" 

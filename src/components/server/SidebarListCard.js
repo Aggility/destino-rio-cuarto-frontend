@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import EventDistanceBadge from '@/components/client/EventDistanceBadge';
+import EventImageWithFallback from '@/components/client/EventImageWithFallback';
 
 /**
  * SidebarListCard - Destino Río Cuarto
@@ -44,11 +45,10 @@ export default function SidebarListCard({
                 width: isCalendar ? '46px' : '80px', 
                 height: isCalendar ? '46px' : '80px' 
              }}>
-          <img 
+          <EventImageWithFallback 
             src={thumbnail} 
             alt={title} 
-            className="w-100 h-100 object-fit-cover"
-            style={{ objectFit: 'cover' }}
+            sizes={isCalendar ? '46px' : '80px'}
           />
         </div>
 

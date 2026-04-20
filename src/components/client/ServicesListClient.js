@@ -47,7 +47,7 @@ export default function ServicesListClient({ initialServices, leftoverFromFirstP
     category: org.categories?.[0]?.name || 'Servicio',
     address: org.addresses?.[0]?.address?.split(',')[0] || 'Río Cuarto',
     phone: org.phone || 'Consultar contacto',
-    thumbnail: org.image_url || "/Thumbnail.png",
+    thumbnail: org.media?.cover || org.media?.gallery?.[0] || org.image_url || "/Thumbnail.png",
     lat: org.addresses?.[0]?.latitude,
     lng: org.addresses?.[0]?.longitude,
     distance: null
@@ -84,8 +84,11 @@ export default function ServicesListClient({ initialServices, leftoverFromFirstP
       const res = await fetch(query);
       if (res.ok) {
         const data = await res.json();
-        const apiData = data.data || (Array.isArray(data) ? data : []);
+        let apiData = data.data || (Array.isArray(data) ? data : []);
         console.log(`Received ${apiData.length} items from API`);
+
+        // Filtramos servicios inactivos
+        apiData = apiData.filter(org => org.status?.toLowerCase() !== 'inactive');
 
         let formatted = apiData.map(formatOrg);
 

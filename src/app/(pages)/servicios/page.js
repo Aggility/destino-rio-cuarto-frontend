@@ -17,6 +17,8 @@ export default async function ServiciosPage() {
     if (res.ok) {
       const data = await res.json();
       apiServices = data.data || (Array.isArray(data) ? data : []);
+      // Filtramos servicios inactivos
+      apiServices = apiServices.filter(org => org.status?.toLowerCase() !== 'inactive');
     }
   } catch (error) {
     console.error("Error fetching organizations API: ", error);
@@ -28,7 +30,7 @@ export default async function ServiciosPage() {
     category: org.categories?.[0]?.name || 'Servicio',
     address: org.addresses?.[0]?.address?.split(',')[0] || 'Río Cuarto',
     phone: org.phone || 'Consultar contacto',
-    thumbnail: org.image_url || "/Thumbnail.png",
+    thumbnail: org.media?.cover || org.media?.gallery?.[0] || org.image_url || "/Thumbnail.png",
     lat: org.addresses?.[0]?.latitude,
     lng: org.addresses?.[0]?.longitude,
     description: org.description || ''
