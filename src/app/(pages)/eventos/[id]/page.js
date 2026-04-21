@@ -5,6 +5,8 @@ import EventCard from '@/components/server/EventCard';
 import EventDistanceBadge from '@/components/client/EventDistanceBadge';
 import ContactAndLocationWidget from '@/components/client/ContactAndLocationWidget';
 import { getNearbyLocations, getDistance } from '@/utils/geo';
+import ExpandableDescription from '@/components/client/ExpandableDescription';
+
 
 /**
  * EventDetailPage - Destino Río Cuarto
@@ -205,16 +207,8 @@ export default async function EventDetailPage({ params }) {
                 </div>
 
                 {/* Full Description */}
-                <div className="description-content font-inter text-gray-600 fs-5 mb-5" style={{ lineHeight: '1.6' }}>
-                    {event.fullDescription.map((para, idx) => (
-                        <p key={idx} className={idx === 0 ? 'mb-4 text-gray-900 fw-medium' : 'mb-3'}>
-                            {para}
-                        </p>
-                    ))}
-                    <button className="btn btn-link p-0 text-gray-500 fw-medium text-decoration-underline mt-2">
-                        Ver más
-                    </button>
-                </div>
+                <ExpandableDescription fullDescription={event.fullDescription} />
+
 
                 {/* Location Box */}
                 <div className="mt-5 pt-4 border-top">
