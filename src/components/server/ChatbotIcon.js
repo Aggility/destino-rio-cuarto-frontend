@@ -7,7 +7,7 @@ import React from 'react';
  */
 export default function ChatbotIcon() {
   return (
-    <div className="position-fixed bottom-0 end-0 m-4 z-3 animate-bounce-subtle" style={{ zIndex: 100000 }}>
+    <div className="position-fixed bottom-0 end-0 m-4 z-max" style={{ zIndex: 999999 }}>
       <div className="chatbot-bubble">
         <img 
           src="/bot.png" 
