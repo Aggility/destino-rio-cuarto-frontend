@@ -110,19 +110,26 @@ export default async function EventDetailPage({ params }) {
   const finalRestaurants = restaurants.length > 0 ? restaurants.slice(0, 2).map(computeDist) : fallbackRestaurants.map(computeDist);
 
   return (
-    <div className="bg-light-gray min-vh-100 pb-5">
+    <div className="bg-white min-vh-100 pb-5">
       
-      {/* 1. HERO HEADER — Basado en Figma Mobile/Desktop */}
-      <section className="position-relative overflow-hidden bg-dark" style={{ height: 'clamp(300px, 45vh, 480px)' }}>
+      {/* 1. HERO HEADER — Con fondo desenfocado y foto original */}
+      <section className="position-relative overflow-hidden bg-dark d-flex align-items-center justify-content-center" style={{ height: 'clamp(300px, 45vh, 480px)' }}>
+        {/* Fondo desenfocado */}
+        <img 
+          src={event.thumbnail} 
+          alt="" 
+          className="position-absolute w-100 h-100"
+          style={{ objectFit: 'cover', objectPosition: 'center', filter: 'blur(20px)', opacity: 0.6, transform: 'scale(1.1)' }}
+        />
+        {/* Imagen principal (Contenida) */}
         <img 
           src={event.thumbnail} 
           alt={event.title} 
-          className="position-absolute w-100 h-100"
-          style={{ objectFit: 'cover', objectPosition: 'center' }}
+          className="position-relative h-100 mw-100 shadow-lg"
+          style={{ objectFit: 'contain', zIndex: 1 }}
         />
-        {/* Dark Overlay sutil para profundidad */}
-        <div className="position-absolute top-0 start-0 w-100 h-100" style={{ background: 'rgba(0,0,0,0.1)' }}></div>
-        <div className="position-absolute bottom-0 start-0 w-100 h-50" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 100%)' }}></div>
+        {/* Dark Overlay sutil */}
+        <div className="position-absolute top-0 start-0 w-100 h-100" style={{ background: 'rgba(0,0,0,0)', zIndex: 2 }}></div>
         {/* Desktop Buttons */}
         <div className="position-absolute bottom-0 end-0 p-4 d-none d-lg-flex gap-3">
             <button className="btn btn-white shadow-premium d-flex align-items-center gap-2 px-3 py-2 rounded-3 border-0">
@@ -155,7 +162,7 @@ export default async function EventDetailPage({ params }) {
                 </div>
 
                 {/* Sticky Header block for Title and Category */}
-                <div className="position-sticky bg-white z-2" style={{ top: '80px', paddingTop: '10px', paddingBottom: '10px', marginTop: '-10px' }}>
+                <div className="bg-white">
                     {/* Category & Title */}
                     <div className="d-flex align-items-center gap-2 mb-3">
                         <div className="bg-pink-500 rounded-2 p-1 d-flex align-items-center justify-content-center" style={{ width: '32px', height: '32px', backgroundColor: '#f54286' }}>
@@ -229,10 +236,10 @@ export default async function EventDetailPage({ params }) {
 
           {/* RIGHT COLUMN: Sidebar (Recommendations) */}
           <div className="col-12 col-lg-4">
-            <div className="sticky-top" style={{ top: '100px', zIndex: 10 }}>
+            <div>
               
               {/* Dormir */}
-              <div className="bg-listing-page p-4 rounded-4 mb-4" style={{ backgroundColor: '#ebf5ff' }}>
+              <div className="bg-white p-4 rounded-4 mb-4 shadow-sm border">
                 <h3 className="font-inter fw-bold text-listing-title mb-4" style={{ fontSize: '22px', color: '#203f83' }}>Donde alojarme</h3>
                 <div className="d-flex flex-column gap-3 mb-4">
                     {finalAccommodation.map((item, idx) => {
@@ -270,7 +277,7 @@ export default async function EventDetailPage({ params }) {
               </div>
 
               {/* Comer */}
-              <div className="bg-listing-page p-4 rounded-4 shadow-premium-subtle" style={{ backgroundColor: '#fff7ed' }}>
+              <div className="bg-white p-4 rounded-4 shadow-sm border">
                 <h3 className="font-inter fw-bold text-listing-title mb-4" style={{ fontSize: '22px', color: '#9a3412' }}>Donde comer</h3>
                 <div className="d-flex flex-column gap-3 mb-4">
                     {finalRestaurants.map((item, idx) => {

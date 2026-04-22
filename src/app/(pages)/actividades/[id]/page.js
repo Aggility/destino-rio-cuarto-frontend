@@ -7,7 +7,7 @@ import EventDistanceBadge from '@/components/client/EventDistanceBadge';
 
 /**
  * ActivityDetailPage - Destino Río Cuarto
- * Diseño Píxel Perfect basado en Figma ID 3640:28602 (Desktop) / 3777:8313 (Mobile)
+ * Diseño Píxel Perfect basado en eventos individuales con fondo desenfocado y visualización original.
  */
 export default async function ActivityDetailPage({ params }) {
   const { id } = await params;
@@ -83,61 +83,66 @@ export default async function ActivityDetailPage({ params }) {
   const activity = activityData[id] || activityData['trencito'];
 
   return (
-    <div className="bg-light-gray min-vh-100 pb-5">
+    <div className="bg-white min-vh-100 pb-5">
       
-      {/* 1. HERO HEADER — Altura fluida para mobile */}
-      <section className="position-relative overflow-hidden bg-dark" 
+      {/* 1. HERO HEADER — Fondo desenfocado y foto original */}
+      <section className="position-relative overflow-hidden bg-dark d-flex align-items-center justify-content-center" 
                style={{ height: 'clamp(300px, 45vh, 480px)' }}>
+        {/* Fondo desenfocado */}
+        <img 
+          src={activity.images[0]} 
+          alt="" 
+          className="position-absolute w-100 h-100"
+          style={{ objectFit: 'cover', objectPosition: 'center', filter: 'blur(20px)', opacity: 0.6, transform: 'scale(1.1)' }}
+        />
+        {/* Imagen principal (Contenida) */}
         <img 
           src={activity.images[0]} 
           alt={activity.title} 
-          className="position-absolute w-100 h-100"
-          style={{ objectFit: 'cover', objectPosition: 'center', opacity: '0.8' }}
+          className="position-relative h-100 mw-100 shadow-lg"
+          style={{ objectFit: 'contain', zIndex: 1 }}
         />
-        <div className="position-absolute bottom-0 start-0 w-100 p-4 p-md-5 text-white bg-gradient-dark">
-          <div className="container-xxl px-lg-5">
-            <nav aria-label="breadcrumb" className="mb-2 d-none d-md-block">
-              <ol className="breadcrumb mb-0">
-                <li className="breadcrumb-item"><Link href="/" className="text-white opacity-75 text-decoration-none">Inicio</Link></li>
-                <li className="breadcrumb-item"><Link href="/actividades" className="text-white opacity-75 text-decoration-none">Actividades</Link></li>
-                <li className="breadcrumb-item active text-white" aria-current="page">{activity.title}</li>
-              </ol>
-            </nav>
-            <div className="d-flex align-items-center gap-2 mb-2">
-                <div className="rounded-1 p-1 d-flex align-items-center justify-content-center" 
-                     style={{ backgroundColor: activity.categoryColor, width: '24px', height: '24px' }}>
-                    <i className="bi bi-geo-fill text-white small" style={{ fontSize: '10px' }}></i>
-                </div>
-                <span className="fw-bold text-uppercase small tracking-wider" style={{ fontSize: '11px' }}>{activity.category}</span>
-            </div>
-            <h1 className="fw-bold mb-0 text-shadow-sm" 
-                style={{ fontSize: 'clamp(32px, 6vw, 64px)', letterSpacing: '-2px', lineHeight: '1' }}>
-              {(() => {
-                  const connectors = ['de', 'del', 'en', 'y', 'a', 'e', 'o', 'u', 'por', 'para', 'con', 'sin', 'el', 'la', 'lo', 'los', 'las', 'un', 'una', 'unos', 'unas', 'que', 'qué', 'hay', 'vos', 'para'];
-                  const text = activity.title;
-                  if (!text) return '';
-                  return text.split(' ').map((word, index) => {
-                      if (index === 0) return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-                      const cleanWord = word.toLowerCase().replace(/[.,!?;:]/g, '');
-                      if (connectors.includes(cleanWord)) return word.toLowerCase();
-                      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-                  }).join(' ');
-              })()}
-            </h1>
-            <div className="mt-3">
-               <EventDistanceBadge eventLat={activity.location?.lat} eventLng={activity.location?.lng} type="activity" />
-            </div>
-          </div>
-        </div>
+        {/* Overlay transparente */}
+        <div className="position-absolute top-0 start-0 w-100 h-100" style={{ background: 'rgba(0,0,0,0)', zIndex: 2 }}></div>
       </section>
 
       {/* 2. MAIN CONTENT AREA */}
-      <div className="container-xxl px-lg-5 mt-4 mt-md-5">
+      <div className="container-xxl px-lg-5 mt-4 mt-lg-n5-detail position-relative z-1 mb-5">
         <div className="row g-4">
           
           <div className="col-12 col-lg-8">
-            <div className="bg-white p-4 p-md-5 rounded-4 shadow-sm">
+            <div className="bg-white p-4 p-md-5 rounded-4 shadow-sm h-100">
                 
+                {/* Header: Category & Title */}
+                <div className="bg-white">
+                    <div className="d-flex align-items-center gap-2 mb-3">
+                        <div className="rounded-2 p-1 d-flex align-items-center justify-content-center" 
+                             style={{ backgroundColor: activity.categoryColor, width: '32px', height: '32px' }}>
+                            <i className="bi bi-geo-fill text-white small"></i>
+                        </div>
+                        <span className="font-inter fw-semibold" style={{ color: activity.categoryColor, borderBottom: `1px solid ${activity.categoryColor}` }}>
+                            {activity.category}
+                        </span>
+                    </div>
+                    
+                    <h1 className="display-5-custom fw-bold text-gray-900 font-inter mb-4" style={{ letterSpacing: '-1px' }}>
+                        {(() => {
+                            const connectors = ['de', 'del', 'en', 'y', 'a', 'e', 'o', 'u', 'por', 'para', 'con', 'sin', 'el', 'la', 'lo', 'los', 'las', 'un', 'una', 'unos', 'unas', 'que', 'qué', 'hay', 'vos', 'para'];
+                            const text = activity.title;
+                            if (!text) return '';
+                            return text.split(' ').map((word, index) => {
+                                if (index === 0) return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                                const cleanWord = word.toLowerCase().replace(/[.,!?;:]/g, '');
+                                if (connectors.includes(cleanWord)) return word.toLowerCase();
+                                return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                            }).join(' ');
+                        })()}
+                    </h1>
+                    <div className="mb-4">
+                        <EventDistanceBadge eventLat={activity.location?.lat} eventLng={activity.location?.lng} type="activity" />
+                    </div>
+                </div>
+
                 {/* Mobile Quick Info Bar */}
                 <div className="d-flex flex-column flex-md-row gap-3 mb-5 py-4 border-top border-bottom">
                     <div className="d-flex align-items-center gap-3">
@@ -169,7 +174,7 @@ export default async function ActivityDetailPage({ params }) {
                     <div className="row g-3">
                         {activity.recommendedServices.map((item, i) => (
                             <div key={i} className="col-12 col-md-6">
-                                <div className="bg-light p-3 rounded-4 border shadow-sm transition-all hover-lift">
+                                <div className="bg-white p-3 rounded-4 border shadow-sm transition-all hover-lift">
                                     <p className="fw-bold text-dark mb-2">{item.name}</p>
                                     <p className="text-muted small mb-1"><i className="bi bi-geo-alt me-2"></i>{item.address}</p>
                                     <p className="text-muted small mb-0"><i className="bi bi-telephone me-2"></i>{item.phone}</p>
@@ -184,7 +189,7 @@ export default async function ActivityDetailPage({ params }) {
           {/* Sidebar */}
           <div className="col-12 col-lg-4">
               <aside className="d-flex flex-column gap-4">
-                  <div className="bg-white p-4 rounded-4 border shadow-premium">
+                  <div className="bg-white p-4 rounded-4 border shadow-sm">
                       <h3 className="h5 fw-bold mb-4 text-gray-900">Actividades Similares</h3>
                       <div className="d-flex flex-column gap-3">
                           <SidebarListCard 
@@ -205,7 +210,7 @@ export default async function ActivityDetailPage({ params }) {
                           />
                       </div>
                       <Link href="/actividades" className="btn btn-outline-primary w-100 mt-4 py-2 fw-bold text-decoration-none" 
-                            style={{ color: '#8a38f5', borderColor: '#c084fc' }}>
+                            style={{ color: activity.categoryColor, borderColor: activity.categoryColor }}>
                           VER TODAS LAS ACTIVIDADES
                       </Link>
                   </div>
