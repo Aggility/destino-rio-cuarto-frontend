@@ -51,8 +51,15 @@ export default function HeroHome({ initialSlug = null }) {
 
   let displayTitle;
   const coloredSpanStyle = (color) => ({
-    color: color,
-    fontWeight: '800'
+    backgroundColor: color,
+    color: '#ffffff',
+    fontWeight: '800',
+    padding: '4px 14px',
+    borderRadius: '14px',
+    display: 'inline-block',
+    lineHeight: '1.1',
+    margin: '0 4px',
+    verticalAlign: 'baseline'
   });
 
   if (!activeCategory) {
@@ -79,7 +86,7 @@ export default function HeroHome({ initialSlug = null }) {
   } else {
     displayTitle = (
       <>
-        {formatTitle("Encontra")} <span style={coloredSpanStyle(activeCategory.color)}>{formatTitle(activeCategory.label)}</span> {formatTitle("disponibles")} <br className="d-none d-md-block" />
+        {formatTitle("Encontra")} <span style={coloredSpanStyle(activeCategory.color)}>{formatTitle(activeCategory.label)}</span> {formatTitle("pensados")} <br className="d-none d-md-block" />
         {formatTitle("para vos en")} <span className="text-white">Río Cuarto</span>
       </>
     );
