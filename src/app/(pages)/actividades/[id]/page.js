@@ -85,29 +85,39 @@ export default async function ActivityDetailPage({ params }) {
   return (
     <div className="bg-white min-vh-100 pb-5">
       
-      {/* 1. HERO HEADER — Fondo desenfocado y foto original */}
+      {/* 1. HERO HEADER — Diseño adaptativo: Blur en Desktop / Cover en Mobile */}
       <section className="position-relative overflow-hidden bg-dark d-flex align-items-center justify-content-center" 
-               style={{ height: 'clamp(300px, 45vh, 480px)' }}>
-        {/* Fondo desenfocado */}
-        <img 
-          src={activity.images[0]} 
-          alt="" 
-          className="position-absolute w-100 h-100"
-          style={{ objectFit: 'cover', objectPosition: 'center', filter: 'blur(20px)', opacity: 0.6, transform: 'scale(1.1)' }}
-        />
-        {/* Imagen principal (Contenida) */}
+               style={{ height: 'clamp(280px, 40vh, 480px)' }}>
+        {/* Vista Desktop: Fondo desenfocado + Imagen contenida */}
+        <div className="d-none d-md-block w-100 h-100 position-relative">
+            <img 
+              src={activity.images[0]} 
+              alt="" 
+              className="position-absolute w-100 h-100"
+              style={{ objectFit: 'cover', filter: 'blur(20px)', opacity: 0.6, transform: 'scale(1.1)' }}
+            />
+            <img 
+              src={activity.images[0]} 
+              alt={activity.title} 
+              className="position-absolute top-50 start-50 translate-middle h-100 mw-100 shadow-lg"
+              style={{ objectFit: 'contain', zIndex: 1 }}
+            />
+        </div>
+
+        {/* Vista Mobile: Imagen completa (Cover) */}
         <img 
           src={activity.images[0]} 
           alt={activity.title} 
-          className="position-relative h-100 mw-100 shadow-lg"
-          style={{ objectFit: 'contain', zIndex: 1 }}
+          className="d-block d-md-none w-100 h-100"
+          style={{ objectFit: 'cover', objectPosition: 'center' }}
         />
+
         {/* Overlay transparente */}
         <div className="position-absolute top-0 start-0 w-100 h-100" style={{ background: 'rgba(0,0,0,0)', zIndex: 2 }}></div>
       </section>
 
       {/* 2. MAIN CONTENT AREA */}
-      <div className="container-xxl px-lg-5 mt-4 mt-lg-n5-detail position-relative z-1 mb-5">
+      <div className="container-xxl px-lg-5 mt-n4 mt-md-n5-detail position-relative z-1 mb-5">
         <div className="row g-4">
           
           <div className="col-12 col-lg-8">
@@ -125,7 +135,7 @@ export default async function ActivityDetailPage({ params }) {
                         </span>
                     </div>
                     
-                    <h1 className="display-5-custom fw-bold text-gray-900 font-inter mb-4" style={{ letterSpacing: '-1px' }}>
+                    <h1 className="display-5-custom fw-bold text-gray-900 font-inter mb-4 text-truncate-2" style={{ letterSpacing: '-1px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                         {(() => {
                             const connectors = ['de', 'del', 'en', 'y', 'a', 'e', 'o', 'u', 'por', 'para', 'con', 'sin', 'el', 'la', 'lo', 'los', 'las', 'un', 'una', 'unos', 'unas', 'que', 'qué', 'hay', 'vos', 'para'];
                             const text = activity.title;
