@@ -175,7 +175,7 @@ export default async function Home() {
                          alignItems: 'center',
                          justifyContent: 'center'
                        }}>
-                   Ver más {cat.title.toLowerCase()}
+                   Ver más
                 </Link>
               </div>
 

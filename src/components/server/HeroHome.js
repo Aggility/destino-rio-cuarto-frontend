@@ -94,7 +94,7 @@ export default function HeroHome({ initialSlug = null }) {
 
   return (
     <section className="position-relative overflow-hidden w-100" style={{
-      height: '440px', // Altura estricta para que no haya saltos de tamaño
+      minHeight: '440px', // Cambiado de height a minHeight para flexibilidad
       backgroundImage: `url('${bgImage}')`,
       backgroundSize: 'cover',
       backgroundPosition: 'center',
@@ -110,13 +110,10 @@ export default function HeroHome({ initialSlug = null }) {
       {/* Overlay gradiente intenso para escritorio (izquierda a derecha) */}
       <div className="position-absolute top-0 start-0 w-100 h-100 d-none d-md-block" style={{ background: 'linear-gradient(to right, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0) 100%)' }}></div>
 
-      <div className="container-xxl px-3 px-lg-5 h-100 d-flex flex-column w-100 position-relative z-1">
-
-        {/* Espacio superior para centrar visualmente el titulo si es necesario */}
-        <div className="mt-auto"></div>
+      <div className="container-xxl px-3 px-lg-5 h-100 d-flex flex-column justify-content-center w-100 position-relative z-1 pt-5">
 
         {/* 1. Title Group */}
-        <div>
+        <div className="mb-4">
           <h1 className="hero-title text-white mb-0 text-center text-md-start mx-auto mx-md-0" style={{
             maxWidth: '800px',
             fontSize: 'clamp(42px, 11vw, 64px)',
@@ -128,8 +125,8 @@ export default function HeroHome({ initialSlug = null }) {
           </h1>
         </div>
 
-        {/* 2. Navigation Tabs — Empujadas abajo */}
-        <div className="row g-2 g-md-3 align-items-center mt-auto mb-4">
+        {/* 2. Navigation Tabs */}
+        <div className="row g-2 g-md-3 align-items-center">
           {categories.map((cat, idx) => {
             const isActive = activeCategory?.slug === cat.slug;
             return (

@@ -4,9 +4,23 @@ import Link from 'next/link';
 import ExperienceInteractiveMap from '@/components/client/ExperienceInteractiveMap';
 import ChatbotIcon from '@/components/server/ChatbotIcon';
 import ContactButtons from '@/components/client/ContactButtons';
+import EventCard from '@/components/server/EventCard';
+import PlacesSlider from '@/components/client/PlacesSlider';
 
 export default async function ExperienceDetailPage({ params }) {
   const { id } = await params;
+
+  // Obtener Organizaciones para buscar imágenes de las paradas
+  let allOrganizations = [];
+  try {
+    const resOrg = await fetch(`http://destbackdev.aggility.io/api/v1/organizations`, { cache: 'no-store' });
+    if (resOrg.ok) {
+        const orgData = await resOrg.json();
+        allOrganizations = orgData.data || [];
+    }
+  } catch (err) {
+    console.error("Error fetching organizations:", err);
+  }
 
   // Moqueo de datos para la experiencia (En el futuro esto vendría de una API)
   const experienceData = {
@@ -86,7 +100,7 @@ export default async function ExperienceDetailPage({ params }) {
         
         <div className="position-absolute bottom-0 start-0 w-100 p-4 p-md-5">
             <div className="container-xxl px-lg-5">
-                <h1 className="text-white fw-bold mb-2 animate-fade-in-up" style={{ fontSize: 'clamp(32px, 6vw, 56px)', letterSpacing: '-1.5px' }}>
+                <h1 className="text-white fw-bold mb-2 animate-fade-in-up" style={{ fontSize: 'clamp(28px, 6vw, 56px)', letterSpacing: '-1.5px' }}>
                     {experience.title}
                 </h1>
                 <div className="d-flex align-items-center gap-3 text-white opacity-90 animate-fade-in">
@@ -110,40 +124,12 @@ export default async function ExperienceDetailPage({ params }) {
                 <div className="col-12 col-lg-8">
                     
                     {/* Abstract & Benefits */}
-                    <div className="mb-5">
+                    <div className="mb-5 pt-4">
                         <h2 className="fw-bold mb-4 font-inter" style={{ fontSize: '28px', color: '#111928' }}>Sobre esta experiencia</h2>
                         <p className="lead font-inter text-gray-700 mb-4" style={{ lineHeight: '1.6' }}>
                             {experience.description}
                         </p>
-                        <div className="bg-gray-50 rounded-4 p-4 border mb-5">
-                            <h4 className="fw-bold mb-3 h5">¿Qué incluye?</h4>
-                            <div className="row g-3">
-                                <div className="col-md-6 d-flex align-items-center gap-3">
-                                    <div className="rounded-circle bg-white shadow-sm p-2 d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
-                                        <i className="bi bi-check2-circle fs-5" style={{ color: themeColor }}></i>
-                                    </div>
-                                    <span className="small fw-semibold">Guía especializado</span>
-                                </div>
-                                <div className="col-md-6 d-flex align-items-center gap-3">
-                                    <div className="rounded-circle bg-white shadow-sm p-2 d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
-                                        <i className="bi bi-bicycle fs-5" style={{ color: themeColor }}></i>
-                                    </div>
-                                    <span className="small fw-semibold">Traslados incluidos</span>
-                                </div>
-                                <div className="col-md-6 d-flex align-items-center gap-3">
-                                    <div className="rounded-circle bg-white shadow-sm p-2 d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
-                                        <i className="bi bi-translate fs-5" style={{ color: themeColor }}></i>
-                                    </div>
-                                    <span className="small fw-semibold">{experience.language}</span>
-                                </div>
-                                <div className="col-md-6 d-flex align-items-center gap-3">
-                                    <div className="rounded-circle bg-white shadow-sm p-2 d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px' }}>
-                                        <i className="bi bi-cup-straw fs-5" style={{ color: themeColor }}></i>
-                                    </div>
-                                    <span className="small fw-semibold">Degustaciones</span>
-                                </div>
-                            </div>
-                        </div>
+
                         <div className="font-inter text-gray-800" style={{ lineHeight: '1.8', fontSize: '17px' }}>
                             {experience.fullDescription.split('. ').map((p, i) => (
                                 <p key={i}>{p}.</p>
@@ -157,6 +143,31 @@ export default async function ExperienceDetailPage({ params }) {
                             Recorrido Sugerido <span className="badge ms-2" style={{ backgroundColor: themeColor + '22', color: themeColor, fontSize: '14px' }}>{experience.stops.length} paradas</span>
                         </h3>
                         <ExperienceInteractiveMap stops={experience.stops} themeColor={themeColor} />
+                    </div>
+
+                    {/* Lugares de la experiencia (Slider con Flechas) */}
+                    <div className="mb-5">
+                        {(() => {
+                            // Preparamos los datos de las paradas con sus imágenes antes de pasarlos al componente de cliente
+                            const stopsWithImages = experience.stops.map((stop) => {
+                                const match = (allOrganizations || []).find(org => 
+                                    org.name.toLowerCase().includes(stop.name.toLowerCase()) || 
+                                    stop.name.toLowerCase().includes(org.name.toLowerCase())
+                                );
+                                return {
+                                    ...stop,
+                                    thumbnail: match?.media?.cover || match?.media?.gallery?.[0] || match?.image_url || experience.thumbnail
+                                };
+                            });
+
+                            return (
+                                <PlacesSlider 
+                                    stops={stopsWithImages} 
+                                    themeColor={themeColor} 
+                                    experienceTitle={experience.title} 
+                                />
+                            );
+                        })()}
                     </div>
 
                 </div>
