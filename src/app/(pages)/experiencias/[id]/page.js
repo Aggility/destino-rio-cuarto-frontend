@@ -98,8 +98,8 @@ export default async function ExperienceDetailPage({ params }) {
         />
         <div className="position-absolute top-0 start-0 w-100 h-100" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.7))' }}></div>
         
-        <div className="position-absolute bottom-0 start-0 w-100 p-4 p-md-5">
-            <div className="container-xxl px-lg-5">
+        <div className="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center pt-5">
+            <div className="container-xxl px-3 px-lg-5">
                 <h1 className="text-white fw-bold mb-2 animate-fade-in-up" style={{ fontSize: 'clamp(28px, 6vw, 56px)', letterSpacing: '-1.5px' }}>
                     {experience.title}
                 </h1>
@@ -124,7 +124,7 @@ export default async function ExperienceDetailPage({ params }) {
                 <div className="col-12 col-lg-8">
                     
                     {/* Abstract & Benefits */}
-                    <div className="mb-5 pt-4">
+                    <div className="mb-5 pt-5">
                         <h2 className="fw-bold mb-4 font-inter" style={{ fontSize: '28px', color: '#111928' }}>Sobre esta experiencia</h2>
                         <p className="lead font-inter text-gray-700 mb-4" style={{ lineHeight: '1.6' }}>
                             {experience.description}
