@@ -17,7 +17,7 @@ export default function ExperiencesPage() {
         address: 'Parque Sarmiento', 
         schedule: 'Todos los días', 
         description: 'Disfrutá de la naturaleza en el pulmón verde de la ciudad. Incluye trencito, botes y feria.', 
-        thumbnail: '/Thumbnail.png' 
+        thumbnail: '/psarmiento.jfif' 
     },
     { 
         id: 'recorrido-7-iglesias', 
@@ -26,7 +26,7 @@ export default function ExperiencesPage() {
         address: 'Puntos varios del microcentro', 
         schedule: 'Semana Santa / Permanente', 
         description: 'Circuito de fe y arquitectura por los templos más emblemáticos de Río Cuarto.', 
-        thumbnail: '/Thumbnail.png' 
+        thumbnail: 'https://images.unsplash.com/photo-1548625235-36af58169128?auto=format&fit=crop&q=80&w=600' 
     },
     { 
         id: 'recorrido-historico-cultural', 
@@ -35,7 +35,7 @@ export default function ExperiencesPage() {
         address: 'Microcentro histórico', 
         schedule: 'Lunes a Sábados', 
         description: 'Conocé el Palacio Municipal, el Teatro y el Museo Histórico en un paseo inolvidable.', 
-        thumbnail: '/Thumbnail.png' 
+        thumbnail: '/museo-historico.jpg' 
     }
   ];
 
