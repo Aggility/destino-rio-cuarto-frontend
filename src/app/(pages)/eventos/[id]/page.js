@@ -1,11 +1,11 @@
 import React from 'react';
 import Link from 'next/link';
 import ChatbotIcon from '@/components/server/ChatbotIcon';
-import EventCard from '@/components/server/EventCard';
 import EventDistanceBadge from '@/components/client/EventDistanceBadge';
 import ContactAndLocationWidget from '@/components/client/ContactAndLocationWidget';
 import { getNearbyLocations, getDistance } from '@/utils/geo';
 import ExpandableDescription from '@/components/client/ExpandableDescription';
+import EventsSlider from '@/components/client/EventsSlider';
 
 
 /**
@@ -50,6 +50,35 @@ export default async function EventDetailPage({ params }) {
     thumbnail: eventData?.media?.cover || eventData?.media?.gallery?.[0] || eventData?.image_url || '/Thumbnail.png',
     relatedEvents: []
   };
+
+  // 2b. Obtener eventos aleatorios para el slider
+  let randomEvents = [];
+  try {
+    const resEvents = await fetch(`http://destbackdev.aggility.io/api/v1/events?per_page=50`, { cache: 'no-store' });
+    if (resEvents.ok) {
+      const eventsData = await resEvents.json();
+      const allEvents = (eventsData.data || []).filter(e => String(e.id) !== String(id));
+      // Mezclar aleatoriamente con Fisher-Yates
+      for (let i = allEvents.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [allEvents[i], allEvents[j]] = [allEvents[j], allEvents[i]];
+      }
+      randomEvents = allEvents.slice(0, 10).map(e => ({
+        id: e.id,
+        title: e.title || 'Evento',
+        date: e.calendars?.[0]?.start_date
+          ? new Date(e.calendars[0].start_date).toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' })
+          : '',
+        location: e.organization?.name || e.organization?.addresses?.[0]?.address || 'Río Cuarto',
+        thumbnail: e.media?.cover || e.media?.gallery?.[0] || e.image_url || '/Thumbnail.png',
+        category: e.categories?.[0]?.name?.toUpperCase() || 'EVENTO',
+        lat: parseFloat(e.organization?.addresses?.[0]?.latitude) || null,
+        lng: parseFloat(e.organization?.addresses?.[0]?.longitude) || null,
+      }));
+    }
+  } catch (err) {
+    console.error('Error fetching random events:', err);
+  }
 
   // 3. Obtener Organizaciones (Servicios) para filtrar por cercanía
   let allOrganizations = [];
@@ -328,41 +357,21 @@ export default async function EventDetailPage({ params }) {
           </div>
         </div>
 
-        {/* RELATED EVENTS SECTION */}
-        <div className="mt-5 pt-5 border-top">
-            <div className="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
-                <h2 className="font-inter fw-bold text-gray-900 display-6" style={{ letterSpacing: '-1.5px' }}>También te puede interesar</h2>
-                <div className="d-flex gap-2">
-                    <button className="btn btn-light rounded-circle shadow-sm border d-flex align-items-center justify-content-center" style={{ width: '44px', height: '44px' }}>
-                        <i className="bi bi-chevron-left"></i>
-                    </button>
-                    <button className="btn btn-primary rounded-circle shadow-premium d-flex align-items-center justify-content-center" style={{ width: '44px', height: '44px', backgroundColor: '#1a56db' }}>
-                        <i className="bi bi-chevron-right"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <div className="row g-4 mb-4">
-                {event.relatedEvents.map((ev, idx) => (
-                    <div key={idx} className="col-12 col-md-6 col-lg-4">
-                        <EventCard 
-                            id={ev.id}
-                            title={ev.title}
-                            date={ev.date}
-                            location={ev.location}
-                            thumbnail="/Thumbnail.png"
-                            category={idx === 0 ? "MÚSICA" : "TEATRO"}
-                        />
-                    </div>
-                ))}
-            </div>
-            
+        {/* RELATED EVENTS SECTION — Slider con eventos aleatorios */}
+        {randomEvents.length > 0 && (
+          <div className="mt-5 pt-5 border-top">
+            <EventsSlider events={randomEvents} />
             <div className="text-center mt-5">
-                <Link href="/eventos" className="btn btn-outline-primary px-5 py-3 rounded-3 border-2 fw-bold shadow-sm transition-all hover-lift" style={{ color: '#1a56d8', borderColor: '#1a56db' }}>
-                    Ver todos los eventos
-                </Link>
+              <Link
+                href="/eventos"
+                className="btn px-5 py-3 rounded-3 border-2 fw-bold shadow-sm transition-all hover-lift"
+                style={{ color: '#f54286', borderColor: '#f54286', backgroundColor: 'transparent' }}
+              >
+                Ver todos los eventos
+              </Link>
             </div>
-        </div>
+          </div>
+        )}
       </div>
 
       <ChatbotIcon />
