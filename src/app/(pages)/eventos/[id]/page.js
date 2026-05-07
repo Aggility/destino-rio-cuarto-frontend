@@ -142,43 +142,51 @@ export default async function EventDetailPage({ params }) {
     <div className="bg-white min-vh-100 pb-5">
       
       {/* 1. HERO HEADER — Diseño adaptativo: Blur en Desktop / Cover en Mobile */}
-      <section className="position-relative overflow-hidden bg-dark d-flex align-items-center justify-content-center" style={{ height: 'clamp(280px, 40vh, 480px)' }}>
-        {/* Vista Desktop: Fondo desenfocado + Imagen contenida */}
-        <div className="d-none d-md-block w-100 h-100 position-relative">
+      <section className="position-relative overflow-hidden bg-dark d-flex align-items-center justify-content-center" style={{ height: '460px' }}>
+        
+        {/* Fondo desenfocado (Full Width) */}
+        <div className="position-absolute top-0 start-0 w-100 h-100">
             <img 
               src={event.thumbnail} 
               alt="" 
-              className="position-absolute w-100 h-100"
-              style={{ objectFit: 'cover', filter: 'blur(20px)', opacity: 0.6, transform: 'scale(1.1)' }}
+              className="w-100 h-100"
+              style={{ objectFit: 'cover', filter: 'blur(20px)', opacity: 0.5, transform: 'scale(1.1)' }}
             />
+            <div className="position-absolute top-0 start-0 w-100 h-100" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.6))' }}></div>
+        </div>
+
+        {/* Imagen Contenida al ancho específico de 940x460 */}
+        <div className="container-xxl px-0 px-lg-5 h-100 position-relative z-1 d-flex align-items-center justify-content-center">
+            <div className="position-relative shadow-lg overflow-hidden d-none d-md-block" style={{ width: '100%', maxWidth: '940px', height: '460px' }}>
+                <img 
+                  src={event.thumbnail} 
+                  alt={event.title} 
+                  className="w-100 h-100"
+                  style={{ objectFit: 'cover' }}
+                />
+            </div>
+
+            {/* Vista Mobile: Cover completa sin márgenes laterales */}
             <img 
               src={event.thumbnail} 
               alt={event.title} 
-              className="position-absolute top-50 start-50 translate-middle h-100 mw-100 shadow-lg"
-              style={{ objectFit: 'contain', zIndex: 1 }}
+              className="d-block d-md-none w-100 h-100"
+              style={{ objectFit: 'cover', objectPosition: 'center' }}
             />
-        </div>
 
-        {/* Vista Mobile: Imagen completa (Cover) */}
-        <img 
-          src={event.thumbnail} 
-          alt={event.title} 
-          className="d-block d-md-none w-100 h-100"
-          style={{ objectFit: 'cover', objectPosition: 'center' }}
-        />
-
-        {/* Overlay transparente */}
-        <div className="position-absolute top-0 start-0 w-100 h-100" style={{ background: 'rgba(0,0,0,0)', zIndex: 2 }}></div>
-        {/* Desktop Buttons */}
-        <div className="position-absolute bottom-0 end-0 p-4 d-none d-lg-flex gap-3" style={{ zIndex: 10 }}>
-            <button className="btn btn-white shadow-premium d-flex align-items-center gap-2 px-3 py-2 rounded-3 border-0">
-                <span className="font-inter fw-medium small">Agendar</span>
-                <i className="bi bi-calendar-event"></i>
-            </button>
-            <button className="btn btn-white shadow-premium d-flex align-items-center gap-2 px-3 py-2 rounded-3 border-0">
-                <span className="font-inter fw-medium small">Compartir</span>
-                <i className="bi bi-share"></i>
-            </button>
+            {/* Desktop Buttons — Ahora dentro del container para alinearse con la web */}
+            <div className="position-absolute bottom-0 end-0 p-4 d-none d-lg-flex gap-3 mb-2 me-lg-5" style={{ zIndex: 10 }}>
+                <button className="btn shadow-premium d-flex align-items-center gap-2 px-4 py-2 rounded-3 border-0 transition-all hover-lift"
+                        style={{ backgroundColor: '#f54286', color: '#fff' }}>
+                    <span className="font-inter fw-semibold small">Agendar</span>
+                    <i className="bi bi-calendar-event"></i>
+                </button>
+                <button className="btn shadow-premium d-flex align-items-center gap-2 px-4 py-2 rounded-3 border-0 transition-all hover-lift"
+                        style={{ backgroundColor: '#f54286', color: '#fff' }}>
+                    <span className="font-inter fw-semibold small">Compartir</span>
+                    <i className="bi bi-share"></i>
+                </button>
+            </div>
         </div>
       </section>
 
@@ -192,10 +200,10 @@ export default async function EventDetailPage({ params }) {
                 
                 {/* Mobile Action Buttons */}
                 <div className="d-flex d-lg-none gap-2 mb-4">
-                  <button className="btn btn-primary flex-grow-1 py-2 fw-semibold rounded-2 shadow-premium" style={{ backgroundColor: '#1a56db' }}>
+                  <button className="btn flex-grow-1 py-2 fw-bold rounded-2 shadow-premium text-white" style={{ backgroundColor: '#f54286' }}>
                     Agendar
                   </button>
-                  <button className="btn btn-outline-secondary py-2 px-3 rounded-2">
+                  <button className="btn py-2 px-3 rounded-2 border-2" style={{ borderColor: '#f54286', color: '#f54286' }}>
                     <i className="bi bi-share"></i>
                   </button>
                 </div>

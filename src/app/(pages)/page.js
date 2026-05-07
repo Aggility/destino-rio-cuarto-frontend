@@ -3,6 +3,7 @@ import Link from 'next/link';
 import HeroHome from '@/components/server/HeroHome';
 import EventCard from '@/components/server/EventCard';
 import ActivityCard from '@/components/server/ActivityCard';
+import HomeSectionSlider from '@/components/client/HomeSectionSlider';
 
 /**
  * Home - Destino Río Cuarto (Home V2 Fidelity)
@@ -56,21 +57,43 @@ export default async function Home() {
   const localThumbnail = "/Thumbnail.png";
 
   const renderCards = (cat, index) => {
+    const seeMoreCard = (
+      <div key={`more-${cat.slug}`} className="flex-shrink-0" style={{ width: 'clamp(200px, 50vw, 240px)', scrollSnapAlign: 'start' }}>
+        <Link href={`/${cat.slug}`} className="text-decoration-none h-100 d-block">
+          <div className="rounded-4 d-flex flex-column align-items-center justify-content-center text-white shadow-premium p-4 h-100" 
+               style={{ 
+                 backgroundColor: cat.color, 
+                 transition: 'all 0.3s ease'
+               }}>
+            <div className="rounded-circle border border-2 border-white d-flex align-items-center justify-content-center mb-3" 
+                 style={{ width: '54px', height: '54px', backgroundColor: 'transparent' }}>
+              <i className="bi bi-plus-lg fs-3"></i>
+            </div>
+            <span className="fw-bold font-inter" style={{ fontSize: '18px' }}>Ver más</span>
+            <span className="opacity-80 small text-center mt-1 font-inter">{cat.title}</span>
+          </div>
+        </Link>
+      </div>
+    );
+
     // 1. EVENTOS (API)
     if (cat.slug === 'eventos' && formatedHomeEvents.length > 0) {
-      return formatedHomeEvents.map((evt) => (
-        <div key={evt.id} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)' }}>
-          <EventCard
-            id={evt.id}
-            title={evt.title}
-            date={evt.date}
-            location={evt.location}
-            category={evt.category}
-            typeColor={evt.typeColor}
-            thumbnail={evt.thumbnail}
-          />
-        </div>
-      ));
+      return [
+        ...formatedHomeEvents.map((evt) => (
+          <div key={evt.id} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)', scrollSnapAlign: 'start' }}>
+            <EventCard
+              id={evt.id}
+              title={evt.title}
+              date={evt.date}
+              location={evt.location}
+              category={evt.category}
+              typeColor={evt.typeColor}
+              thumbnail={evt.thumbnail}
+            />
+          </div>
+        )),
+        seeMoreCard
+      ];
     }
 
     // 2. ACTIVIDADES (EventCard)
@@ -81,8 +104,9 @@ export default async function Home() {
             { id: 'museo-historico', title: 'Museo Histórico Regional', time: '09:00 a 13:00', address: 'Fotheringham 178', schedule: 'Mar a Dom', thumbnail: '/museo-historico.jpg' }
         ];
 
-        return items.map((item) => (
-            <div key={item.id} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)' }}>
+        return [
+          ...items.map((item) => (
+            <div key={item.id} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)', scrollSnapAlign: 'start' }}>
                 <EventCard 
                     id={item.id}
                     title={item.title}
@@ -95,7 +119,9 @@ export default async function Home() {
                     typeColor={cat.color}
                 />
             </div>
-        ));
+          )),
+          seeMoreCard
+        ];
     }
 
     // 3. EXPERIENCIAS (EventCard)
@@ -106,8 +132,9 @@ export default async function Home() {
             { id: 'recorrido-historico-cultural', title: 'Histórico Cultural', time: '2.5 horas', address: 'Palacio de Mójica', schedule: 'Historia', thumbnail: '/museo-historico.jpg' }
         ];
 
-        return items.map((item) => (
-            <div key={item.id} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)' }}>
+        return [
+          ...items.map((item) => (
+            <div key={item.id} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)', scrollSnapAlign: 'start' }}>
                 <EventCard 
                     id={item.id}
                     title={item.title}
@@ -120,7 +147,9 @@ export default async function Home() {
                     typeColor={cat.color}
                 />
             </div>
-        ));
+          )),
+          seeMoreCard
+        ];
     }
 
     return null;
@@ -137,48 +166,9 @@ export default async function Home() {
         <div className="d-flex flex-column gap-5 align-items-start position-relative w-100">
           {sections.map((cat, index) => (
             <div key={cat.id} className="w-100 animate-fade-in" style={{ animationDelay: `${index * 150}ms` }}>
-
-              {/* SECTION HEADER — Figma ID 3781:19222 */}
-              <div className="d-flex justify-content-between align-items-center mb-3 mb-md-4">
-                <div className="max-w-541px">
-                  <h2 className="fw-bold text-gray-900 tracking-tight font-inter m-0" 
-                      style={{ fontSize: 'clamp(24px, 5vw, 36px)', letterSpacing: '-1px' }}>
-                    {cat.title}
-                  </h2>
-                </div>
-
-                {/* Desktop Nav Arrows */}
-                <div className="d-none d-md-flex align-items-center gap-2">
-                  <button className="btn btn-light rounded-circle shadow-sm p-2" aria-label="Anterior">
-                    <i className="bi bi-chevron-left"></i>
-                  </button>
-                  <button className="btn btn-light rounded-circle shadow-sm p-2" aria-label="Siguiente">
-                    <i className="bi bi-chevron-right"></i>
-                  </button>
-                </div>
-              </div>
-
-              {/* HORIZONTAL CAROUSEL — Figma ID 3781:19225 */}
-              <div className="d-flex gap-3 overflow-auto flex-nowrap pb-4 hide-scrollbar px-1">
+              <HomeSectionSlider title={cat.title}>
                 {renderCards(cat, index)}
-              </div>
-
-              {/* SEE MORE CTA — Figma ID 3781:19232 */}
-              <div className="text-center mt-2">
-                <Link href={`/${cat.slug}`} className="btn px-4 py-2 rounded-2 fw-semibold font-inter btn-invert-hover shadow-premium" 
-                       style={{
-                         minWidth: '180px',
-                         height: '48px',
-                         '--btn-theme-color': cat.color,
-                         fontSize: '15px',
-                         display: 'inline-flex',
-                         alignItems: 'center',
-                         justifyContent: 'center'
-                       }}>
-                   Ver más
-                </Link>
-              </div>
-
+              </HomeSectionSlider>
             </div>
           ))}
         </div>

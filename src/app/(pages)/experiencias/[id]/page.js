@@ -95,35 +95,39 @@ export default async function ExperienceDetailPage({ params }) {
   return (
     <div className="bg-white min-vh-100 pb-5">
       
-      {/* 1. HERO HEADER — Diseño adaptativo: Blur en Desktop / Cover en Mobile */}
+      {/* 1. HERO HEADER — Diseño adaptativo: 940x460 en Desktop / Cover en Mobile */}
       <section className="position-relative overflow-hidden bg-dark d-flex align-items-center justify-content-center" 
-               style={{ height: 'clamp(280px, 40vh, 480px)' }}>
-        {/* Vista Desktop: Fondo desenfocado + Imagen contenida */}
-        <div className="d-none d-md-block w-100 h-100 position-relative">
+               style={{ height: '460px' }}>
+        {/* Fondo desenfocado (Full Width) */}
+        <div className="position-absolute top-0 start-0 w-100 h-100">
             <img 
               src={experience.thumbnail} 
               alt="" 
-              className="position-absolute w-100 h-100"
-              style={{ objectFit: 'cover', filter: 'blur(20px)', opacity: 0.6, transform: 'scale(1.1)' }}
+              className="w-100 h-100"
+              style={{ objectFit: 'cover', filter: 'blur(20px)', opacity: 0.5, transform: 'scale(1.1)' }}
             />
+            <div className="position-absolute top-0 start-0 w-100 h-100" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.6))' }}></div>
+        </div>
+
+        {/* Imagen Contenida al ancho específico de 940x460 */}
+        <div className="container-xxl px-0 px-lg-5 h-100 position-relative z-1 d-flex align-items-center justify-content-center">
+            <div className="position-relative shadow-lg overflow-hidden d-none d-md-block" style={{ width: '100%', maxWidth: '940px', height: '460px' }}>
+                <img 
+                  src={experience.thumbnail} 
+                  alt={experience.title} 
+                  className="w-100 h-100"
+                  style={{ objectFit: 'cover' }}
+                />
+            </div>
+
+            {/* Vista Mobile: Imagen completa (Cover) */}
             <img 
               src={experience.thumbnail} 
               alt={experience.title} 
-              className="position-absolute top-50 start-50 translate-middle h-100 mw-100 shadow-lg"
-              style={{ objectFit: 'contain', zIndex: 1 }}
+              className="d-block d-md-none w-100 h-100"
+              style={{ objectFit: 'cover', objectPosition: 'center' }}
             />
         </div>
-
-        {/* Vista Mobile: Imagen completa (Cover) */}
-        <img 
-          src={experience.thumbnail} 
-          alt={experience.title} 
-          className="d-block d-md-none w-100 h-100"
-          style={{ objectFit: 'cover', objectPosition: 'center' }}
-        />
-
-        {/* Overlay transparente */}
-        <div className="position-absolute top-0 start-0 w-100 h-100" style={{ background: 'rgba(0,0,0,0)', zIndex: 2 }}></div>
       </section>
 
       {/* 2. MAIN CONTENT AREA */}

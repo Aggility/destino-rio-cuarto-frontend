@@ -7,14 +7,14 @@ import Link from 'next/link';
  */
 export default function Footer() {
   return (
-    <footer className="footer py-5" style={{ 
-      backgroundColor: '#1F2A37', 
+    <footer className="footer py-5" style={{
+      backgroundColor: '#1F2A37',
       color: '#FFFFFF',
       borderTop: '1px solid rgba(255,255,255,0.1)'
     }}>
       <div className="container-xxl px-lg-5">
         <div className="d-flex flex-column align-items-center text-center">
-          
+
           {/* Logo */}
           <div className="d-flex align-items-center mb-4">
             <div className="bg-white rounded-circle d-flex align-items-center justify-content-center me-3" style={{ width: '48px', height: '48px' }}>
@@ -35,7 +35,7 @@ export default function Footer() {
 
           {/* Copyright Sutil */}
           <p className="mb-0 opacity-40 small font-inter">
-            © 2026 Secretaría de Deporte y Turismo. Gobierno de Río Cuarto.
+
           </p>
 
         </div>
