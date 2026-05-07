@@ -41,7 +41,7 @@ export default async function ServicioDetailPage({ params }) {
       { type: 'facebook', label: 'facebook', url: '#', icon: 'bi-facebook' }
     ],
     description: orgData?.description || 'Empresa que brinda servicio de transporte automotor interurbano regular de pasajeros y servicio de transporte automotor turístico de pasajeros.',
-    image: orgData?.media?.cover || orgData?.media?.gallery?.[0] || orgData?.image_url || '/Thumbnail.png'
+    image: orgData?.cover?.large || orgData?.cover?.medium || orgData?.gallery?.[0]?.large || '/Thumbnail.png'
   };
 
   // 3. Obtener Datos para Recomendaciones (Eventos y Organizaciones Relacionadas)
@@ -71,7 +71,7 @@ export default async function ServicioDetailPage({ params }) {
             subtitle: ev.organization?.name || 'Río Cuarto',
             badge: ev.calendars?.[0]?.start_date ? new Date(ev.calendars[0].start_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' }).toUpperCase() : 'PRÓXIMAMENTE',
             type: 'event',
-            thumbnail: ev.media?.cover || ev.media?.gallery?.[0] || ev.image_url || '/Thumbnail.png',
+            thumbnail: ev.cover?.medium || ev.cover?.small || ev.gallery?.[0]?.medium || '/Thumbnail.png',
             lat: ev.lat,
             lng: ev.lng,
             href: `/eventos/${ev.id}`
@@ -94,7 +94,7 @@ export default async function ServicioDetailPage({ params }) {
             category: org.categories?.[0]?.name || 'Servicio',
             address: org.addresses?.[0]?.address?.split(',')[0] || 'Río Cuarto',
             phone: org.phone || 'Consultar contacto',
-            thumbnail: org.media?.cover || org.media?.gallery?.[0] || org.image_url || '/Thumbnail.png'
+            thumbnail: org.cover?.medium || org.cover?.small || org.gallery?.[0]?.medium || '/Thumbnail.png'
           }));
     }
   } catch (err) {

@@ -34,8 +34,8 @@ export default async function CalendarPage() {
     title: evt.title,
     date_raw: evt.calendars?.[0]?.start_date,
     calendars: evt.calendars,
-    image_url: evt.image_url,
-    thumbnail: evt.image_url || '/Thumbnail.png'
+    image_url: evt.cover?.medium || evt.cover?.small || null,
+    thumbnail: evt.cover?.medium || evt.cover?.small || '/Thumbnail.png'
   }));
 
   return (

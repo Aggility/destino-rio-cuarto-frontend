@@ -44,7 +44,7 @@ export default async function Home() {
       location: evt.organization?.name || 'A confirmar',
       category: evt.categories?.[0]?.name?.toUpperCase() || 'EVENTO',
       typeColor: '#f54286',
-      thumbnail: evt.media?.cover || evt.media?.gallery?.[0] || evt.image_url || "/Thumbnail.png"
+      thumbnail: evt.cover?.medium || evt.cover?.small || evt.gallery?.[0]?.medium || "/Thumbnail.png"
     };
   });
 
