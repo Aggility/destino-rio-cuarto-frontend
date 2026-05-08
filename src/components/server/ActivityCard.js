@@ -47,9 +47,9 @@ export default function ActivityCard({
 
           {/* Info List */}
           <div className="d-flex flex-column gap-2 mt-1">
-            {/* Address */}
+            {/* Ubicación / Dirección */}
             <div className="d-flex align-items-start gap-2">
-              <i className="bi bi-geo-alt text-muted mt-1" style={{ fontSize: '14px' }}></i>
+              <i className="bi bi-geo-alt-fill mt-1" style={{ fontSize: '14px', color: '#8a38f5' }}></i>
               <p className="font-inter text-gray-700 mb-0 small text-truncate" 
                  title={address}
                  style={{ lineHeight: '1.4' }}>
@@ -57,9 +57,9 @@ export default function ActivityCard({
               </p>
             </div>
 
-            {/* Schedule */}
+            {/* Días / Horario */}
             <div className="d-flex align-items-start gap-2">
-              <i className="bi bi-calendar3 text-muted mt-1" style={{ fontSize: '14px' }}></i>
+              <i className="bi bi-clock mt-1" style={{ fontSize: '14px', color: '#8a38f5' }}></i>
               <p className="font-inter text-gray-700 mb-0 small" 
                  style={{ lineHeight: '1.4' }}>
                 {schedule}

@@ -11,19 +11,27 @@ import HomeSectionSlider from '@/components/client/HomeSectionSlider';
  * Optimizado para Mobile y Desktop.
  */
 export default async function Home() {
-  // 1. Fetch Events API
+  // 1. Fetch Events + Actividades en paralelo
   let apiEvents = [];
+  let apiActivities = [];
   try {
-    const res = await fetch('http://destbackdev.aggility.io/api/v1/events', { cache: 'no-store' });
-    if (res.ok) {
-      const data = await res.json();
+    const [resEvents, resActivities] = await Promise.all([
+      fetch('https://destbackdev.aggility.io/api/v1/events', { cache: 'no-store' }),
+      fetch('https://destbackdev.aggility.io/api/v1/proposals', { cache: 'no-store' })
+    ]);
+    if (resEvents.ok) {
+      const data = await resEvents.json();
       apiEvents = Array.isArray(data) ? data : (data.data || []);
-      // Excluir eventos con status inactivo
       apiEvents = apiEvents.filter(evt => evt.status?.toLowerCase() !== 'inactive');
-      apiEvents = apiEvents.slice(0, 5); // Solo tomar 5 para portada
+      apiEvents = apiEvents.slice(0, 5);
+    }
+    if (resActivities.ok) {
+      const data = await resActivities.json();
+      const all = Array.isArray(data) ? data : (data.data || []);
+      apiActivities = all.filter(p => p.status?.toLowerCase() !== 'inactive').slice(0, 5);
     }
   } catch (error) {
-    console.error("Error fetching events API para la home:", error);
+    console.error("Error fetching home data:", error);
   }
 
   // 2. Format Eventos limitados
@@ -96,25 +104,19 @@ export default async function Home() {
       ];
     }
 
-    // 2. ACTIVIDADES (EventCard)
+    // 2. ACTIVIDADES (API real /proposals)
     if (cat.slug === 'actividades') {
-        const items = [
-            { id: 'trencito', title: 'Trencito Rio IV', time: '15:00 a 19:00', address: 'Parque Sarmiento', schedule: 'Fines de semana', thumbnail: '/trencito.jfif' },
-            { id: 'parque-ecologico', title: 'Parque Ecológico', time: '10:00 a 18:00', address: 'Ruta A005', schedule: 'Todo el año', thumbnail: '/peu.webp' },
-            { id: 'museo-historico', title: 'Museo Histórico Regional', time: '09:00 a 13:00', address: 'Fotheringham 178', schedule: 'Mar a Dom', thumbnail: '/museo-historico.jpg' }
-        ];
-
         return [
-          ...items.map((item) => (
+          ...apiActivities.map((item) => (
             <div key={item.id} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)', scrollSnapAlign: 'start' }}>
                 <EventCard 
                     id={item.id}
                     title={item.title}
-                    date={item.time}
-                    location={item.address}
-                    category={item.schedule}
+                    date={item.categories?.[0]?.name || 'Actividad'}
+                    location={item.tags?.[0]?.name || 'Río Cuarto'}
+                    category={item.categories?.[0]?.name?.toUpperCase() || 'ACTIVIDAD'}
                     description=""
-                    thumbnail={item.thumbnail}
+                    thumbnail={item.cover?.medium || item.cover?.small || item.gallery?.[0]?.medium || '/Thumbnail.png'}
                     basePath="actividades"
                     typeColor={cat.color}
                 />
