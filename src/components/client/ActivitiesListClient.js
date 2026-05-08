@@ -151,7 +151,7 @@ export default function ActivitiesListClient({ initialActivities = [], categorie
                   <ActivityCard
                     id={act.id}
                     title={act.title}
-                    time={act.category}
+                    time={act.time}
                     address={act.address}
                     schedule={act.schedule}
                     description={act.description}

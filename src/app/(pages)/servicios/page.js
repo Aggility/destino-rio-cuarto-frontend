@@ -30,7 +30,7 @@ export default async function ServiciosPage() {
     category: org.categories?.[0]?.name || 'Servicio',
     address: org.addresses?.[0]?.address?.split(',')[0] || 'Río Cuarto',
     phone: org.phone || 'Consultar contacto',
-    thumbnail: org.cover?.medium || org.cover?.small || org.gallery?.[0]?.medium || "/Thumbnail.png",
+    thumbnail: org.cover?.small || org.cover?.medium || org.gallery?.[0]?.small || "/Thumbnail.png",
     lat: org.addresses?.[0]?.latitude,
     lng: org.addresses?.[0]?.longitude,
     description: org.description || ''

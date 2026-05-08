@@ -71,7 +71,7 @@ export default async function ServicioDetailPage({ params }) {
             subtitle: ev.organization?.name || 'Río Cuarto',
             badge: ev.calendars?.[0]?.start_date ? new Date(ev.calendars[0].start_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' }).toUpperCase() : 'PRÓXIMAMENTE',
             type: 'event',
-            thumbnail: ev.cover?.medium || ev.cover?.small || ev.gallery?.[0]?.medium || '/Thumbnail.png',
+            thumbnail: ev.cover?.small || ev.cover?.medium || ev.gallery?.[0]?.small || '/Thumbnail.png',
             lat: ev.lat,
             lng: ev.lng,
             href: `/eventos/${ev.id}`
@@ -94,7 +94,7 @@ export default async function ServicioDetailPage({ params }) {
             category: org.categories?.[0]?.name || 'Servicio',
             address: org.addresses?.[0]?.address?.split(',')[0] || 'Río Cuarto',
             phone: org.phone || 'Consultar contacto',
-            thumbnail: org.cover?.medium || org.cover?.small || org.gallery?.[0]?.medium || '/Thumbnail.png'
+            thumbnail: org.cover?.small || org.cover?.medium || org.gallery?.[0]?.small || '/Thumbnail.png'
           }));
     }
   } catch (err) {

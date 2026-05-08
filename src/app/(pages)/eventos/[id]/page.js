@@ -47,7 +47,7 @@ export default async function EventDetailPage({ params }) {
     },
     description: eventData?.description?.replace(/<[^>]*>?/gm, '') || 'Regresa Ulises Bueno para una noche inolvidable...',
     fullDescription: [eventData?.description?.replace(/<[^>]*>?/gm, '') || 'Regresa Ulises Bueno para una noche inolvidable...'],
-    thumbnail: eventData?.cover?.large || eventData?.cover?.medium || eventData?.gallery?.[0]?.large || '/Thumbnail.png',
+    thumbnail: eventData?.cover?.small || eventData?.cover?.medium || eventData?.cover?.large || eventData?.gallery?.[0]?.small || '/Thumbnail.png',
     relatedEvents: []
   };
 
@@ -70,7 +70,7 @@ export default async function EventDetailPage({ params }) {
           ? new Date(e.calendars[0].start_date).toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' })
           : '',
         location: e.organization?.name || e.organization?.addresses?.[0]?.address || 'Río Cuarto',
-        thumbnail: e.cover?.medium || e.cover?.small || e.gallery?.[0]?.medium || '/Thumbnail.png',
+        thumbnail: e.cover?.small || e.cover?.medium || e.gallery?.[0]?.small || '/Thumbnail.png',
         category: e.categories?.[0]?.name?.toUpperCase() || 'EVENTO',
         lat: parseFloat(e.organization?.addresses?.[0]?.latitude) || null,
         lng: parseFloat(e.organization?.addresses?.[0]?.longitude) || null,

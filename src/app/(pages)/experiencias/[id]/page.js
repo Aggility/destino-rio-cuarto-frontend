@@ -199,7 +199,7 @@ export default async function ExperienceDetailPage({ params }) {
                                 );
                                 return {
                                     ...stop,
-                                    thumbnail: match?.media?.cover || match?.media?.gallery?.[0] || match?.image_url || experience.thumbnail
+                                    thumbnail: match?.media?.cover?.small || match?.media?.cover || match?.media?.gallery?.[0]?.small || match?.media?.gallery?.[0] || match?.image_url || experience.thumbnail
                                 };
                             });
 

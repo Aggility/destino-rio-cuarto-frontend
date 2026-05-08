@@ -67,18 +67,18 @@ export default async function ActivityDetailPage({ params }) {
       ? [activityData.description.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ')]
       : ['Sin descripción disponible.'],
     details: {
-      horarios: activityData.tags?.find(t => t.key?.includes('horario'))?.name || 'Ver detalle',
+      horarios: activityData.calendars?.[0]?.observations || 'Consultar horarios',
       duracion: activityData.tags?.find(t => t.key?.includes('duracion'))?.name || 'Variable',
       precio: activityData.tags?.find(t => t.key?.includes('precio'))?.name || 'Consultar',
     },
     location: {
-      name: activityData.organization?.name || 'Río Cuarto',
-      address: activityData.organization?.addresses?.[0]?.address || 'Río Cuarto, Córdoba',
+      name: activityData.addresses?.[0]?.addressable?.name || activityData.organization?.name || 'Río Cuarto',
+      address: activityData.addresses?.[0]?.address || activityData.organization?.addresses?.[0]?.address || 'Río Cuarto, Córdoba',
       city: 'Río Cuarto, Córdoba',
-      lat: activityData.organization?.addresses?.[0]?.latitude,
-      lng: activityData.organization?.addresses?.[0]?.longitude,
+      lat: activityData.addresses?.[0]?.latitude || activityData.organization?.addresses?.[0]?.latitude,
+      lng: activityData.addresses?.[0]?.longitude || activityData.organization?.addresses?.[0]?.longitude,
     },
-    thumbnail: activityData.cover?.large || activityData.cover?.medium || activityData.gallery?.[0]?.large || '/Thumbnail.png',
+    thumbnail: activityData.cover?.small || activityData.cover?.medium || activityData.cover?.large || activityData.gallery?.[0]?.small || '/Thumbnail.png',
     gallery: activityData.gallery || [],
     tags: activityData.tags || [],
   };
@@ -211,7 +211,7 @@ export default async function ActivityDetailPage({ params }) {
                               subtitle={rel.categories?.[0]?.name?.trim() || 'Actividad'}
                               badge={rel.tags?.[0]?.name?.toUpperCase() || 'ACTIVIDAD'}
                               type="activity"
-                              thumbnail={rel.cover?.medium || rel.cover?.small || '/Thumbnail.png'}
+                              thumbnail={rel.cover?.small || rel.cover?.medium || '/Thumbnail.png'}
                               href={`/actividades/${rel.id}`}
                             />
                           ))}

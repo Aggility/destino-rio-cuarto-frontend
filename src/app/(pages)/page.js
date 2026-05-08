@@ -52,7 +52,7 @@ export default async function Home() {
       location: evt.organization?.name || 'A confirmar',
       category: evt.categories?.[0]?.name?.toUpperCase() || 'EVENTO',
       typeColor: '#f54286',
-      thumbnail: evt.cover?.medium || evt.cover?.small || evt.gallery?.[0]?.medium || "/Thumbnail.png"
+      thumbnail: evt.cover?.small || evt.cover?.medium || evt.gallery?.[0]?.small || "/Thumbnail.png"
     };
   });
 
@@ -107,21 +107,31 @@ export default async function Home() {
     // 2. ACTIVIDADES (API real /proposals)
     if (cat.slug === 'actividades') {
         return [
-          ...apiActivities.map((item) => (
-            <div key={item.id} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)', scrollSnapAlign: 'start' }}>
-                <EventCard 
-                    id={item.id}
-                    title={item.title}
-                    date={item.categories?.[0]?.name || 'Actividad'}
-                    location={item.tags?.[0]?.name || 'Río Cuarto'}
-                    category={item.categories?.[0]?.name?.toUpperCase() || 'ACTIVIDAD'}
-                    description=""
-                    thumbnail={item.cover?.medium || item.cover?.small || item.gallery?.[0]?.medium || '/Thumbnail.png'}
-                    basePath="actividades"
-                    typeColor={cat.color}
-                />
-            </div>
-          )),
+          ...apiActivities.map((item) => {
+            // Mapping logic consistent with actividades/page.js
+            const categoryName = item.categories?.[0]?.name?.trim() || 'Actividad';
+            const placeName = item.addresses?.[0]?.addressable?.name;
+            const placeAddress = item.addresses?.[0]?.address;
+            const address = placeName ? `${placeName}${placeAddress ? ` / ${placeAddress.split(',')[0]}` : ''}` : (placeAddress || 'Río Cuarto');
+            
+            const schedule = item.calendars?.[0]?.observations || 'Consultar horarios';
+            const startTime = item.calendars?.[0]?.start_time?.substring(0, 5);
+            const time = startTime ? `${startTime} hs` : categoryName;
+
+            return (
+              <div key={item.id} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)', scrollSnapAlign: 'start' }}>
+                  <ActivityCard 
+                      id={item.id}
+                      title={item.title}
+                      time={time}
+                      address={address}
+                      schedule={schedule}
+                      description=""
+                      thumbnail={item.cover?.small || item.cover?.medium || item.gallery?.[0]?.small || '/Thumbnail.png'}
+                  />
+              </div>
+            );
+          }),
           seeMoreCard
         ];
     }

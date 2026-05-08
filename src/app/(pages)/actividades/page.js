@@ -29,15 +29,17 @@ export default async function ActivitiesPage() {
     const categoryName = p.categories?.[0]?.name?.trim() || 'Actividad';
     const tagName = p.tags?.[0]?.name?.trim() || '';
 
-    // address → primer tag disponible (describe el tipo/lugar de la actividad)
-    // Si no hay tag, usamos "Río Cuarto, Córdoba" como fallback
-    const address = tagName || 'Río Cuarto, Córdoba';
+    // Lugar: Nombre del lugar (addressable) + Dirección
+    const placeName = p.addresses?.[0]?.addressable?.name;
+    const placeAddress = p.addresses?.[0]?.address;
+    const address = placeName ? `${placeName}${placeAddress ? ` / ${placeAddress.split(',')[0]}` : ''}` : (placeAddress || 'Río Cuarto, Córdoba');
 
-    // schedule → categoría (clasifica el tipo de actividad / días)
-    const schedule = categoryName;
+    // Horario: Observaciones del calendario o fallback
+    const schedule = p.calendars?.[0]?.observations || 'Consultar horarios';
 
-    // time (badge en imagen) → categoría corta
-    const time = categoryName;
+    // time (badge en imagen) → Horario resumido
+    const startTime = p.calendars?.[0]?.start_time?.substring(0, 5);
+    const time = startTime ? `${startTime} hs` : categoryName;
 
     return {
       id: p.id,
@@ -46,7 +48,7 @@ export default async function ActivitiesPage() {
       description: p.description
         ? p.description.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').substring(0, 110) + '...'
         : 'Actividad turística en Río Cuarto.',
-      thumbnail: p.cover?.medium || p.cover?.small || p.gallery?.[0]?.medium || '/Thumbnail.png',
+      thumbnail: p.cover?.small || p.cover?.medium || p.gallery?.[0]?.small || '/Thumbnail.png',
       address,
       schedule,
       time,
