@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
-import ActivityCard from '@/components/server/ActivityCard';
+import EventCard from '@/components/server/EventCard';
 
 const CATEGORY_COLOR = '#8a38f5';
 
@@ -145,20 +145,22 @@ export default function ActivitiesListClient({ initialActivities = [], categorie
           </div>
 
           {filtered.length > 0 ? (
-            <div className="row g-3 g-md-4 pb-5">
+            <div className="listing-grid pb-5">
               {filtered.map((act) => (
-                <div key={act.id} className="col-6 col-md-6 col-lg-4 col-xl-3">
-                  <ActivityCard
-                    id={act.id}
-                    title={act.title}
-                    time={act.time}
-                    address={act.address}
-                    schedule={act.schedule}
-                    description={act.description}
-                    thumbnail={act.thumbnail}
-                    type="actividades"
-                  />
-                </div>
+                <EventCard
+                  key={act.id}
+                  id={act.id}
+                  title={act.title}
+                  date={act.time}
+                  location={act.address}
+                  description={act.description}
+                  category={act.category}
+                  typeColor="#8a38f5"
+                  thumbnail={act.thumbnail}
+                  lat={act.lat}
+                  lng={act.lng}
+                  basePath="actividades"
+                />
               ))}
             </div>
           ) : (

@@ -4,30 +4,17 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 
 /**
- * MacroEventCard - Destino Río Cuarto
- * Basado en Figma ID 3786:24022 / 3786:27623
- * Slider de eventos marco (macro eventos) destacados.
- * - Acepta un array `events` para mostrar múltiples slides.
- * - Autoplay de 5s, pausable en hover.
- * - Flechas desktop + dots indicadores expandibles.
- * - Cada slide: thumbnail izquierda + contenido derecho sobre gradiente pink.
+ * MacroEventsSlider - Destino Río Cuarto
+ * Basado en Figma ID 3786:24022
+ * Slider de eventos destacados con autoplay, scroll snap,
+ * flechas de navegación y dots indicadores.
  */
-export default function MacroEventCard({ events = [], title, date, time, location, thumbnail, href }) {
-  // ── Modo compatibilidad: si recibe props individuales, los envuelve en array
-  const slides = events.length > 0 ? events : (title ? [{
-    id: 'single',
-    title,
-    date,
-    time,
-    location,
-    thumbnail: thumbnail || '/Thumbnail.png',
-    href: href || '#',
-  }] : []);
-
+export default function MacroEventsSlider({ events = [] }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const scrollRef = useRef(null);
 
+  // Scroll programático a un índice
   const scrollToIndex = useCallback((index) => {
     if (!scrollRef.current) return;
     const width = scrollRef.current.offsetWidth;
@@ -35,6 +22,7 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
     setActiveIndex(index);
   }, []);
 
+  // Sincronizar activeIndex con scroll manual del usuario
   const handleScroll = () => {
     if (!scrollRef.current) return;
     const width = scrollRef.current.offsetWidth;
@@ -42,29 +30,29 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
     if (newIndex !== activeIndex) setActiveIndex(newIndex);
   };
 
-  // Autoplay
+  // Autoplay cada 5 segundos — se pausa en hover
   useEffect(() => {
-    if (isPaused || slides.length <= 1) return;
+    if (isPaused || events.length <= 1) return;
     const interval = setInterval(() => {
-      const next = (activeIndex + 1) % slides.length;
+      const next = (activeIndex + 1) % events.length;
       scrollToIndex(next);
     }, 5000);
     return () => clearInterval(interval);
-  }, [activeIndex, isPaused, slides.length, scrollToIndex]);
+  }, [activeIndex, isPaused, events.length, scrollToIndex]);
 
-  if (!slides || slides.length === 0) return null;
+  if (!events || events.length === 0) return null;
 
   const canPrev = activeIndex > 0;
-  const canNext = activeIndex < slides.length - 1;
+  const canNext = activeIndex < events.length - 1;
 
   return (
     <div
-      className="macro-event-card position-relative overflow-hidden rounded-4 shadow-premium"
-      style={{ background: 'linear-gradient(135deg, #f54286 0%, #d92d6b 100%)', minHeight: '200px' }}
+      className="position-relative overflow-hidden rounded-4 shadow-premium"
+      style={{ background: 'linear-gradient(135deg, #f54286 0%, #d92d6b 100%)' }}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      {/* ── Contenedor de slides con scroll snap ── */}
+      {/* ── Contenedor de slides ── */}
       <div
         ref={scrollRef}
         onScroll={handleScroll}
@@ -78,7 +66,7 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
           scrollbarWidth: 'none',
         }}
       >
-        {slides.map((event, index) => (
+        {events.map((event, index) => (
           <div
             key={event.id || index}
             style={{ flexShrink: 0, width: '100%', scrollSnapAlign: 'start' }}
@@ -99,6 +87,7 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
                     display: 'block',
                   }}
                 />
+                {/* Badge EVENTO DESTACADO */}
                 <span
                   className="position-absolute top-0 start-0 m-3 badge rounded-pill bg-white fw-bold px-3 py-2 font-inter shadow-sm"
                   style={{ color: '#f54286', fontSize: '10px', zIndex: 2 }}
@@ -108,21 +97,26 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
               </div>
 
               {/* 2. Contenido */}
-              <div className="col-12 col-md-7 d-flex flex-column justify-content-center p-3 p-md-4 p-lg-5 text-white">
+              <div className="col-12 col-md-7 d-flex flex-column justify-content-center p-4 p-lg-5 text-white">
                 <h3
-                  className="font-inter fw-extrabold mb-3"
-                  style={{ fontSize: 'clamp(22px, 4vw, 34px)', lineHeight: '1.1', letterSpacing: '-1px' }}
+                  className="font-inter fw-extrabold mb-4"
+                  style={{
+                    fontSize: 'clamp(22px, 4vw, 34px)',
+                    lineHeight: '1.1',
+                    letterSpacing: '-1px',
+                  }}
                 >
                   {event.title}
                 </h3>
 
-                <div className="d-flex flex-column gap-3 mb-4">
+                {/* Info: fecha, hora, lugar */}
+                <div className="d-flex flex-column gap-3 mb-4 opacity-90">
                   {/* Fecha */}
                   {event.date && (
                     <div className="d-flex align-items-center gap-2">
                       <div
                         className="bg-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                        style={{ width: '32px', height: '32px', minWidth: '32px' }}
+                        style={{ width: '32px', height: '32px' }}
                       >
                         <i className="bi bi-calendar-event" style={{ color: '#f54286', fontSize: '14px' }}></i>
                       </div>
@@ -132,7 +126,7 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
                     </div>
                   )}
 
-                  <div className="d-flex flex-wrap gap-3 mt-1">
+                  <div className="d-flex flex-wrap gap-3">
                     {/* Hora */}
                     {event.time && (
                       <div className="d-flex align-items-center gap-2 opacity-80">
@@ -151,7 +145,7 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
                 </div>
 
                 {/* CTA */}
-                <div className="d-flex flex-column flex-md-row align-items-start gap-3">
+                <div>
                   <Link
                     href={event.href || `/eventos/${event.id}`}
                     className="btn btn-light rounded-pill font-inter fw-bold px-5 py-3 transition-all hover-scale shadow-sm"
@@ -167,15 +161,16 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
         ))}
       </div>
 
-      {/* ── Flechas de navegación — Solo desktop, solo si hay más de 1 slide ── */}
-      {slides.length > 1 && (
+      {/* ── Flechas de navegación — Solo desktop ── */}
+      {events.length > 1 && (
         <div className="d-none d-md-block">
           <button
             onClick={() => canPrev && scrollToIndex(activeIndex - 1)}
-            className="position-absolute top-50 start-0 translate-middle-y ms-3 btn rounded-circle d-flex align-items-center justify-content-center border-0 shadow-premium"
+            className="position-absolute top-50 start-0 translate-middle-y ms-3 btn rounded-circle d-flex align-items-center justify-content-center border-0 shadow-premium transition-all"
             style={{
               width: '44px', height: '44px',
-              backgroundColor: '#000', color: '#fff',
+              backgroundColor: '#000',
+              color: '#fff',
               opacity: canPrev ? 0.85 : 0.2,
               cursor: canPrev ? 'pointer' : 'default',
               zIndex: 10,
@@ -186,10 +181,11 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
           </button>
           <button
             onClick={() => canNext && scrollToIndex(activeIndex + 1)}
-            className="position-absolute top-50 end-0 translate-middle-y me-3 btn rounded-circle d-flex align-items-center justify-content-center border-0 shadow-premium"
+            className="position-absolute top-50 end-0 translate-middle-y me-3 btn rounded-circle d-flex align-items-center justify-content-center border-0 shadow-premium transition-all"
             style={{
               width: '44px', height: '44px',
-              backgroundColor: '#000', color: '#fff',
+              backgroundColor: '#000',
+              color: '#fff',
               opacity: canNext ? 0.85 : 0.2,
               cursor: canNext ? 'pointer' : 'default',
               zIndex: 10,
@@ -201,13 +197,13 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
         </div>
       )}
 
-      {/* ── Dots indicadores — Solo si hay más de 1 slide ── */}
-      {slides.length > 1 && (
+      {/* ── Dots indicadores ── */}
+      {events.length > 1 && (
         <div
           className="position-absolute bottom-0 start-50 translate-middle-x mb-3 d-flex gap-2"
           style={{ zIndex: 10 }}
         >
-          {slides.map((_, idx) => (
+          {events.map((_, idx) => (
             <button
               key={idx}
               onClick={() => scrollToIndex(idx)}

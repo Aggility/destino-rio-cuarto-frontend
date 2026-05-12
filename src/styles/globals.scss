@@ -124,11 +124,8 @@
   }
 }
 
-// Aplicar zoom al contenedor del padre que tenga el efecto
-.card:hover .card-zoom-effect img,
-.service-list-item:hover .card-zoom-effect img,
-.activity-card:hover .card-zoom-effect img,
-.sidebar-list-card:hover .card-zoom-effect img {
+// Aplicar zoom solo cuando se hace hover sobre el contenedor de la imagen
+.card-zoom-effect:hover img {
   transform: scale(1.1);
 }
 

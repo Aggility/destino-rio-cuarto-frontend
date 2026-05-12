@@ -52,6 +52,8 @@ export default async function ActivitiesPage() {
       address,
       schedule,
       time,
+      lat: p.addresses?.[0]?.latitude,
+      lng: p.addresses?.[0]?.longitude,
     };
   });
 

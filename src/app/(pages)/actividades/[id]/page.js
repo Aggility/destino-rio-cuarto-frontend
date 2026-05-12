@@ -78,7 +78,7 @@ export default async function ActivityDetailPage({ params }) {
       lat: activityData.addresses?.[0]?.latitude || activityData.organization?.addresses?.[0]?.latitude,
       lng: activityData.addresses?.[0]?.longitude || activityData.organization?.addresses?.[0]?.longitude,
     },
-    thumbnail: activityData.cover?.small || activityData.cover?.medium || activityData.cover?.large || activityData.gallery?.[0]?.small || '/Thumbnail.png',
+    thumbnail: activityData.cover?.large || activityData.cover?.medium || activityData.cover?.small || activityData.gallery?.[0]?.medium || activityData.gallery?.[0]?.small || '/Thumbnail.png', // portada: large primero
     gallery: activityData.gallery || [],
     tags: activityData.tags || [],
   };
