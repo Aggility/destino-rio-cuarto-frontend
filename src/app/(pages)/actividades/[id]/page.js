@@ -4,6 +4,7 @@ import ChatbotIcon from '@/components/server/ChatbotIcon';
 import EventCard from '@/components/server/EventCard';
 import SidebarListCard from '@/components/server/SidebarListCard';
 import EventDistanceBadge from '@/components/client/EventDistanceBadge';
+import ContactAndLocationWidget from '@/components/client/ContactAndLocationWidget';
 
 /**
  * ActivityDetailPage - Destino Río Cuarto
@@ -194,6 +195,21 @@ export default async function ActivityDetailPage({ params }) {
                     {activity.description.map((p, i) => (
                         <p key={i} className="text-gray-600 fs-5 mb-4 leading-relaxed">{p}</p>
                     ))}
+                </div>
+
+                {/* Location & Contact Box */}
+                <div className="mt-5 pt-4 border-top">
+                    <h2 className="font-inter fw-bold text-gray-900 mb-4" style={{ fontSize: '24px' }}>Ubicación y Contacto</h2>
+                    <ContactAndLocationWidget 
+                        service={{
+                            name: activity.location.name,
+                            address: activity.location.address,
+                            lat: activity.location.lat,
+                            lng: activity.location.lng,
+                            phones: activityData?.phones || []
+                        }} 
+                        type="actividad" 
+                    />
                 </div>
             </div>
           </div>

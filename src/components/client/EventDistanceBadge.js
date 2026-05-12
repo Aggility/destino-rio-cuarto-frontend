@@ -18,39 +18,37 @@ export default function EventDistanceBadge({ eventLat, eventLng, distance: initi
 
   const theme = getTheme(type);
 
+  const [isMobile, setIsMobile] = useState(false);
+
   useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    if (!isMobile) return; // Solo calcular en mobile
+
     if (initialDistance !== null) {
       setDistance(initialDistance);
       return;
     }
     
     if (typeof navigator !== 'undefined' && navigator.geolocation && eventLat && eventLng) {
-      // 1. Verificar cache global en window para evitar múltiples llamadas al sistema
-      if (window._userLocCache) {
-        const dist = getDistance(window._userLocCache.lat, window._userLocCache.lng, parseFloat(eventLat), parseFloat(eventLng));
-        setDistance(dist);
-        return;
-      }
-
-      // 2. Si no hay cache, pedir ubicación con opciones de velocidad
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          window._userLocCache = { lat: latitude, lng: longitude }; // Cachear
           const dist = getDistance(latitude, longitude, parseFloat(eventLat), parseFloat(eventLng));
           setDistance(dist);
         },
         () => {},
-        { 
-          enableHighAccuracy: false, // Más rápido
-          timeout: 5000, 
-          maximumAge: 600000 // Usar ubicación cacheada del sistema de hasta 10 min
-        }
+        { enableHighAccuracy: false, timeout: 5000, maximumAge: 600000 }
       );
     }
-  }, [eventLat, eventLng, initialDistance]);
+  }, [eventLat, eventLng, initialDistance, isMobile]);
 
-  if (distance === null) return null;
+  if (!isMobile || distance === null) return null;
 
   // Multiplicadores diferenciados para reflejar que las rutas son distintas
   const drivingDist = distance * 1.4; // Recorrido por calles (grilla urbana)
