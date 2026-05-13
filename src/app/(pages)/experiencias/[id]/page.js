@@ -1,104 +1,90 @@
 import React from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
-import ExperienceInteractiveMap from '@/components/client/ExperienceInteractiveMap';
 import ChatbotIcon from '@/components/server/ChatbotIcon';
-import ContactButtons from '@/components/client/ContactButtons';
-import EventCard from '@/components/server/EventCard';
-import PlacesSlider from '@/components/client/PlacesSlider';
+import SidebarListCard from '@/components/server/SidebarListCard';
 import EventDistanceBadge from '@/components/client/EventDistanceBadge';
+import ContactAndLocationWidget from '@/components/client/ContactAndLocationWidget';
 
 /**
  * ExperienceDetailPage - Destino Río Cuarto
- * Diseño unificado con fondo desenfocado y visualización original.
+ * Formato unificado con Actividades, conectado a /event-frameworks
  */
 export default async function ExperienceDetailPage({ params }) {
   const { id } = await params;
+  const themeColor = '#ff5a1f';
 
-  // Obtener Organizaciones para buscar imágenes de las paradas
-  let allOrganizations = [];
+  // 1. Obtener la experiencia por ID
+  let experienceData = null;
   try {
-    const resOrg = await fetch(`http://destbackdev.aggility.io/api/v1/organizations`, { cache: 'no-store' });
-    if (resOrg.ok) {
-        const orgData = await resOrg.json();
-        allOrganizations = orgData.data || [];
+    const res = await fetch(`https://destbackdev.aggility.io/api/v1/event-frameworks/${id}`, { cache: 'no-store' });
+    if (res.ok) {
+      const json = await res.json();
+      experienceData = json.data || json;
     }
   } catch (err) {
-    console.error("Error fetching organizations:", err);
+    console.error('Error fetching experience:', err);
   }
 
-  // Moqueo de datos para la experiencia
-  const experienceData = {
-    'respira-aire-libre': {
-        title: 'Respira Aire Libre: Parque Sarmiento',
-        category: 'Aire Libre',
-        duration: '2 a 5 horas',
-        language: 'N/A',
-        rating: 4.7,
-        reviews: 89,
-        description: 'Disfrutá de la naturaleza en el pulmón verde más grande de Río Cuarto. Un paseo ideal para familias.',
-        fullDescription: 'El Parque Sarmiento ofrece una variedad de actividades recreativas. Comenzaremos con el clásico paseo en trencito que recorre todo el predio, luego disfrutaremos de un momento de paz en el lago con los botes a pedal, y terminaremos visitando la feria de emprendedores locales donde podrás encontrar artesanías únicas.',
-        thumbnail: '/psarmiento.jfif',
-        price: 'Gratis / Pago x Actividad',
-        coords: { lat: -33.10636300, lng: -64.33748200 },
-        stops: [
-            { id: 1, name: 'Parque Sarmiento', lat: -33.10636300, lng: -64.33748200, description: 'Pulmón verde de la ciudad con recreación y naturaleza.', icon: 'bi-tree' },
-            { id: 2, name: 'Anfiteatro Atahualpa Yupanqui', lat: -33.10602300, lng: -64.33399800, description: 'Escenario de grandes eventos en el corazón del parque.', icon: 'bi-mic-fill' },
-            { id: 3, name: 'Botes en el Lago', lat: -33.10750000, lng: -64.33500000, description: 'Paseo relajante por el lago artificial del Parque Sarmiento.', icon: 'bi-water' }
-        ]
-    },
-    'recorrido-7-iglesias': {
-        title: 'Recorrido de las 7 Iglesias',
-        category: 'Religioso',
-        duration: '3 a 4 horas',
-        language: 'Español',
-        rating: 4.9,
-        reviews: 56,
-        description: 'Un circuito de reflexión y patrimonio arquitectónico por los templos más significativos del centro.',
-        fullDescription: 'Este recorrido tradicional, emblemático de Semana Santa, te lleva por siete templos significativos de Río Cuarto. Iniciamos en la Catedral frente a Plaza Roca y recorremos los hitos espirituales y arquitectónicos que definen la identidad de la ciudad.',
-        thumbnail: 'https://images.unsplash.com/photo-1548625235-36af58169128?auto=format&fit=crop&q=80&w=600',
-        price: 'Gratis',
-        coords: { lat: -33.12373200, lng: -64.35115100 },
-        stops: [
-            { id: 1, name: 'Catedral (Villa de la Concepción)', lat: -33.12373200, lng: -64.35115100, description: 'Sede de la Diócesis, frente a Plaza Roca.', icon: 'bi-bank' },
-            { id: 2, name: 'Iglesia San Francisco Solano', lat: -33.12226900, lng: -64.35029400, description: 'Histórico templo con gran valor patrimonial.', icon: 'bi-bank' },
-            { id: 3, name: 'Parroquia San Roque', lat: -33.11482100, lng: -64.35757800, description: 'Ubicada en una zona residencial histórica.', icon: 'bi-bank' },
-            { id: 4, name: 'Santuario Ntra. Sra. de Fátima', lat: -33.12281800, lng: -64.36166400, description: 'Lugar de gran devoción mariana.', icon: 'bi-bank' },
-            { id: 5, name: 'Parroquia Ntra. Sra. de Luján', lat: -33.13154900, lng: -64.35654600, description: 'Dedicada a la patrona de la Argentina.', icon: 'bi-bank' },
-            { id: 6, name: 'Parroquia de La Merced', lat: -33.13396600, lng: -64.33442500, description: 'Emblemática iglesia de la zona sur.', icon: 'bi-bank' },
-            { id: 7, name: 'Parroquia Santa Lucía', lat: -33.14415700, lng: -64.34496200, description: 'Ubicada en el sector de Banda Norte.', icon: 'bi-bank' }
-        ]
-    },
-    'recorrido-historico-cultural': {
-        title: 'Recorrido Histórico Cultural',
-        category: 'Cultural',
-        duration: '2.5 horas',
-        language: 'Español',
-        rating: 4.8,
-        reviews: 42,
-        description: 'Viaja en el tiempo conociendo los edificios más emblemáticos del poder y el arte local.',
-        fullDescription: 'Río Cuarto respira historia en sus muros. En este paseo visitaremos el Palacio Municipal, joya arquitectónica del centro, el Teatro Municipal donde late el arte riocuartense, y culminaremos en el Paseo del Andino para entender nuestras raíces ferroviarias.',
-        thumbnail: '/museo-historico.jpg',
-        price: 'Gratis',
-        coords: { lat: -33.12565000, lng: -64.35014100 },
-        stops: [
-            { id: 1, name: 'Teatro Municipal', lat: -33.12565000, lng: -64.35014100, description: 'Icono del arte y la cultura de Río Cuarto.', icon: 'bi-music-note-beamed' },
-            { id: 2, name: 'Museo Histórico Regional', lat: -33.12108900, lng: -64.34935500, description: 'Resguardo de la memoria local en la casa Fotheringham.', icon: 'bi-compass' },
-            { id: 3, name: 'Museo del Riel', lat: -33.12987100, lng: -64.34008000, description: 'Memoria ferroviaria en el predio del Andino.', icon: 'bi-train-front' }
-        ]
+  // 2. Obtener otras experiencias para el sidebar
+  let relatedExperiences = [];
+  try {
+    const res = await fetch(`https://destbackdev.aggility.io/api/v1/event-frameworks`, { cache: 'no-store' });
+    if (res.ok) {
+      const json = await res.json();
+      const all = Array.isArray(json) ? json : (json.data || []);
+      relatedExperiences = all
+        .filter(p => p.status?.toLowerCase() !== 'inactive' && String(p.id) !== String(id))
+        .slice(0, 3);
     }
-  };
+  } catch (err) {
+    console.error('Error fetching related experiences:', err);
+  }
 
-  const experience = experienceData[id] || experienceData['respira-aire-libre'];
-  const themeColor = '#ff5a1f'; // Color institucional de Experiencias
+  // 3. Fallback si no se encontró
+  if (!experienceData) {
+    return (
+      <div className="bg-white min-vh-100 pb-5 d-flex align-items-center justify-content-center">
+        <div className="text-center py-5">
+          <i className="bi bi-compass fs-1 text-muted d-block mb-3"></i>
+          <h2 className="font-inter fw-bold text-gray-800">Experiencia no encontrada</h2>
+          <p className="text-muted">Es posible que haya sido removida o que el enlace no sea válido.</p>
+          <Link href="/experiencias" className="btn btn-primary mt-3 rounded-3" style={{ backgroundColor: themeColor, border: 'none' }}>
+            Ver todas las experiencias
+          </Link>
+        </div>
+        <ChatbotIcon />
+      </div>
+    );
+  }
+
+  // 4. Mapear datos
+  const experience = {
+    id: experienceData.id,
+    title: experienceData.title || experienceData.name || 'Sin título',
+    category: experienceData.categories?.[0]?.name?.trim() || 'Experiencia',
+    description: experienceData.description
+      ? [experienceData.description.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ')]
+      : ['Sin descripción disponible.'],
+    details: {
+      horarios: experienceData.calendars?.[0]?.observations || 'Todos los días',
+      duracion: 'Consultar',
+      precio: 'Consultar',
+    },
+    location: {
+      name: experienceData.organization?.name || experienceData.location || 'Río Cuarto',
+      address: experienceData.organization?.addresses?.[0]?.address || 'Río Cuarto, Córdoba',
+      lat: experienceData.organization?.addresses?.[0]?.latitude,
+      lng: experienceData.organization?.addresses?.[0]?.longitude,
+    },
+    thumbnail: experienceData.cover?.large || experienceData.cover?.medium || experienceData.gallery?.[0]?.medium || '/Thumbnail.png',
+    tags: experienceData.tags || [],
+  };
 
   return (
     <div className="bg-white min-vh-100 pb-5">
       
-      {/* 1. HERO HEADER — Diseño adaptativo: 940x460 en Desktop / Cover en Mobile */}
-      <section className="position-relative overflow-hidden bg-dark d-flex align-items-center justify-content-center" 
-               style={{ height: '460px' }}>
-        {/* Fondo desenfocado (Full Width) */}
+      {/* 1. HERO HEADER */}
+      <section className="position-relative overflow-hidden bg-dark d-flex align-items-center justify-content-center" style={{ height: '460px' }}>
         <div className="position-absolute top-0 start-0 w-100 h-100">
             <img 
               src={experience.thumbnail} 
@@ -109,7 +95,6 @@ export default async function ExperienceDetailPage({ params }) {
             <div className="position-absolute top-0 start-0 w-100 h-100" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.6))' }}></div>
         </div>
 
-        {/* Imagen Contenida al ancho específico de 940x460 */}
         <div className="container-xxl px-0 px-lg-5 h-100 position-relative z-1 d-flex align-items-center justify-content-center">
             <div className="position-relative shadow-lg overflow-hidden d-none d-md-block" style={{ width: '100%', maxWidth: '940px', height: '460px' }}>
                 <img 
@@ -119,8 +104,6 @@ export default async function ExperienceDetailPage({ params }) {
                   style={{ objectFit: 'cover' }}
                 />
             </div>
-
-            {/* Vista Mobile: Imagen completa (Cover) */}
             <img 
               src={experience.thumbnail} 
               alt={experience.title} 
@@ -130,135 +113,99 @@ export default async function ExperienceDetailPage({ params }) {
         </div>
       </section>
 
-      {/* 2. MAIN CONTENT AREA */}
-      <div className="container-xxl px-lg-5 position-relative z-1 mb-5" style={{ marginTop: '-60px' }}>
-        <div className="row g-5">
-            
-            {/* Left Column: Details & Map */}
-            <div className="col-12 col-lg-8">
-                <div className="bg-white p-4 p-md-5 rounded-4 shadow-sm h-100">
+      {/* 2. MAIN CONTENT */}
+      <div className="container-xxl px-lg-5 mt-n4 position-relative z-1 mb-5">
+        <div className="row g-4">
+          
+          <div className="col-12 col-lg-8">
+            <div className="bg-white p-4 p-md-5 rounded-4 shadow-sm h-100">
+                
+                <div className="bg-white">
+                    <div className="d-flex align-items-center gap-2 mb-3">
+                        <div className="rounded-2 p-1 d-flex align-items-center justify-content-center" 
+                             style={{ backgroundColor: themeColor, width: '32px', height: '32px' }}>
+                            <i className="bi bi-compass-fill text-white small"></i>
+                        </div>
+                        <span className="font-inter fw-semibold" style={{ color: themeColor, borderBottom: `1px solid ${themeColor}` }}>
+                            {experience.category}
+                        </span>
+                    </div>
                     
-                    {/* Header: Category & Title */}
-                    <div className="bg-white">
-                        <div className="d-flex align-items-center gap-2 mb-3">
-                            <div className="rounded-2 p-1 d-flex align-items-center justify-content-center" 
-                                 style={{ backgroundColor: themeColor, width: '32px', height: '32px' }}>
-                                <i className="bi bi-compass text-white small"></i>
-                            </div>
-                            <span className="font-inter fw-semibold" style={{ color: themeColor, borderBottom: `1px solid ${themeColor}` }}>
-                                {experience.category}
-                            </span>
-                        </div>
-                        
-                        <h1 className="display-5-custom fw-bold text-gray-900 font-inter mb-3 text-truncate-2" style={{ letterSpacing: '-1px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                            {experience.title}
-                        </h1>
+                    <h1 className="display-5-custom fw-bold text-gray-900 font-inter mb-4" style={{ letterSpacing: '-1px' }}>
+                        {experience.title}
+                    </h1>
 
-                        <div className="d-flex align-items-center gap-3 text-muted mb-4">
-                            <span className="badge rounded-pill px-3 py-2 border" style={{ backgroundColor: '#f9fafb', color: '#4b5563' }}>
-                                <i className="bi bi-star-fill text-warning me-1"></i> {experience.rating} ({experience.reviews} reseñas)
-                            </span>
-                            <span className="d-flex align-items-center gap-1 small fw-medium">
-                                <i className="bi bi-clock"></i> {experience.duration}
-                            </span>
-                            {experience.coords && (
-                                <EventDistanceBadge eventLat={experience.coords.lat} eventLng={experience.coords.lng} type="experience" />
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Abstract & Benefits */}
-                    <div className="mb-5 pt-4 border-top">
-                        <h2 className="fw-bold mb-4 font-inter" style={{ fontSize: '24px', color: '#111928' }}>Sobre esta experiencia</h2>
-                        <p className="lead font-inter text-gray-700 mb-4" style={{ lineHeight: '1.6' }}>
-                            {experience.description}
-                        </p>
-
-                        <div className="font-inter text-gray-800" style={{ lineHeight: '1.8', fontSize: '17px' }}>
-                            {experience.fullDescription.split('. ').map((p, i) => (
-                                <p key={i}>{p}.</p>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Interactive Map Section */}
-                    <div className="mb-5 pt-4 border-top">
-                        <h3 className="fw-bold mb-4 font-inter" style={{ fontSize: '24px' }}>
-                            Recorrido Sugerido <span className="badge ms-2" style={{ backgroundColor: themeColor + '22', color: themeColor, fontSize: '14px' }}>{experience.stops.length} paradas</span>
-                        </h3>
-                        <ExperienceInteractiveMap stops={experience.stops} themeColor={themeColor} />
-                    </div>
-
-                    {/* Lugares de la experiencia (Slider con Flechas) */}
-                    <div className="mb-5 pt-4 border-top">
-                        {(() => {
-                            const stopsWithImages = experience.stops.map((stop) => {
-                                const match = (allOrganizations || []).find(org => 
-                                    org.name.toLowerCase().includes(stop.name.toLowerCase()) || 
-                                    stop.name.toLowerCase().includes(org.name.toLowerCase())
-                                );
-                                return {
-                                    ...stop,
-                                    thumbnail: match?.media?.cover?.small || match?.media?.cover || match?.media?.gallery?.[0]?.small || match?.media?.gallery?.[0] || match?.image_url || experience.thumbnail
-                                };
-                            });
-
-                            return (
-                                <PlacesSlider 
-                                    stops={stopsWithImages} 
-                                    themeColor={themeColor} 
-                                    experienceTitle={experience.title} 
-                                />
-                            );
-                        })()}
-                    </div>
+                    {experience.location?.lat && (
+                      <div className="mb-4">
+                          <EventDistanceBadge eventLat={experience.location.lat} eventLng={experience.location.lng} type="experience" />
+                      </div>
+                    )}
                 </div>
-            </div>
 
-            {/* Right Column: Sticky Sidebar / Contact */}
-            <div className="col-12 col-lg-4">
-            <div className="d-flex flex-column gap-4">
-                    <div className="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
-                        <div className="p-4" style={{ backgroundColor: themeColor }}>
-                            <span className="text-white opacity-75 small fw-bold">Desde</span>
-                            <h3 className="text-white fw-bold mb-0">{experience.price}</h3>
-                        </div>
-                        <div className="p-4 bg-white">
-                            <p className="small text-muted mb-4">
-                                Esta experiencia requiere reserva previa de al menos 24hs. Contactá con el organizador para consultar disponibilidad.
-                            </p>
-                            <div className="d-flex flex-column gap-3">
-                                <button className="btn btn-primary py-3 fw-bold rounded-3 shadow-sm border-0 transition-all hover-lift" 
-                                        style={{ backgroundColor: themeColor }}>
-                                    RESERVAR AHORA
-                                </button>
-                                <button className="btn btn-outline-light py-3 fw-bold rounded-3 text-dark border-light-subtle d-flex align-items-center justify-content-center gap-2">
-                                    <i className="bi bi-share"></i> Compartir
-                                </button>
-                            </div>
+                <div className="d-flex flex-column flex-md-row gap-3 mb-5 py-4 border-top border-bottom">
+                    <div className="d-flex align-items-center gap-3">
+                        <i className="bi bi-calendar-event text-primary fs-5" style={{ color: themeColor }}></i>
+                        <div>
+                            <span className="text-muted d-block small">Disponibilidad</span>
+                            <span className="fw-bold text-gray-900">{experience.details.horarios}</span>
                         </div>
                     </div>
-
-                    {/* Tourist Support Card */}
-                    <div className="card rounded-4 border shadow-sm p-4 text-center bg-white">
-                        <div className="mb-3">
-                            <i className="bi bi-info-circle fs-1" style={{ color: themeColor }}></i>
-                        </div>
-                        <h5 className="fw-bold">Información Útil</h5>
-                        <p className="small text-muted mb-3">
-                            ¿Necesitás ayuda personalizada para planear tu viaje? Contactate con el Centro de Atención al Turista.
-                        </p>
-                        <div className="d-flex gap-2 justify-content-center">
-                            <a href="tel:03584671234" className="btn btn-sm btn-light border-light-subtle rounded-circle p-2" title="Llamar">
-                                <i className="bi bi-telephone"></i>
-                            </a>
-                            <a href="https://wa.me/5493581234567" className="btn btn-sm btn-light border-light-subtle rounded-circle p-2" title="WhatsApp">
-                                <i className="bi bi-whatsapp"></i>
-                            </a>
+                    <div className="d-flex align-items-center gap-3 border-md-start ps-md-4">
+                        <i className="bi bi-geo-alt text-primary fs-5" style={{ color: themeColor }}></i>
+                        <div>
+                            <span className="text-muted d-block small">Ubicación</span>
+                            <span className="fw-bold text-gray-900">{experience.location.name}</span>
                         </div>
                     </div>
                 </div>
+
+                <div className="activity-info mb-5">
+                    <h2 className="h4 fw-bold mb-4 text-gray-800">Sobre la experiencia</h2>
+                    {experience.description.map((p, i) => (
+                        <p key={i} className="text-gray-600 fs-5 mb-4 leading-relaxed">{p}</p>
+                    ))}
+                </div>
+
+                <div className="mt-5 pt-4 border-top">
+                    <h2 className="font-inter fw-bold text-gray-900 mb-4" style={{ fontSize: '24px' }}>Ubicación y Contacto</h2>
+                    <ContactAndLocationWidget 
+                        service={{
+                            name: experience.location.name,
+                            address: experience.location.address,
+                            lat: experience.location.lat,
+                            lng: experience.location.lng,
+                            phones: experienceData?.phones || []
+                        }} 
+                        type="experiencia" 
+                    />
+                </div>
             </div>
+          </div>
+
+          <div className="col-12 col-lg-4">
+              <aside className="d-flex flex-column gap-4">
+                  <div className="bg-white p-4 rounded-4 border shadow-sm">
+                      <h3 className="h5 fw-bold mb-4 text-gray-900">Más Experiencias</h3>
+                      <div className="d-flex flex-column gap-3">
+                          {relatedExperiences.map((rel) => (
+                            <SidebarListCard 
+                              key={rel.id}
+                              title={rel.title}
+                              subtitle={rel.categories?.[0]?.name?.trim() || 'Experiencia'}
+                              badge="RECOMENDADO"
+                              type="experience"
+                              thumbnail={rel.cover?.small || rel.cover?.medium || '/Thumbnail.png'}
+                              href={`/experiencias/${rel.id}`}
+                            />
+                          ))}
+                      </div>
+                      <Link href="/experiencias" className="btn w-100 mt-4 py-2 fw-bold text-decoration-none text-white" 
+                            style={{ backgroundColor: themeColor }}>
+                          VER TODAS LAS EXPERIENCIAS
+                      </Link>
+                  </div>
+              </aside>
+          </div>
 
         </div>
       </div>

@@ -5,91 +5,86 @@ import HeroHome from '@/components/server/HeroHome';
 
 /**
  * ExperiencesPage - Destino Río Cuarto
- * Basado en Figma ID 3640:28636
- * Listado de experiencias turísticas y gastronómicas.
+ * Consume datos dinámicos desde el endpoint /event-frameworks
  */
-export default function ExperiencesPage() {
-  const experiences = [
-    { 
-        id: 'respira-aire-libre', 
-        title: 'Respira Aire Libre', 
-        time: 'Todo el día', 
-        address: 'Parque Sarmiento', 
-        schedule: 'Todos los días', 
-        description: 'Disfrutá de la naturaleza en el pulmón verde de la ciudad. Incluye trencito, botes y feria.', 
-        thumbnail: '/psarmiento.jfif' 
-    },
-    { 
-        id: 'recorrido-7-iglesias', 
-        title: 'Recorrido 7 Iglesias', 
-        time: '3 a 4 horas', 
-        address: 'Puntos varios del microcentro', 
-        schedule: 'Semana Santa / Permanente', 
-        description: 'Circuito de fe y arquitectura por los templos más emblemáticos de Río Cuarto.', 
-        thumbnail: 'https://images.unsplash.com/photo-1548625235-36af58169128?auto=format&fit=crop&q=80&w=600' 
-    },
-    { 
-        id: 'recorrido-historico-cultural', 
-        title: 'Recorrido Histórico Cultural', 
-        time: '2 a 3 horas', 
-        address: 'Microcentro histórico', 
-        schedule: 'Lunes a Sábados', 
-        description: 'Conocé el Palacio Municipal, el Teatro y el Museo Histórico en un paseo inolvidable.', 
-        thumbnail: '/museo-historico.jpg' 
-    }
-  ];
+export default async function ExperiencesPage() {
+  let apiFrameworks = [];
 
-  // El color asignado para Experiencias es #ff5a1f (Naranja vibrante)
+  try {
+    const res = await fetch('https://destbackdev.aggility.io/api/v1/event-frameworks', { cache: 'no-store' });
+    if (res.ok) {
+      const data = await res.json();
+      const all = Array.isArray(data) ? data : (data.data || []);
+      apiFrameworks = all.filter(fw => fw.status?.toLowerCase() !== 'inactive');
+    }
+  } catch (error) {
+    console.error('Error fetching event-frameworks API:', error);
+  }
+
+  // Formatear datos para las tarjetas
+  const experiences = apiFrameworks.map(fw => {
+    // Rango de fechas o descripción de tiempo
+    const startDate = fw.start_date || fw.calendars?.[0]?.start_date;
+    const endDate = fw.end_date || fw.calendars?.[fw.calendars?.length - 1]?.start_date;
+    let timeLabel = 'Todo el día';
+    
+    if (startDate) {
+      const dStart = new Date(startDate);
+      if (endDate && endDate !== startDate) {
+        const dEnd = new Date(endDate);
+        timeLabel = `${dStart.getDate()} al ${dEnd.getDate()} de ${dEnd.toLocaleDateString('es-AR', { month: 'short' })}`;
+      } else {
+        timeLabel = dStart.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' });
+      }
+    }
+
+    return {
+      id: fw.id,
+      title: fw.title || fw.name || 'Sin título',
+      time: timeLabel,
+      address: fw.organization?.name || fw.location || 'Río Cuarto',
+      schedule: fw.calendars?.[0]?.observations || 'Todos los días',
+      description: fw.description 
+        ? fw.description.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').substring(0, 110) + '...'
+        : 'Experiencia turística destacada en la ciudad.',
+      thumbnail: fw.cover?.small || fw.cover?.medium || fw.gallery?.[0]?.small || '/Thumbnail.png',
+      lat: fw.organization?.addresses?.[0]?.latitude,
+      lng: fw.organization?.addresses?.[0]?.longitude,
+    };
+  });
+
   const themeColor = '#ff5a1f';
 
   return (
     <div className="bg-listing-page min-vh-100 position-relative">
       
-      {/* GLOBAL HERO SECTION */}
       <HeroHome initialSlug="experiencias" />
 
-      {/* 3. FILTERS SECTION */}
+      {/* FILTERS SECTION (Static for now, as API doesn't support easy filtering yet) */}
       <section className="bg-white border-bottom pt-4 pb-4 pb-md-5 overflow-visible shadow-sm">
         <div className="container-xxl px-lg-5">
           <div className="row g-3 align-items-end">
             
-            {/* Search Input */}
             <div className="col-12 col-md-6 col-xl-5">
               <div className="input-group">
                 <span className="input-group-text bg-gray-50 border-end-0 py-2 ps-3">
                   <i className="bi bi-search text-muted"></i>
                 </span>
                 <input type="text" className="form-control bg-gray-50 border-start-0 border-end-0 py-2 shadow-none font-inter" 
-                       placeholder="Buscar gastronomía, paseos rurales..." style={{ height: '52px' }} />
-                <button className="btn btn-primary d-md-none border-0 px-3" style={{ backgroundColor: themeColor }}>
-                   <i className="bi bi-search"></i>
-                </button>
+                       placeholder="Buscar experiencias, paseos..." style={{ height: '52px' }} />
               </div>
             </div>
 
-            {/* Chips Scrollable */}
-            <div className="col-12 d-md-none mt-3">
-                <div className="d-flex gap-2 overflow-auto hide-scrollbar pb-2">
-                    <button className="btn rounded-pill px-4 btn-sm text-white" style={{ minWidth: 'fit-content', backgroundColor: themeColor, borderColor: themeColor }}>Todas</button>
-                    <button className="btn btn-outline-secondary rounded-pill px-4 btn-sm" style={{ minWidth: 'fit-content' }}>Gastronomía</button>
-                    <button className="btn btn-outline-secondary rounded-pill px-4 btn-sm" style={{ minWidth: 'fit-content' }}>Cervecerías</button>
-                    <button className="btn btn-outline-secondary rounded-pill px-4 btn-sm" style={{ minWidth: 'fit-content' }}>Rural</button>
-                    <button className="btn btn-outline-secondary rounded-pill px-4 btn-sm" style={{ minWidth: 'fit-content' }}>Nocturno</button>
-                </div>
-            </div>
-
-            {/* Desktop Filters */}
             <div className="col-6 col-md-3 d-none d-md-block">
               <label className="form-label font-inter fw-medium text-gray-700 small mb-1">Categoría</label>
               <select className="form-select bg-gray-50 py-3 shadow-none border font-inter" style={{ height: '52px' }}>
                 <option>Todas</option>
+                <option>Cultura</option>
+                <option>Naturaleza</option>
                 <option>Gastronomía</option>
-                <option>Cervecerías</option>
-                <option>Rural</option>
               </select>
             </div>
 
-            {/* Desktop Search Button */}
             <div className="col-12 col-xl-2 d-none d-md-block">
               <button className="btn w-100 fw-bold border-0 font-inter shadow-premium text-white" style={{ height: '52px', backgroundColor: themeColor }}>
                 FILTRAR
@@ -99,11 +94,11 @@ export default function ExperiencesPage() {
         </div>
       </section>
 
-      {/* 4. LISTING GRID SECTION */}
+      {/* LISTING GRID SECTION */}
       <section className="py-5 bg-listing-page">
         <div className="container-xxl px-lg-5">
           <h2 className="font-inter fw-bold text-gray-900 mb-4" style={{ fontSize: 'clamp(22px, 3.5vw, 28px)', letterSpacing: '-0.5px' }}>
-              Todas las Experiencias
+              {experiences.length > 0 ? 'Experiencias Destacadas' : 'Cargando experiencias...'}
           </h2>
           
           <div className="row g-4 pb-5">
@@ -117,29 +112,24 @@ export default function ExperiencesPage() {
                   category={exp.schedule}
                   description={exp.description}
                   thumbnail={exp.thumbnail}
-                  basePath="experiencias"
+                  basePath="experiencias" // Redirigir a experiencias/[id]
                   typeColor={themeColor}
+                  lat={exp.lat}
+                  lng={exp.lng}
                 />
               </div>
             ))}
           </div>
 
-          {/* LOAD MORE */}
-          <div className="text-center mt-2">
-            <button className="btn px-5 py-2 rounded-2 shadow-premium fw-bold bg-white" style={{ 
-               minWidth: '220px',
-               height: '56px',
-               borderColor: themeColor,
-               color: themeColor
-            }}>
-              MÁS EXPERIENCIAS
-            </button>
-          </div>
+          {experiences.length === 0 && !apiFrameworks.length && (
+            <div className="text-center py-5">
+              <p className="text-muted">No se encontraron experiencias disponibles en este momento.</p>
+            </div>
+          )}
         </div>
       </section>
 
       <ChatbotIcon />
-
     </div>
   );
 }

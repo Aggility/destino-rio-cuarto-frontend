@@ -11,13 +11,15 @@ import HomeSectionSlider from '@/components/client/HomeSectionSlider';
  * Optimizado para Mobile y Desktop.
  */
 export default async function Home() {
-  // 1. Fetch Events + Actividades en paralelo
+  // 1. Fetch Events + Actividades + Experiencias en paralelo
   let apiEvents = [];
   let apiActivities = [];
+  let apiExperiences = [];
   try {
-    const [resEvents, resActivities] = await Promise.all([
+    const [resEvents, resActivities, resExperiences] = await Promise.all([
       fetch('https://destbackdev.aggility.io/api/v1/events', { cache: 'no-store' }),
-      fetch('https://destbackdev.aggility.io/api/v1/proposals', { cache: 'no-store' })
+      fetch('https://destbackdev.aggility.io/api/v1/proposals', { cache: 'no-store' }),
+      fetch('https://destbackdev.aggility.io/api/v1/event-frameworks', { cache: 'no-store' })
     ]);
     if (resEvents.ok) {
       const data = await resEvents.json();
@@ -28,7 +30,15 @@ export default async function Home() {
     if (resActivities.ok) {
       const data = await resActivities.json();
       const all = Array.isArray(data) ? data : (data.data || []);
-      apiActivities = all.filter(p => p.status?.toLowerCase() !== 'inactive').slice(0, 5);
+      // Filtrar para no mostrar experiencias en la sección de actividades
+      apiActivities = all
+        .filter(p => p.status?.toLowerCase() !== 'inactive' && !p.categories?.some(c => c.name?.toLowerCase().includes('experiencia')))
+        .slice(0, 5);
+    }
+    if (resExperiences.ok) {
+      const data = await resExperiences.json();
+      const all = Array.isArray(data) ? data : (data.data || []);
+      apiExperiences = all.filter(e => e.status?.toLowerCase() !== 'inactive').slice(0, 5);
     }
   } catch (error) {
     console.error("Error fetching home data:", error);
@@ -61,8 +71,6 @@ export default async function Home() {
     { id: 2, title: 'Vivi tu propia experiencia', slug: 'experiencias', color: '#ff5a1f' },
     { id: 3, title: 'Actividades para Disfrutar', slug: 'actividades', color: '#8a38f5' },
   ];
-
-  const localThumbnail = "/Thumbnail.png";
 
   const renderCards = (cat, index) => {
     const seeMoreCard = (
@@ -108,13 +116,11 @@ export default async function Home() {
     if (cat.slug === 'actividades') {
         return [
           ...apiActivities.map((item) => {
-            // Mapping logic consistent with actividades/page.js
             const categoryName = item.categories?.[0]?.name?.trim() || 'Actividad';
             const placeName = item.addresses?.[0]?.addressable?.name;
             const placeAddress = item.addresses?.[0]?.address;
             const address = placeName ? `${placeName}${placeAddress ? ` / ${placeAddress.split(',')[0]}` : ''}` : (placeAddress || 'Río Cuarto');
             
-            const schedule = item.calendars?.[0]?.observations || 'Consultar horarios';
             const startTime = item.calendars?.[0]?.start_time?.substring(0, 5);
             const time = startTime ? `${startTime} hs` : categoryName;
 
@@ -125,7 +131,7 @@ export default async function Home() {
                       title={item.title}
                       time={time}
                       address={address}
-                      schedule={schedule}
+                      schedule={item.calendars?.[0]?.observations || 'Consultar'}
                       description=""
                       thumbnail={item.cover?.small || item.cover?.medium || item.gallery?.[0]?.small || '/Thumbnail.png'}
                   />
@@ -136,30 +142,31 @@ export default async function Home() {
         ];
     }
 
-    // 3. EXPERIENCIAS (EventCard)
+    // 3. EXPERIENCIAS (API real /event-frameworks)
     if (cat.slug === 'experiencias') {
-        const items = [
-            { id: 'respira-aire-libre', title: 'Respira Aire Libre', time: 'Todo el día', address: 'Parque Sarmiento', schedule: 'Naturaleza', thumbnail: '/psarmiento.jfif' },
-            { id: 'recorrido-7-iglesias', title: 'Recorrido 7 Iglesias', time: '3 a 4 horas', address: 'Microcentro', schedule: 'Patrimonio', thumbnail: 'https://images.unsplash.com/photo-1548625235-36af58169128?auto=format&fit=crop&q=80&w=600' },
-            { id: 'recorrido-historico-cultural', title: 'Histórico Cultural', time: '2.5 horas', address: 'Palacio de Mójica', schedule: 'Historia', thumbnail: '/museo-historico.jpg' }
-        ];
-
         return [
-          ...items.map((item) => (
-            <div key={item.id} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)', scrollSnapAlign: 'start' }}>
-                <EventCard 
-                    id={item.id}
-                    title={item.title}
-                    date={item.time}
-                    location={item.address}
-                    category={item.schedule}
-                    description=""
-                    thumbnail={item.thumbnail}
-                    basePath="experiencias"
-                    typeColor={cat.color}
-                />
-            </div>
-          )),
+          ...apiExperiences.map((exp) => {
+            const calendar = exp.calendars?.[0];
+            const time = calendar?.observations || 'Todo el día';
+            const location = exp.organization?.name || 'Río Cuarto';
+            const category = exp.categories?.[0]?.name || 'Experiencia';
+
+            return (
+              <div key={exp.id} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)', scrollSnapAlign: 'start' }}>
+                  <EventCard 
+                      id={exp.id}
+                      title={exp.title || exp.name}
+                      date={time}
+                      location={location}
+                      category={category}
+                      description=""
+                      thumbnail={exp.cover?.small || exp.cover?.medium || exp.gallery?.[0]?.small || '/Thumbnail.png'}
+                      basePath="experiencias"
+                      typeColor={cat.color}
+                  />
+              </div>
+            );
+          }),
           seeMoreCard
         ];
     }

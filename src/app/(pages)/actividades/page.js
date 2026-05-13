@@ -16,7 +16,11 @@ export default async function ActivitiesPage() {
     if (res.ok) {
       const data = await res.json();
       const all = Array.isArray(data) ? data : (data.data || []);
-      rawActivities = all.filter(p => p.status?.toLowerCase() !== 'inactive');
+      // Filtrar inactivas y también aquellas que son "Experiencias" (se mueven a su propia página)
+      rawActivities = all.filter(p => 
+        p.status?.toLowerCase() !== 'inactive' && 
+        !p.categories?.some(c => c.name?.toLowerCase().includes('experiencia'))
+      );
     }
   } catch (error) {
     console.error('Error fetching proposals API:', error);
