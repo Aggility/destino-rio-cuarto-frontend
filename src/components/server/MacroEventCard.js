@@ -83,7 +83,7 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
             key={event.id || index}
             style={{ flexShrink: 0, width: '100%', scrollSnapAlign: 'start' }}
           >
-            <div className="row g-0 align-items-stretch">
+            <div className="row g-0 align-items-stretch" style={{ minHeight: '340px' }}>
 
               {/* 1. Thumbnail */}
               <div className="col-12 col-md-5 position-relative" style={{ minHeight: '220px' }}>
@@ -101,63 +101,63 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
                 />
                 <span
                   className="position-absolute top-0 start-0 m-3 badge rounded-pill bg-white fw-bold px-3 py-2 font-inter shadow-sm"
-                  style={{ color: '#f54286', fontSize: '10px', zIndex: 2 }}
+                  style={{ color: '#df2a6b', fontSize: '10px', zIndex: 2 }}
                 >
                   EVENTO DESTACADO
                 </span>
               </div>
 
               {/* 2. Contenido */}
-              <div className="col-12 col-md-7 d-flex flex-column justify-content-center p-3 p-md-4 p-lg-5 text-white">
+              <div className="col-12 col-md-7 d-flex flex-column justify-content-center p-4 p-md-5 text-white" style={{ backgroundColor: '#df2a6b' }}>
                 <h3
-                  className="font-inter fw-extrabold mb-3"
-                  style={{ fontSize: 'clamp(22px, 4vw, 34px)', lineHeight: '1.1', letterSpacing: '-1px' }}
+                  className="font-inter fw-semibold mb-4"
+                  style={{ fontSize: 'clamp(26px, 4.5vw, 38px)', lineHeight: '1.2', letterSpacing: '-0.5px' }}
                 >
                   {event.title}
                 </h3>
 
-                <div className="d-flex flex-column gap-3 mb-4">
+                <div className="d-flex flex-column gap-3 mb-5">
                   {/* Fecha */}
                   {event.date && (
-                    <div className="d-flex align-items-center gap-2">
+                    <div className="d-flex align-items-center gap-3">
                       <div
                         className="bg-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
                         style={{ width: '32px', height: '32px', minWidth: '32px' }}
                       >
-                        <i className="bi bi-calendar-event" style={{ color: '#f54286', fontSize: '14px' }}></i>
+                        <i className="bi bi-calendar-event" style={{ color: '#df2a6b', fontSize: '14px' }}></i>
                       </div>
-                      <span className="font-inter fw-semibold" style={{ fontSize: 'clamp(13px, 3.5vw, 15px)', color: '#fed7e2' }}>
+                      <span className="font-inter fw-medium" style={{ fontSize: 'clamp(14px, 3.5vw, 16px)', color: '#ffffff' }}>
                         {event.date}
                       </span>
                     </div>
                   )}
 
-                  <div className="d-flex flex-wrap gap-3 mt-1">
-                    {/* Hora */}
-                    {event.time && (
-                      <div className="d-flex align-items-center gap-2 opacity-80">
-                        <i className="bi bi-clock" style={{ fontSize: '13px' }}></i>
-                        <span className="font-inter fw-medium" style={{ fontSize: '12px' }}>{event.time}</span>
-                      </div>
-                    )}
+                  <div className="d-flex flex-wrap gap-4 mt-2 ps-1">
                     {/* Lugar */}
                     {event.location && (
-                      <div className="d-flex align-items-center gap-2 opacity-80">
-                        <i className="bi bi-geo-alt" style={{ fontSize: '13px' }}></i>
-                        <span className="font-inter fw-medium" style={{ fontSize: '12px' }}>{event.location}</span>
+                      <div className="d-flex align-items-center gap-2">
+                        <i className="bi bi-geo-alt" style={{ fontSize: '15px' }}></i>
+                        <span className="font-inter fw-medium" style={{ fontSize: '14px' }}>{event.location}</span>
+                      </div>
+                    )}
+                    {/* Hora */}
+                    {event.time && (
+                      <div className="d-flex align-items-center gap-2">
+                        <i className="bi bi-clock" style={{ fontSize: '15px' }}></i>
+                        <span className="font-inter fw-medium" style={{ fontSize: '14px' }}>{event.time}</span>
                       </div>
                     )}
                   </div>
                 </div>
 
                 {/* CTA */}
-                <div className="d-flex flex-column flex-md-row align-items-start gap-3">
+                <div className="d-flex align-items-start mt-2">
                   <Link
                     href={event.href || `/eventos/${event.id}`}
-                    className="btn btn-light rounded-pill font-inter fw-bold px-5 py-3 transition-all hover-scale shadow-sm"
-                    style={{ fontSize: '14px', color: '#f54286', letterSpacing: '0.5px' }}
+                    className="btn btn-light rounded-pill font-inter fw-bold px-5 py-3 transition-all hover-scale border-0"
+                    style={{ fontSize: '14px', color: '#df2a6b', letterSpacing: '0.5px' }}
                   >
-                    VER MÁS DETALLES <i className="bi bi-chevron-right ms-2"></i>
+                    VER MÁS DETALLES <i className="bi bi-chevron-right ms-2 fw-bold"></i>
                   </Link>
                 </div>
               </div>
