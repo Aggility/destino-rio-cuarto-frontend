@@ -4,6 +4,7 @@ import MacroEventAgenda from '@/components/client/MacroEventAgenda';
 import ChatbotIcon from '@/components/server/ChatbotIcon';
 import SidebarListCard from '@/components/server/SidebarListCard';
 import GoogleMapViewer from '@/components/client/GoogleMapViewer';
+import { getThumbnail } from '@/utils/image';
 
 /**
  * MacroEventoPage - Detalle de Gran Evento / Festival / Experiencia
@@ -42,7 +43,7 @@ export default async function MacroEventoPage({ params }) {
       ? `Del ${new Date(frameworkData.start_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' })} al ${new Date(frameworkData.end_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' })}`
       : "Fecha a confirmar",
     description: frameworkData.description?.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ') || "Sin descripción disponible.",
-    thumbnail: frameworkData.cover?.large || frameworkData.cover?.medium || frameworkData.gallery?.[0]?.medium || "/Thumbnail.png",
+    thumbnail: getThumbnail(frameworkData.cover, frameworkData.gallery),
     location: frameworkData.organization?.name || frameworkData.location || "Río Cuarto",
     address: frameworkData.organization?.addresses?.[0]?.address || "Río Cuarto, Córdoba",
     lat: frameworkData.organization?.addresses?.[0]?.latitude,

@@ -4,6 +4,7 @@ import ChatbotIcon from '@/components/server/ChatbotIcon';
 import SidebarListCard from '@/components/server/SidebarListCard';
 import EventDistanceBadge from '@/components/client/EventDistanceBadge';
 import ContactAndLocationWidget from '@/components/client/ContactAndLocationWidget';
+import { getThumbnail } from '@/utils/image';
 
 /**
  * ExperienceDetailPage - Destino Río Cuarto
@@ -76,7 +77,7 @@ export default async function ExperienceDetailPage({ params }) {
       lat: experienceData.organization?.addresses?.[0]?.latitude,
       lng: experienceData.organization?.addresses?.[0]?.longitude,
     },
-    thumbnail: experienceData.cover?.large || experienceData.cover?.medium || experienceData.gallery?.[0]?.medium || '/Thumbnail.png',
+    thumbnail: getThumbnail(experienceData.cover, experienceData.gallery),
     tags: experienceData.tags || [],
   };
 
@@ -194,7 +195,7 @@ export default async function ExperienceDetailPage({ params }) {
                               subtitle={rel.categories?.[0]?.name?.trim() || 'Experiencia'}
                               badge="RECOMENDADO"
                               type="experience"
-                              thumbnail={rel.cover?.small || rel.cover?.medium || '/Thumbnail.png'}
+                              thumbnail={getThumbnail(rel.cover, rel.gallery)}
                               href={`/experiencias/${rel.id}`}
                             />
                           ))}

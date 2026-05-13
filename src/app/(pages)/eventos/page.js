@@ -5,6 +5,7 @@ import HeroHome from '@/components/server/HeroHome';
 import Link from 'next/link';
 import MacroEventCard from '@/components/server/MacroEventCard';
 import EventsListClient from '@/components/client/EventsListClient';
+import { getThumbnail } from '@/utils/image';
 
 /**
  * EventsPage - Destino Río Cuarto
@@ -59,7 +60,7 @@ export default async function EventsPage() {
       date: dateStr,
       location: evt.organization?.name || 'Ubicación a confirmar',
       description: descStr,
-      thumbnail: evt.cover?.small || evt.cover?.medium || evt.gallery?.[0]?.small || "/Thumbnail.png",
+      thumbnail: getThumbnail(evt.cover, evt.gallery),
       category: evt.categories?.[0]?.name?.toUpperCase() || (idx % 2 === 0 ? "POP" : "KIDS"),
       typeColor: "#f54286",
       lat: evt.organization?.addresses?.[0]?.latitude,
@@ -101,7 +102,7 @@ export default async function EventsPage() {
       time: timeStr,
       location: fw.organization?.name || fw.location || 'Río Cuarto',
       // Portada del slider: imagen grande
-      thumbnail: fw.cover?.large || fw.cover?.medium || fw.cover?.small || fw.gallery?.[0]?.medium || fw.gallery?.[0]?.small || '/Thumbnail.png',
+      thumbnail: getThumbnail(fw.cover, fw.gallery),
       href: `/macro-evento/${fw.id}`,
     };
   });
@@ -122,7 +123,7 @@ export default async function EventsPage() {
       date: dateStr,
       time: timeStr,
       location: evt.organization?.name || 'Río Cuarto',
-      thumbnail: evt.cover?.large || evt.cover?.medium || evt.cover?.small || evt.gallery?.[0]?.medium || '/Thumbnail.png',
+      thumbnail: getThumbnail(evt.cover, evt.gallery),
       href: `/eventos/${evt.id}`,
     };
   });

@@ -1,6 +1,7 @@
 import React from 'react';
 import ChatbotIcon from '@/components/server/ChatbotIcon';
 import CalendarClient from '@/components/client/CalendarClient';
+import { getThumbnail } from '@/utils/image';
 
 /**
  * CalendarPage - Destino Río Cuarto
@@ -34,8 +35,8 @@ export default async function CalendarPage() {
     title: evt.title,
     date_raw: evt.calendars?.[0]?.start_date,
     calendars: evt.calendars,
-    image_url: evt.cover?.small || evt.cover?.medium || null,
-    thumbnail: evt.cover?.small || evt.cover?.medium || '/Thumbnail.png'
+    image_url: getThumbnail(evt.cover, evt.gallery),
+    thumbnail: getThumbnail(evt.cover, evt.gallery)
   }));
 
   return (

@@ -2,6 +2,7 @@ import React from 'react';
 import EventCard from '@/components/server/EventCard';
 import ChatbotIcon from '@/components/server/ChatbotIcon';
 import HeroHome from '@/components/server/HeroHome';
+import { getThumbnail } from '@/utils/image';
 
 /**
  * ExperiencesPage - Destino Río Cuarto
@@ -47,7 +48,7 @@ export default async function ExperiencesPage() {
       description: fw.description 
         ? fw.description.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').substring(0, 110) + '...'
         : 'Experiencia turística destacada en la ciudad.',
-      thumbnail: fw.cover?.small || fw.cover?.medium || fw.gallery?.[0]?.small || '/Thumbnail.png',
+      thumbnail: getThumbnail(fw.cover, fw.gallery),
       lat: fw.organization?.addresses?.[0]?.latitude,
       lng: fw.organization?.addresses?.[0]?.longitude,
     };

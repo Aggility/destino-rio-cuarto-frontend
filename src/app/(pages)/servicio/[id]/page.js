@@ -7,6 +7,7 @@ import ContactAndLocationWidget from '@/components/client/ContactAndLocationWidg
 import { getNearbyLocations } from "@/utils/geo";
 import EventDistanceBadge from '@/components/client/EventDistanceBadge';
 import EventImageWithFallback from '@/components/client/EventImageWithFallback';
+import { getThumbnail } from '@/utils/image';
 
 /**
  * ServicioDetailPage - Destino Río Cuarto
@@ -41,7 +42,7 @@ export default async function ServicioDetailPage({ params }) {
       { type: 'facebook', label: 'facebook', url: '#', icon: 'bi-facebook' }
     ],
     description: orgData?.description || 'Empresa que brinda servicio de transporte automotor interurbano regular de pasajeros y servicio de transporte automotor turístico de pasajeros.',
-    image: orgData?.cover?.large || orgData?.cover?.medium || orgData?.gallery?.[0]?.large || '/Thumbnail.png'
+    image: getThumbnail(orgData?.cover, orgData?.gallery)
   };
 
   // 3. Obtener Datos para Recomendaciones (Eventos y Organizaciones Relacionadas)
@@ -71,7 +72,7 @@ export default async function ServicioDetailPage({ params }) {
             subtitle: ev.organization?.name || 'Río Cuarto',
             badge: ev.calendars?.[0]?.start_date ? new Date(ev.calendars[0].start_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' }).toUpperCase() : 'PRÓXIMAMENTE',
             type: 'event',
-            thumbnail: ev.cover?.small || ev.cover?.medium || ev.gallery?.[0]?.small || '/Thumbnail.png',
+            thumbnail: getThumbnail(ev.cover, ev.gallery),
             lat: ev.lat,
             lng: ev.lng,
             href: `/eventos/${ev.id}`
@@ -94,7 +95,7 @@ export default async function ServicioDetailPage({ params }) {
             category: org.categories?.[0]?.name || 'Servicio',
             address: org.addresses?.[0]?.address?.split(',')[0] || 'Río Cuarto',
             phone: org.phone || 'Consultar contacto',
-            thumbnail: org.cover?.small || org.cover?.medium || org.gallery?.[0]?.small || '/Thumbnail.png'
+            thumbnail: getThumbnail(org.cover, org.gallery)
           }));
     }
   } catch (err) {

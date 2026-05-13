@@ -6,6 +6,7 @@ import ContactAndLocationWidget from '@/components/client/ContactAndLocationWidg
 import { getNearbyLocations, getDistance } from '@/utils/geo';
 import ExpandableDescription from '@/components/client/ExpandableDescription';
 import EventsSlider from '@/components/client/EventsSlider';
+import { getThumbnail } from '@/utils/image';
 
 /**
  * ActivityDetailPage - Destino Río Cuarto
@@ -66,7 +67,7 @@ export default async function ActivityDetailPage({ params }) {
     },
     description: activityData.description?.replace(/<[^>]*>?/gm, '') || 'Sin descripción disponible.',
     fullDescription: [activityData.description?.replace(/<[^>]*>?/gm, '') || 'Sin descripción disponible.'],
-    thumbnail: activityData.cover?.large || activityData.cover?.medium || activityData.cover?.small || activityData.gallery?.[0]?.medium || '/Thumbnail.png',
+    thumbnail: getThumbnail(activityData.cover, activityData.gallery),
     category: categoryName.toUpperCase(),
   };
 
@@ -88,7 +89,7 @@ export default async function ActivityDetailPage({ params }) {
         title: e.title || 'Actividad',
         date: e.calendars?.[0]?.observations || 'Consultar',
         location: e.addresses?.[0]?.addressable?.name || e.addresses?.[0]?.address || 'Río Cuarto',
-        thumbnail: e.cover?.small || e.cover?.medium || e.gallery?.[0]?.small || '/Thumbnail.png',
+        thumbnail: getThumbnail(e.cover, e.gallery),
         category: e.categories?.[0]?.name?.toUpperCase() || 'ACTIVIDAD',
         typeColor: themeColor,
         basePath: 'actividades',

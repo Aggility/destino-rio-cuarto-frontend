@@ -4,6 +4,7 @@ import ServicesListClient from '@/components/client/ServicesListClient';
 import SidebarListCard from '@/components/server/SidebarListCard';
 import ChatbotIcon from '@/components/server/ChatbotIcon';
 import HeroHome from '@/components/server/HeroHome';
+import { getThumbnail } from '@/utils/image';
 
 /**
  * ServiciosPage - Destino Río Cuarto
@@ -30,7 +31,7 @@ export default async function ServiciosPage() {
     category: org.categories?.[0]?.name || 'Servicio',
     address: org.addresses?.[0]?.address?.split(',')[0] || 'Río Cuarto',
     phone: org.phone || 'Consultar contacto',
-    thumbnail: org.cover?.small || org.cover?.medium || org.gallery?.[0]?.small || "/Thumbnail.png",
+    thumbnail: getThumbnail(org.cover, org.gallery),
     lat: org.addresses?.[0]?.latitude,
     lng: org.addresses?.[0]?.longitude,
     description: org.description || ''

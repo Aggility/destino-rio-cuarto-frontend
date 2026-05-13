@@ -4,6 +4,7 @@ import HeroHome from '@/components/server/HeroHome';
 import EventCard from '@/components/server/EventCard';
 import ActivityCard from '@/components/server/ActivityCard';
 import HomeSectionSlider from '@/components/client/HomeSectionSlider';
+import { getThumbnail } from '@/utils/image';
 
 /**
  * Home - Destino Río Cuarto (Home V2 Fidelity)
@@ -62,7 +63,7 @@ export default async function Home() {
       location: evt.organization?.name || 'A confirmar',
       category: evt.categories?.[0]?.name?.toUpperCase() || 'EVENTO',
       typeColor: '#f54286',
-      thumbnail: evt.cover?.small || evt.cover?.medium || evt.gallery?.[0]?.small || "/Thumbnail.png"
+      thumbnail: getThumbnail(evt.cover, evt.gallery)
     };
   });
 
@@ -133,7 +134,7 @@ export default async function Home() {
                       address={address}
                       schedule={item.calendars?.[0]?.observations || 'Consultar'}
                       description=""
-                      thumbnail={item.cover?.small || item.cover?.medium || item.gallery?.[0]?.small || '/Thumbnail.png'}
+                      thumbnail={getThumbnail(item.cover, item.gallery)}
                   />
               </div>
             );
@@ -160,7 +161,7 @@ export default async function Home() {
                       location={location}
                       category={category}
                       description=""
-                      thumbnail={exp.cover?.small || exp.cover?.medium || exp.gallery?.[0]?.small || '/Thumbnail.png'}
+                      thumbnail={getThumbnail(exp.cover, exp.gallery)}
                       basePath="experiencias"
                       typeColor={cat.color}
                   />

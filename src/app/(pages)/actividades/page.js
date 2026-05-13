@@ -2,6 +2,7 @@ import React from 'react';
 import ChatbotIcon from '@/components/server/ChatbotIcon';
 import HeroHome from '@/components/server/HeroHome';
 import ActivitiesListClient from '@/components/client/ActivitiesListClient';
+import { getThumbnail } from '@/utils/image';
 
 /**
  * ActivitiesPage - Destino Río Cuarto
@@ -52,7 +53,7 @@ export default async function ActivitiesPage() {
       description: p.description
         ? p.description.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').substring(0, 110) + '...'
         : 'Actividad turística en Río Cuarto.',
-      thumbnail: p.cover?.small || p.cover?.medium || p.gallery?.[0]?.small || '/Thumbnail.png',
+      thumbnail: getThumbnail(p.cover, p.gallery),
       address,
       schedule,
       time,
