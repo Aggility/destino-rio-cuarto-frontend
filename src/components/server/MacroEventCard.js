@@ -20,7 +20,7 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
     date,
     time,
     location,
-    thumbnail: thumbnail || '/Thumbnail.png',
+    thumbnail: thumbnail || '/no-img.webp',
     href: href || '#',
   }] : []);
 
@@ -88,7 +88,7 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
               {/* 1. Thumbnail */}
               <div className="col-12 col-md-5 position-relative" style={{ minHeight: '220px' }}>
                 <img
-                  src={event.thumbnail || '/Thumbnail.png'}
+                  src={event.thumbnail || '/no-img.webp'}
                   alt={event.title}
                   style={{
                     width: '100%',

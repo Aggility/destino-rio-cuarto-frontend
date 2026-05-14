@@ -34,7 +34,7 @@ export default function EventsListClient({ initialEvents }) {
       date: dateStr,
       location: evt.organization?.name || 'Ubicación a confirmar',
       description: descStr,
-      thumbnail: evt.cover?.medium || evt.cover?.small || evt.gallery?.[0]?.medium || "/Thumbnail.png",
+      thumbnail: evt.cover?.medium || evt.cover?.small || evt.gallery?.[0]?.medium || "/no-img.webp",
       category: evt.categories?.[0]?.name?.toUpperCase() || (idx % 2 === 0 ? "POP" : "KIDS"),
       typeColor: "#f54286",
       lat: evt.organization?.addresses?.[0]?.latitude,
@@ -107,7 +107,7 @@ export default function EventsListClient({ initialEvents }) {
     return matchesSearch && matchesCategory && matchesDate;
   });
 
-  const localThumbnail = "/Thumbnail.png";
+  const localThumbnail = "/no-img.webp";
 
   return (
     <>

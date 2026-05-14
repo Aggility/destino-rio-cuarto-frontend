@@ -15,7 +15,7 @@ export default function EventCard({
   description = "", 
   category = "",
   typeColor = "#1a56d8",
-  thumbnail = "/Thumbnail.png",
+  thumbnail = "/no-img.webp",
   lat = null,
   lng = null,
   basePath = "eventos"

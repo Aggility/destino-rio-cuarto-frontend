@@ -131,7 +131,7 @@ export default async function ActivityDetailPage({ params }) {
         }
 
         // Imagen con prioridad: small -> medium -> large
-        let thumb = '/Thumbnail.png';
+        let thumb = '/no-img.webp';
         if (e.cover && typeof e.cover === 'object') {
           thumb = e.cover.small || e.cover.medium || e.cover.large || e.cover.original || getThumbnail(e.cover, e.gallery);
         } else {

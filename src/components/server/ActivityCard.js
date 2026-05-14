@@ -14,7 +14,7 @@ export default function ActivityCard({
   address = "Dirección no especificada",
   schedule = "Horarios no disponibles",
   description = "Descripción breve del paseo o actividad turística.",
-  thumbnail = "/Thumbnail.png",
+  thumbnail = "/no-img.webp",
   type = "actividades"
 }) {
   return (

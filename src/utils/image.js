@@ -6,7 +6,7 @@
 export function getThumbnail(cover, gallery = []) {
   // Si no hay nada, fallback
   if (!cover && (!gallery || gallery.length === 0)) {
-    return '/Thumbnail.png';
+    return '/no-img.webp';
   }
 
   // 1. Intentar con cover
@@ -36,5 +36,5 @@ export function getThumbnail(cover, gallery = []) {
     }
   }
 
-  return '/Thumbnail.png';
+  return '/no-img.webp';
 }

@@ -1,47 +1,34 @@
 import React from 'react';
 import Link from 'next/link';
 import ChatbotIcon from '@/components/server/ChatbotIcon';
-import SidebarListCard from '@/components/server/SidebarListCard';
 import EventDistanceBadge from '@/components/client/EventDistanceBadge';
 import ContactAndLocationWidget from '@/components/client/ContactAndLocationWidget';
+import { getNearbyLocations, getDistance } from '@/utils/geo';
+import ExpandableDescription from '@/components/client/ExpandableDescription';
 import { getThumbnail } from '@/utils/image';
+import HomeSectionSlider from '@/components/client/HomeSectionSlider';
+import ActivityCard from '@/components/server/ActivityCard';
 
 /**
  * ExperienceDetailPage - Destino Río Cuarto
- * Formato unificado con Actividades, conectado a /event-frameworks
+ * Implementa la vista detallada de una experiencia alineada con el diseño de Figma.
  */
 export default async function ExperienceDetailPage({ params }) {
   const { id } = await params;
   const themeColor = '#ff5a1f';
-
-  // 1. Obtener la experiencia por ID
+  const themeColorLight = '#fff7ed';
+  
+  // 1. Obtener datos de la experiencia desde la API
   let experienceData = null;
   try {
-    const res = await fetch(`https://destbackdev.aggility.io/api/v1/event-frameworks/${id}`, { cache: 'no-store' });
+    const res = await fetch(`https://destbackdev.aggility.io/api/v1/proposals/${id}`, { cache: 'no-store' });
     if (res.ok) {
-      const json = await res.json();
-      experienceData = json.data || json;
+       experienceData = (await res.json()).data || (await res.json());
     }
   } catch (err) {
-    console.error('Error fetching experience:', err);
+    console.error("Error fetching proposal:", err);
   }
 
-  // 2. Obtener otras experiencias para el sidebar
-  let relatedExperiences = [];
-  try {
-    const res = await fetch(`https://destbackdev.aggility.io/api/v1/event-frameworks`, { cache: 'no-store' });
-    if (res.ok) {
-      const json = await res.json();
-      const all = Array.isArray(json) ? json : (json.data || []);
-      relatedExperiences = all
-        .filter(p => p.status?.toLowerCase() !== 'inactive' && String(p.id) !== String(id))
-        .slice(0, 3);
-    }
-  } catch (err) {
-    console.error('Error fetching related experiences:', err);
-  }
-
-  // 3. Fallback si no se encontró
   if (!experienceData) {
     return (
       <div className="bg-white min-vh-100 pb-5 d-flex align-items-center justify-content-center">
@@ -58,28 +45,148 @@ export default async function ExperienceDetailPage({ params }) {
     );
   }
 
-  // 4. Mapear datos
+  // 2. Formateo de la experiencia
+  const categoryName = experienceData.categories?.[0]?.name?.trim() || 'Experiencia';
+  
+  const cal = experienceData.calendars?.[0];
+  let timeBadge = 'Consultar horarios';
+  if (cal) {
+    if (cal.start_time && cal.end_time) {
+      timeBadge = `${cal.start_time.substring(0, 5)} a ${cal.end_time.substring(0, 5)} hs`;
+    } else if (cal.start_time) {
+      timeBadge = `${cal.start_time.substring(0, 5)} hs`;
+    }
+  }
+
   const experience = {
     id: experienceData.id,
-    title: experienceData.title || experienceData.name || 'Sin título',
-    category: experienceData.categories?.[0]?.name?.trim() || 'Experiencia',
-    description: experienceData.description
-      ? [experienceData.description.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ')]
-      : ['Sin descripción disponible.'],
-    details: {
-      horarios: experienceData.calendars?.[0]?.observations || 'Todos los días',
-      duracion: 'Consultar',
-      precio: 'Consultar',
+    title: experienceData.title || 'Sin título',
+    date: timeBadge,
+    location: experienceData.addresses?.[0]?.organization?.name || experienceData.organization?.name || experienceData.addresses?.[0]?.addressable?.name || experienceData.addresses?.[0]?.address || 'Río Cuarto',
+    coords: {
+        lat: parseFloat(experienceData.addresses?.[0]?.latitude) || 
+             parseFloat(experienceData.organization?.addresses?.[0]?.latitude) || -33.1232,
+        lng: parseFloat(experienceData.addresses?.[0]?.longitude) || 
+             parseFloat(experienceData.organization?.addresses?.[0]?.longitude) || -64.3493
     },
-    location: {
-      name: experienceData.organization?.name || experienceData.location || 'Río Cuarto',
-      address: experienceData.organization?.addresses?.[0]?.address || 'Río Cuarto, Córdoba',
-      lat: experienceData.organization?.addresses?.[0]?.latitude,
-      lng: experienceData.organization?.addresses?.[0]?.longitude,
+    fullLocation: {
+        name: experienceData.addresses?.[0]?.organization?.name || experienceData.organization?.name || 'Río Cuarto',
+        address: experienceData.addresses?.[0]?.address || experienceData.organization?.addresses?.[0]?.address || 'Río Cuarto, Córdoba',
+        city: 'Río Cuarto, Córdoba'
     },
+    description: experienceData.description?.replace(/<[^>]*>?/gm, '') || 'Sin descripción disponible.',
+    fullDescription: [experienceData.description?.replace(/<[^>]*>?/gm, '') || 'Sin descripción disponible.'],
     thumbnail: getThumbnail(experienceData.cover, experienceData.gallery),
-    tags: experienceData.tags || [],
+    category: categoryName.toUpperCase(),
   };
+
+  // 2b. Obtener experiencias relacionadas por misma ubicación
+  let relatedExperiences = [];
+  try {
+    const resActs = await fetch(`https://destbackdev.aggility.io/api/v1/proposals?per_page=50`, { cache: 'no-store' });
+    if (resActs.ok) {
+      const actsData = await resActs.json();
+      const allActs = (Array.isArray(actsData) ? actsData : actsData.data || [])
+        .filter(e => String(e.id) !== String(id) && e.status?.toLowerCase() !== 'inactive');
+        
+      const currentLoc = experience.location.toLowerCase();
+      const sameLocationActs = allActs.filter(e => {
+          const loc = (e.addresses?.[0]?.organization?.name || e.organization?.name || e.addresses?.[0]?.addressable?.name || e.addresses?.[0]?.address || '').toLowerCase();
+          return loc && (loc.includes(currentLoc) || currentLoc.includes(loc));
+      });
+
+      let relatedToProcess = sameLocationActs;
+      if (relatedToProcess.length < 10) {
+          const others = allActs.filter(e => !sameLocationActs.some(s => s.id === e.id));
+          for (let i = others.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [others[i], others[j]] = [others[j], others[i]];
+          }
+          relatedToProcess = [...sameLocationActs, ...others.slice(0, 10 - sameLocationActs.length)];
+      } else {
+          relatedToProcess = sameLocationActs.slice(0, 10);
+      }
+
+      relatedExperiences = relatedToProcess.map(e => {
+        const catName = e.categories?.[0]?.name?.trim() || 'Experiencia';
+        const addr = e.addresses?.[0]?.organization?.name || e.organization?.name || e.addresses?.[0]?.addressable?.name || e.addresses?.[0]?.address || 'Río Cuarto';
+        
+        const c = e.calendars?.[0];
+        let tBadge = catName;
+        if (c) {
+          if (c.start_time && c.end_time) {
+            tBadge = `${c.start_time.substring(0, 5)} a ${c.end_time.substring(0, 5)} hs`;
+          } else if (c.start_time) {
+            tBadge = `${c.start_time.substring(0, 5)} hs`;
+          }
+        }
+
+        let thumb = '/no-img.webp';
+        if (e.cover && typeof e.cover === 'object') {
+          thumb = e.cover.small || e.cover.medium || e.cover.large || e.cover.original || getThumbnail(e.cover, e.gallery);
+        } else {
+          thumb = getThumbnail(e.cover, e.gallery);
+        }
+
+        return {
+          id: e.id,
+          title: e.title || 'Experiencia',
+          date: tBadge,
+          location: addr,
+          thumbnail: thumb,
+          category: catName.toUpperCase(),
+          typeColor: themeColor,
+          basePath: 'experiencias',
+          lat: parseFloat(e.addresses?.[0]?.latitude) || null,
+          lng: parseFloat(e.addresses?.[0]?.longitude) || null,
+        };
+      });
+    }
+  } catch (err) {
+    console.error('Error fetching related experiences:', err);
+  }
+
+  // 3. Obtener Organizaciones para filtrar por cercanía
+  let allOrganizations = [];
+  try {
+    const resOrg = await fetch(`https://destbackdev.aggility.io/api/v1/organizations`, { cache: 'no-store' });
+    if (resOrg.ok) {
+        const orgData = await resOrg.json();
+        allOrganizations = orgData.data || [];
+    }
+  } catch (err) {
+    console.error("Error fetching organizations:", err);
+  }
+
+  const formattedOrgs = allOrganizations.map(org => ({
+    ...org,
+    lat: org.addresses?.[0]?.latitude,
+    lng: org.addresses?.[0]?.longitude
+  }));
+  
+  const nearbyServices = getNearbyLocations(experience.coords, formattedOrgs, 20000);
+  
+  const accommodation = nearbyServices.filter(s => 
+    s.categories?.some(c => {
+      const name = c.name.toLowerCase();
+      return name.includes('alojamiento') || name.includes('hotel') || name.includes('dormir') || name.includes('hospedaje');
+    })
+  );
+  
+  const restaurants = nearbyServices.filter(s => 
+    s.categories?.some(c => {
+      const name = c.name.toLowerCase();
+      return name.includes('gastronomía') || name.includes('comer') || name.includes('restaurante') || name.includes('bar');
+    })
+  );
+
+  const computeDist = (item) => ({
+    ...item,
+    distance: getDistance(experience.coords.lat, experience.coords.lng, parseFloat(item.lat || item.addresses?.[0]?.latitude), parseFloat(item.lng || item.addresses?.[0]?.longitude))
+  });
+
+  const finalAccommodation = accommodation.slice(0, 2).map(computeDist);
+  const finalRestaurants = restaurants.slice(0, 2).map(computeDist);
 
   return (
     <div className="bg-white min-vh-100 pb-5">
@@ -105,110 +212,232 @@ export default async function ExperienceDetailPage({ params }) {
                   style={{ objectFit: 'cover' }}
                 />
             </div>
-            <img 
-              src={experience.thumbnail} 
-              alt={experience.title} 
-              className="d-block d-md-none w-100 h-100"
-              style={{ objectFit: 'cover', objectPosition: 'center' }}
-            />
+            <div className="d-block d-md-none w-100 h-100 position-relative">
+                <img 
+                  src={experience.thumbnail} 
+                  alt={experience.title} 
+                  className="w-100 h-100"
+                  style={{ objectFit: 'cover', objectPosition: 'center' }}
+                />
+            </div>
         </div>
       </section>
 
-      {/* 2. MAIN CONTENT */}
-      <div className="container-xxl px-lg-5 mt-n4 position-relative z-1 mb-5">
+      {/* 2. MAIN CONTAINER */}
+      <div className="container-xxl px-lg-5 mt-4 position-relative z-1 mb-5">
+        
+        {/* Action Buttons Row */}
+        <div className="d-flex justify-content-center justify-content-md-end gap-2 gap-md-3 mb-4 pe-lg-5">
+            <button className="btn shadow-premium d-flex align-items-center gap-2 px-4 py-2 rounded-3 border-0 transition-all hover-lift"
+                    style={{ backgroundColor: themeColor, color: '#fff' }}>
+                <span className="font-inter fw-semibold small">Participar</span>
+                <i className="bi bi-plus-lg"></i>
+            </button>
+            <button className="btn shadow-premium d-flex align-items-center gap-2 px-4 py-2 rounded-3 border-0 transition-all hover-lift"
+                    style={{ backgroundColor: themeColor, color: '#fff' }}>
+                <span className="font-inter fw-semibold small">Compartir</span>
+                <i className="bi bi-share"></i>
+            </button>
+        </div>
+
         <div className="row g-4">
           
+          {/* LEFT COLUMN: Main Info */}
           <div className="col-12 col-lg-8">
-            <div className="bg-white p-4 p-md-5 rounded-4 shadow-sm h-100">
+            <div className="bg-white p-4 p-lg-5 rounded-4 shadow-sm h-100">
                 
+                {/* Header block for Title and Category */}
                 <div className="bg-white">
                     <div className="d-flex align-items-center gap-2 mb-3">
-                        <div className="rounded-2 p-1 d-flex align-items-center justify-content-center" 
-                             style={{ backgroundColor: themeColor, width: '32px', height: '32px' }}>
-                            <i className="bi bi-compass-fill text-white small"></i>
+                        <div className="rounded-2 p-1 d-flex align-items-center justify-content-center" style={{ width: '32px', height: '32px', backgroundColor: themeColor }}>
+                            <i className="bi bi-geo-fill text-white small"></i>
                         </div>
                         <span className="font-inter fw-semibold" style={{ color: themeColor, borderBottom: `1px solid ${themeColor}` }}>
-                            {experience.category}
+                            {(experienceData.tags?.[0]?.name || 'Experiencia').replace(/^experiencias\s+/i, '')}
                         </span>
                     </div>
                     
-                    <h1 className="display-5-custom fw-bold text-gray-900 font-inter mb-4" style={{ letterSpacing: '-1px' }}>
+                    <h1 className="display-5-custom fw-bold text-gray-900 font-inter mb-4 text-truncate-2" style={{ letterSpacing: '-1px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                         {experience.title}
                     </h1>
-
-                    {experience.location?.lat && (
-                      <div className="mb-4">
-                          <EventDistanceBadge eventLat={experience.location.lat} eventLng={experience.location.lng} type="experience" />
-                      </div>
-                    )}
-                </div>
-
-                <div className="d-flex flex-column flex-md-row gap-3 mb-5 py-4 border-top border-bottom">
-                    <div className="d-flex align-items-center gap-3">
-                        <i className="bi bi-calendar-event text-primary fs-5" style={{ color: themeColor }}></i>
-                        <div>
-                            <span className="text-muted d-block small">Disponibilidad</span>
-                            <span className="fw-bold text-gray-900">{experience.details.horarios}</span>
-                        </div>
-                    </div>
-                    <div className="d-flex align-items-center gap-3 border-md-start ps-md-4">
-                        <i className="bi bi-geo-alt text-primary fs-5" style={{ color: themeColor }}></i>
-                        <div>
-                            <span className="text-muted d-block small">Ubicación</span>
-                            <span className="fw-bold text-gray-900">{experience.location.name}</span>
-                        </div>
+                    <div className="mb-4">
+                        <EventDistanceBadge eventLat={experience.coords.lat} eventLng={experience.coords.lng} type="experience" />
                     </div>
                 </div>
 
-                <div className="activity-info mb-5">
-                    <h2 className="h4 fw-bold mb-4 text-gray-800">Sobre la experiencia</h2>
-                    {experience.description.map((p, i) => (
-                        <p key={i} className="text-gray-600 fs-5 mb-4 leading-relaxed">{p}</p>
+                {/* Info Bar */}
+                <div className="row g-3 mb-5 border-top border-bottom py-4 mx-0">
+                    <div className="col-12 col-md-6 d-flex align-items-start gap-3 border-md-end mb-3 mb-md-0">
+                        <span className="text-muted font-inter fw-normal" style={{ minWidth: '80px' }}>Horarios</span>
+                        <div className="d-flex align-items-center gap-2">
+                            <i className="bi bi-calendar3" style={{ color: themeColor }}></i>
+                            <span className="text-gray-900 font-inter fw-medium">{experience.date}</span>
+                        </div>
+                    </div>
+                    <div className="col-12 col-md-6 d-flex align-items-start gap-3 ps-md-4">
+                        <span className="text-muted font-inter fw-normal" style={{ minWidth: '80px' }}>Lugar</span>
+                        <div className="d-flex flex-column gap-1">
+                            <div className="d-flex align-items-center gap-2">
+                                <i className="bi bi-geo-alt-fill" style={{ color: themeColor }}></i>
+                                <span className="text-gray-900 font-inter fw-medium text-decoration-underline" style={{ cursor: 'pointer' }}>
+                                    {experience.location}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Full Description */}
+                <ExpandableDescription fullDescription={experience.fullDescription} color={themeColor} />
+
+                {/* Tags */}
+                {experienceData.tags?.length > 1 && (
+                  <div className="d-flex flex-wrap gap-2 mb-4 mt-4">
+                    {experienceData.tags.slice(1).map((tag, i) => (
+                      <span key={i} className="badge rounded-pill px-3 py-2 font-inter fw-medium"
+                            style={{ backgroundColor: themeColorLight, color: themeColor, border: `1px solid ${themeColor}40` }}>
+                        {tag.name}
+                      </span>
                     ))}
-                </div>
+                  </div>
+                )}
 
+                {/* Location Box */}
                 <div className="mt-5 pt-4 border-top">
                     <h2 className="font-inter fw-bold text-gray-900 mb-4" style={{ fontSize: '24px' }}>Ubicación y Contacto</h2>
                     <ContactAndLocationWidget 
                         service={{
-                            name: experience.location.name,
-                            address: experience.location.address,
-                            lat: experience.location.lat,
-                            lng: experience.location.lng,
+                            name: experience.fullLocation.name,
+                            address: experience.fullLocation.address,
+                            lat: experience.coords.lat,
+                            lng: experience.coords.lng,
                             phones: experienceData?.phones || []
                         }} 
-                        type="experiencia" 
+                        type="experiencia"
+                        showContact={false}
                     />
                 </div>
             </div>
           </div>
 
+          {/* RIGHT COLUMN: Sidebar (Recommendations) */}
           <div className="col-12 col-lg-4">
-              <aside className="d-flex flex-column gap-4">
-                  <div className="bg-white p-4 rounded-4 border shadow-sm">
-                      <h3 className="h5 fw-bold mb-4 text-gray-900">Más Experiencias</h3>
-                      <div className="d-flex flex-column gap-3">
-                          {relatedExperiences.map((rel) => (
-                            <SidebarListCard 
-                              key={rel.id}
-                              title={rel.title}
-                              subtitle={rel.categories?.[0]?.name?.trim() || 'Experiencia'}
-                              badge="RECOMENDADO"
-                              type="experience"
-                              thumbnail={getThumbnail(rel.cover, rel.gallery)}
-                              href={`/experiencias/${rel.id}`}
-                            />
-                          ))}
-                      </div>
-                      <Link href="/experiencias" className="btn w-100 mt-4 py-2 fw-bold text-decoration-none text-white" 
-                            style={{ backgroundColor: themeColor }}>
-                          VER TODAS LAS EXPERIENCIAS
-                      </Link>
-                  </div>
-              </aside>
-          </div>
+            <div>
+              {/* Donde Alojarme */}
+              <div className="p-4 rounded-4 mb-4 shadow-sm border" style={{ backgroundColor: '#f0f7ff' }}>
+                <h3 className="font-inter fw-bold text-listing-title mb-4" style={{ fontSize: '22px', color: '#1a56db' }}>Donde Alojarme</h3>
+                <div className="d-flex flex-column gap-3 mb-4">
+                    {finalAccommodation.map((item, idx) => {
+                        const displayName = item.name || item.title || 'Servicio';
+                        const displayAddress = item.addresses?.[0]?.address || item.address || 'Río Cuarto';
+                        const displayPhone = item.phone || 'Consultar contacto';
+                        const displayId = item.id || '';
 
+                        return (
+                            <Link href={displayId ? `/servicio/${displayId}` : '#'} key={idx} className="bg-white p-3 rounded-3 shadow-sm border position-relative text-decoration-none d-block transition-all hover-lift">
+                                <div className="d-flex justify-content-between align-items-start mb-2">
+                                    <p className="font-inter fw-bold text-gray-900 small mb-0">{displayName}</p>
+                                    {item.distance && (
+                                        <span className="badge rounded-1 fw-bold" style={{ backgroundColor: '#1a56db', color: '#ffffff', fontSize: '10px', border: 'none' }}>
+                                            {item.distance < 1000 ? `${Math.round(item.distance)}m` : `${(item.distance / 1000).toFixed(1)}km`} {experience.location}
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="d-flex align-items-start gap-2 mb-1">
+                                    <i className="bi bi-geo-alt text-muted" style={{ fontSize: '12px' }}></i>
+                                    <span className="font-inter text-muted text-decoration-underline" style={{ fontSize: '12px' }}>{displayAddress}</span>
+                                </div>
+                                <div className="d-flex align-items-center gap-2">
+                                    <i className="bi bi-telephone text-muted" style={{ fontSize: '12px' }}></i>
+                                    <span className="font-inter text-muted" style={{ fontSize: '12px' }}>{displayPhone}</span>
+                                </div>
+                                <i className="bi bi-chevron-right position-absolute bottom-0 end-0 m-3 opacity-50"></i>
+                            </Link>
+                        );
+                    })}
+                </div>
+                <Link href="/servicios" className="btn btn-outline-primary w-100 py-2 font-inter fw-medium rounded-2 border-1-5 text-decoration-none d-flex justify-content-center" style={{ color: '#1a56db', borderColor: '#a4cafe' }}>
+                    Ver más
+                </Link>
+              </div>
+
+              {/* Donde Comer */}
+              <div className="p-4 rounded-4 shadow-sm border" style={{ backgroundColor: '#f0f7ff' }}>
+                <h3 className="font-inter fw-bold text-listing-title mb-4" style={{ fontSize: '22px', color: '#1a56db' }}>Donde Comer</h3>
+                <div className="d-flex flex-column gap-3 mb-4">
+                    {finalRestaurants.map((item, idx) => {
+                        const displayName = item.name || item.title || 'Restaurante';
+                        const displayAddress = item.addresses?.[0]?.address || item.address || 'Río Cuarto';
+                        const displayPhone = item.phone || 'Consultar contacto';
+                        const displayId = item.id || '';
+
+                        return (
+                            <Link href={displayId ? `/servicio/${displayId}` : '#'} key={idx} className="bg-white p-3 rounded-3 shadow-sm border position-relative text-decoration-none d-block transition-all hover-lift">
+                                 <div className="d-flex justify-content-between align-items-start mb-2">
+                                    <p className="font-inter fw-bold text-gray-900 small mb-0">{displayName}</p>
+                                    {item.distance && (
+                                        <span className="badge rounded-1 fw-bold" style={{ backgroundColor: '#1a56db', color: '#ffffff', fontSize: '10px', border: 'none' }}>
+                                            {item.distance < 1000 ? `${Math.round(item.distance)}m` : `${(item.distance / 1000).toFixed(1)}km`} {experience.location}
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="d-flex align-items-start gap-2 mb-1">
+                                    <i className="bi bi-geo-alt text-muted" style={{ fontSize: '12px' }}></i>
+                                    <span className="font-inter text-muted text-decoration-underline" style={{ fontSize: '12px' }}>{displayAddress}</span>
+                                </div>
+                                <div className="d-flex align-items-center gap-2">
+                                    <i className="bi bi-telephone text-muted" style={{ fontSize: '12px' }}></i>
+                                    <span className="font-inter text-muted" style={{ fontSize: '12px' }}>{displayPhone}</span>
+                                </div>
+                                <i className="bi bi-chevron-right position-absolute bottom-0 end-0 m-3 opacity-50"></i>
+                            </Link>
+                        );
+                    })}
+                </div>
+                <Link href="/servicios" className="btn btn-outline-primary w-100 py-2 font-inter fw-medium rounded-2 border-1-5 text-decoration-none d-flex justify-content-center" style={{ color: '#1a56db', borderColor: '#a4cafe' }}>
+                    Ver más
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
+
+        {/* RELATED EXPERIENCES SECTION */}
+        {relatedExperiences.length > 0 && (
+          <div className="mt-5 pt-5 border-top w-100">
+            <HomeSectionSlider title="También te puede interesar">
+              {relatedExperiences.map((item) => (
+                <div key={item.id} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)', scrollSnapAlign: 'start' }}>
+                  <ActivityCard 
+                    id={item.id}
+                    title={item.title}
+                    time={item.date}
+                    address={item.location}
+                    schedule={item.schedule || 'Consultar'}
+                    description=""
+                    thumbnail={item.thumbnail}
+                  />
+                </div>
+              ))}
+              <div key="more-experiences" className="flex-shrink-0" style={{ width: 'clamp(200px, 50vw, 240px)', scrollSnapAlign: 'start' }}>
+                <Link href="/experiencias" className="text-decoration-none h-100 d-block">
+                  <div className="rounded-4 d-flex flex-column align-items-center justify-content-center text-white shadow-premium p-4 h-100" 
+                       style={{ 
+                         backgroundColor: themeColor, 
+                         transition: 'all 0.3s ease'
+                       }}>
+                    <div className="rounded-circle border border-2 border-white d-flex align-items-center justify-content-center mb-3" 
+                         style={{ width: '54px', height: '54px', backgroundColor: 'transparent' }}>
+                      <i className="bi bi-plus-lg fs-3"></i>
+                    </div>
+                    <span className="fw-bold font-inter" style={{ fontSize: '18px' }}>Ver más</span>
+                    <span className="opacity-80 small text-center mt-1 font-inter">Experiencias</span>
+                  </div>
+                </Link>
+              </div>
+            </HomeSectionSlider>
+          </div>
+        )}
       </div>
 
       <ChatbotIcon />
