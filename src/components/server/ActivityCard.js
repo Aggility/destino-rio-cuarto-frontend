@@ -30,9 +30,8 @@ export default function ActivityCard({
             sizes="(max-width: 768px) 100vw, 300px"
           />
           {/* Badge Overlay */}
-          <div className="position-absolute top-0 start-0 m-2 px-2 py-1 rounded-1 shadow-sm" 
-               style={{ backgroundColor: '#e1effe', zIndex: 5 }}>
-            <span className="font-inter fw-medium" style={{ color: '#1e429f', fontSize: '13px' }}>
+          <div className="position-absolute top-0 start-0 bg-black px-2 py-1" style={{ zIndex: 10 }}>
+            <span className="text-white fw-semibold font-inter" style={{ fontSize: '13px', letterSpacing: '-0.54px', lineHeight: '1.2' }}>
               {time}
             </span>
           </div>

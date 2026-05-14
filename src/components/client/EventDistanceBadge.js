@@ -48,50 +48,29 @@ export default function EventDistanceBadge({ eventLat, eventLng, distance: initi
     }
   }, [eventLat, eventLng, initialDistance, isMobile]);
 
-  if (!isMobile || distance === null) return null;
-
-  // Multiplicadores diferenciados para reflejar que las rutas son distintas
-  const drivingDist = distance * 1.4; // Recorrido por calles (grilla urbana)
-  const walkingDist = distance * 1.15; // Recorrido más directo (peatonal)
-
-  // Estimación de tiempos (basado en promedios urbanos: auto 30km/h, caminando 5km/h)
-  const drivingTime = Math.max(1, Math.round((drivingDist / 1000) / 30 * 60)); 
-  const walkingTime = Math.max(1, Math.round((walkingDist / 1000) / 5 * 60));
-
   const formatDist = (d) => d < 1000 ? `${Math.round(d)}m` : `${(d / 1000).toFixed(1)}km`;
+
+  if (!isMobile || distance === null) return null;
 
   if (minimal) {
     return (
-      <div className="d-flex align-items-center gap-x-2 gap-y-1 mt-1 flex-wrap overflow-hidden" style={{ minWidth: 0 }}>
-        <span className="font-inter fw-bold d-flex align-items-center gap-1" style={{ fontSize: '10px', color: theme.dark, whiteSpace: 'nowrap' }}>
-          <i className="bi bi-car-front-fill" style={{ color: theme.color }}></i> {drivingTime}m <small className="opacity-50 fw-normal">({formatDist(drivingDist)})</small>
-        </span>
-        <span className="font-inter fw-bold d-flex align-items-center gap-1" style={{ fontSize: '10px', color: theme.dark, whiteSpace: 'nowrap' }}>
-          <i className="bi bi-person-walking" style={{ color: theme.color }}></i> {walkingTime}m <small className="opacity-50 fw-normal">({formatDist(walkingDist)})</small>
+      <div className="d-flex align-items-center gap-1 mt-1" style={{ minWidth: 0 }}>
+        <i className="bi bi-cursor-fill" style={{ color: theme.color, fontSize: '11px' }}></i>
+        <span className="font-inter fw-bold" style={{ fontSize: '12px', color: theme.dark, whiteSpace: 'nowrap' }}>
+          a {formatDist(distance)} de vos
         </span>
       </div>
     );
   }
 
   return (
-    <div className="d-flex flex-row flex-nowrap gap-2 align-items-center overflow-auto hide-scrollbar pt-1">
-        {/* Car Badge */}
-        <div className="rounded-1 px-2 py-1 d-flex flex-column justify-content-center shadow-sm" 
-             style={{ backgroundColor: theme.bg, border: `1px solid ${theme.color}33`, whiteSpace: 'nowrap', minWidth: '85px' }}>
-            <span className="font-inter fw-bold d-flex align-items-center" style={{ color: theme.dark, fontSize: '13px', lineHeight: '1' }}>
-              <i className="bi bi-car-front-fill me-1" style={{ color: theme.color }}></i>
-              {drivingTime} min
+    <div className="d-flex align-items-center pt-1">
+        <div className="rounded-1 px-2 py-1 d-flex align-items-center shadow-sm" 
+             style={{ backgroundColor: theme.bg, border: `1px solid ${theme.color}33`, whiteSpace: 'nowrap' }}>
+            <i className="bi bi-cursor-fill me-1" style={{ color: theme.color, fontSize: '13px' }}></i>
+            <span className="font-inter fw-bold" style={{ color: theme.dark, fontSize: '13px' }}>
+              a {formatDist(distance)} de tu ubicación
             </span>
-            <span className="font-inter opacity-75 fw-medium" style={{ fontSize: '10px', marginLeft: '16px' }}>{formatDist(drivingDist)}</span>
-        </div>
-        {/* Walking Badge */}
-        <div className="rounded-1 px-2 py-1 d-flex flex-column justify-content-center shadow-sm" 
-             style={{ backgroundColor: theme.bg, border: `1px solid ${theme.color}33`, whiteSpace: 'nowrap', minWidth: '85px' }}>
-            <span className="font-inter fw-bold d-flex align-items-center" style={{ color: theme.dark, fontSize: '13px', lineHeight: '1' }}>
-              <i className="bi bi-person-walking me-1" style={{ color: theme.color }}></i>
-              {walkingTime} min
-            </span>
-            <span className="font-inter opacity-75 fw-medium" style={{ fontSize: '10px', marginLeft: '16px' }}>{formatDist(walkingDist)}</span>
         </div>
     </div>
   );
