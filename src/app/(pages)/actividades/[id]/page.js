@@ -51,11 +51,21 @@ export default async function ActivityDetailPage({ params }) {
   const placeName = activityData.addresses?.[0]?.addressable?.name || activityData.organization?.name;
   const placeAddress = activityData.addresses?.[0]?.address || activityData.organization?.addresses?.[0]?.address;
 
+  const cal = activityData.calendars?.[0];
+  let timeBadge = 'Consultar horarios';
+  if (cal) {
+    if (cal.start_time && cal.end_time) {
+      timeBadge = `${cal.start_time.substring(0, 5)} a ${cal.end_time.substring(0, 5)} hs`;
+    } else if (cal.start_time) {
+      timeBadge = `${cal.start_time.substring(0, 5)} hs`;
+    }
+  }
+
   const activity = {
     id: activityData.id,
     title: activityData.title || 'Actividad sin título',
-    date: activityData.calendars?.[0]?.observations || 'Consultar horarios',
-    location: placeName ? `${placeName}${placeAddress ? ` / ${placeAddress.split(',')[0]}` : ''}` : (placeAddress || 'Río Cuarto'),
+    date: timeBadge,
+    location: activityData.addresses?.[0]?.organization?.name || activityData.organization?.name || activityData.addresses?.[0]?.addressable?.name || activityData.addresses?.[0]?.address || 'Río Cuarto',
     coords: {
         lat: parseFloat(activityData.addresses?.[0]?.latitude) || 
              parseFloat(activityData.organization?.addresses?.[0]?.latitude) || -33.1232,
@@ -82,11 +92,28 @@ export default async function ActivityDetailPage({ params }) {
       const allActs = (Array.isArray(actsData) ? actsData : actsData.data || [])
         .filter(e => String(e.id) !== String(id) && e.status?.toLowerCase() !== 'inactive');
         
-      for (let i = allActs.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [allActs[i], allActs[j]] = [allActs[j], allActs[i]];
+      // Filtrar por misma ubicación
+      const currentLoc = activity.location.toLowerCase();
+      const sameLocationActs = allActs.filter(e => {
+          const loc = (e.addresses?.[0]?.organization?.name || e.organization?.name || e.addresses?.[0]?.addressable?.name || e.addresses?.[0]?.address || '').toLowerCase();
+          return loc && (loc.includes(currentLoc) || currentLoc.includes(loc));
+      });
+
+      // Si no hay suficientes en el mismo lugar, rellenar con otros aleatorios
+      let relatedToProcess = sameLocationActs;
+      if (relatedToProcess.length < 10) {
+          const others = allActs.filter(e => !sameLocationActs.some(s => s.id === e.id));
+          // Mezclar otros
+          for (let i = others.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [others[i], others[j]] = [others[j], others[i]];
+          }
+          relatedToProcess = [...sameLocationActs, ...others.slice(0, 10 - sameLocationActs.length)];
+      } else {
+          relatedToProcess = sameLocationActs.slice(0, 10);
       }
-      randomActivities = allActs.slice(0, 10).map(e => {
+
+      randomActivities = relatedToProcess.map(e => {
         const catName = e.categories?.[0]?.name?.trim() || 'Actividad';
         
         // Lugar: Solo nombre del lugar (priorizando organization dentro de addresses)
@@ -207,18 +234,6 @@ export default async function ActivityDetailPage({ params }) {
                   className="w-100 h-100"
                   style={{ objectFit: 'cover' }}
                 />
-                {/* Distance Badge over Image (Desktop) */}
-                {nearestAccommodation && (
-                    <div className="position-absolute top-0 start-0 m-4 animate-fade-in" style={{ zIndex: 5 }}>
-                        <div className="rounded-pill px-3 py-2 shadow-premium d-flex align-items-center gap-2" 
-                             style={{ backgroundColor: '#1a56db', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(4px)' }}>
-                            <i className="bi bi-geo-alt-fill small"></i>
-                            <span className="font-inter fw-bold small" style={{ letterSpacing: '0.2px' }}>
-                                A {nearestAccommodation.distance < 1000 ? `${Math.round(nearestAccommodation.distance)}m` : `${(nearestAccommodation.distance / 1000).toFixed(1)}km`} de un alojamiento
-                            </span>
-                        </div>
-                    </div>
-                )}
             </div>
 
             <div className="d-block d-md-none w-100 h-100 position-relative">
@@ -228,18 +243,6 @@ export default async function ActivityDetailPage({ params }) {
                   className="w-100 h-100"
                   style={{ objectFit: 'cover', objectPosition: 'center' }}
                 />
-                {/* Distance Badge over Image (Mobile) */}
-                {nearestAccommodation && (
-                    <div className="position-absolute top-0 start-0 m-3 animate-fade-in" style={{ zIndex: 5 }}>
-                        <div className="rounded-pill px-3 py-2 shadow-premium d-flex align-items-center gap-2" 
-                             style={{ backgroundColor: '#1a56db', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(4px)' }}>
-                            <i className="bi bi-geo-alt-fill" style={{ fontSize: '12px' }}></i>
-                            <span className="font-inter fw-bold" style={{ fontSize: '11px', letterSpacing: '0.2px' }}>
-                                A {nearestAccommodation.distance < 1000 ? `${Math.round(nearestAccommodation.distance)}m` : `${(nearestAccommodation.distance / 1000).toFixed(1)}km`} de un alojamiento
-                            </span>
-                        </div>
-                    </div>
-                )}
             </div>
 
         </div>
@@ -275,7 +278,7 @@ export default async function ActivityDetailPage({ params }) {
                             <i className="bi bi-geo-fill text-white small"></i>
                         </div>
                         <span className="font-inter fw-semibold" style={{ color: themeColor, borderBottom: `1px solid ${themeColor}` }}>
-                            Actividades
+                            {(activityData.tags?.[0]?.name || 'Actividad').replace(/^actividades\s+/i, '')}
                         </span>
                     </div>
                     
@@ -302,7 +305,7 @@ export default async function ActivityDetailPage({ params }) {
                     <div className="col-12 col-md-6 d-flex align-items-start gap-3 border-md-end mb-3 mb-md-0">
                         <span className="text-muted font-inter fw-normal" style={{ minWidth: '80px' }}>Horarios</span>
                         <div className="d-flex align-items-center gap-2">
-                            <i className="bi bi-clock text-primary" style={{ color: themeColor }}></i>
+                            <i className="bi bi-calendar3" style={{ color: themeColor }}></i>
                             <span className="text-gray-900 font-inter fw-medium">{activity.date}</span>
                         </div>
                     </div>
@@ -310,7 +313,7 @@ export default async function ActivityDetailPage({ params }) {
                         <span className="text-muted font-inter fw-normal" style={{ minWidth: '80px' }}>Lugar</span>
                         <div className="d-flex flex-column gap-1">
                             <div className="d-flex align-items-center gap-2">
-                                <i className="bi bi-geo-alt text-primary" style={{ color: themeColor }}></i>
+                                <i className="bi bi-geo-alt-fill" style={{ color: themeColor }}></i>
                                 <span className="text-gray-900 font-inter fw-medium text-decoration-underline" style={{ cursor: 'pointer' }}>
                                     {activity.location}
                                 </span>
@@ -320,12 +323,12 @@ export default async function ActivityDetailPage({ params }) {
                 </div>
 
                 {/* Full Description */}
-                <ExpandableDescription fullDescription={activity.fullDescription} />
+                <ExpandableDescription fullDescription={activity.fullDescription} color={themeColor} />
 
-                {/* Tags */}
-                {activityData.tags?.length > 0 && (
+                {/* Tags (Excluyendo el que ya se mostró arriba) */}
+                {activityData.tags?.length > 1 && (
                   <div className="d-flex flex-wrap gap-2 mb-4 mt-4">
-                    {activityData.tags.map((tag, i) => (
+                    {activityData.tags.slice(1).map((tag, i) => (
                       <span key={i} className="badge rounded-pill px-3 py-2 font-inter fw-medium"
                             style={{ backgroundColor: themeColorLight, color: themeColor, border: `1px solid ${themeColor}40` }}>
                         {tag.name}
@@ -357,8 +360,8 @@ export default async function ActivityDetailPage({ params }) {
             <div>
               
               {/* Dormir */}
-              <div className="bg-white p-4 rounded-4 mb-4 shadow-sm border">
-                <h3 className="font-inter fw-bold text-listing-title mb-4" style={{ fontSize: '22px', color: '#1a56db' }}>Donde alojarme</h3>
+              <div className="p-4 rounded-4 mb-4 shadow-sm border" style={{ backgroundColor: '#f0f7ff' }}>
+                <h3 className="font-inter fw-bold text-listing-title mb-4" style={{ fontSize: '22px', color: '#1a56db' }}>Donde Alojarme</h3>
                 <div className="d-flex flex-column gap-3 mb-4">
                     {finalAccommodation.map((item, idx) => {
                         const displayName = item.name || item.title || 'Servicio';
@@ -371,8 +374,8 @@ export default async function ActivityDetailPage({ params }) {
                                 <div className="d-flex justify-content-between align-items-start mb-2">
                                     <p className="font-inter fw-bold text-gray-900 small mb-0">{displayName}</p>
                                     {item.distance && (
-                                        <span className="badge rounded-pill fw-bold" style={{ backgroundColor: '#e1effe', color: '#1a56db', fontSize: '11px', border: '1px solid #a4cafe' }}>
-                                            {item.distance < 1000 ? `${Math.round(item.distance)}m` : `${(item.distance / 1000).toFixed(1)}km`}
+                                        <span className="badge rounded-1 fw-bold" style={{ backgroundColor: '#1a56db', color: '#ffffff', fontSize: '10px', border: 'none' }}>
+                                            {item.distance < 1000 ? `${Math.round(item.distance)}m` : `${(item.distance / 1000).toFixed(1)}km`} {activity.location}
                                         </span>
                                     )}
                                 </div>
@@ -395,8 +398,8 @@ export default async function ActivityDetailPage({ params }) {
               </div>
 
               {/* Comer */}
-              <div className="bg-white p-4 rounded-4 shadow-sm border">
-                <h3 className="font-inter fw-bold text-listing-title mb-4" style={{ fontSize: '22px', color: '#1a56db' }}>Donde comer</h3>
+              <div className="p-4 rounded-4 shadow-sm border" style={{ backgroundColor: '#f0f7ff' }}>
+                <h3 className="font-inter fw-bold text-listing-title mb-4" style={{ fontSize: '22px', color: '#1a56db' }}>Donde Comer</h3>
                 <div className="d-flex flex-column gap-3 mb-4">
                     {finalRestaurants.map((item, idx) => {
                         const displayName = item.name || item.title || 'Restaurante';
@@ -409,8 +412,8 @@ export default async function ActivityDetailPage({ params }) {
                                  <div className="d-flex justify-content-between align-items-start mb-2">
                                     <p className="font-inter fw-bold text-gray-900 small mb-0">{displayName}</p>
                                     {item.distance && (
-                                        <span className="badge rounded-pill fw-bold" style={{ backgroundColor: '#fff7ed', color: '#c2410c', fontSize: '11px', border: '1px solid #fed7aa' }}>
-                                            {item.distance < 1000 ? `${Math.round(item.distance)}m` : `${(item.distance / 1000).toFixed(1)}km`}
+                                        <span className="badge rounded-1 fw-bold" style={{ backgroundColor: '#1a56db', color: '#ffffff', fontSize: '10px', border: 'none' }}>
+                                            {item.distance < 1000 ? `${Math.round(item.distance)}m` : `${(item.distance / 1000).toFixed(1)}km`} {activity.location}
                                         </span>
                                     )}
                                 </div>

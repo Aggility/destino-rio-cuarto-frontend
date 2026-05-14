@@ -6,7 +6,7 @@ import React, { useState } from 'react';
  * ExpandableDescription - Destino Río Cuarto
  * Muestra el texto de descripción truncado a 3 líneas y permite expandirlo.
  */
-export default function ExpandableDescription({ fullDescription }) {
+export default function ExpandableDescription({ fullDescription, color = '#1a56db' }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   if (!fullDescription || fullDescription.length === 0) return null;
@@ -24,15 +24,15 @@ export default function ExpandableDescription({ fullDescription }) {
         className="description-text-wrapper"
       >
         {fullDescription.map((para, idx) => (
-          <p key={idx} className={idx === 0 ? 'mb-4 text-gray-900 fw-medium' : 'mb-3'}>
+          <p key={idx} className={idx === 0 ? 'mb-4 text-gray-800' : 'mb-3'}>
             {para}
           </p>
         ))}
       </div>
       <button 
         onClick={() => setIsExpanded(!isExpanded)}
-        className="btn btn-link p-0 fw-medium text-decoration-underline mt-2 border-0 shadow-none"
-        style={{ color: '#1a56db' }}
+        className="btn btn-link p-0 fw-bold text-decoration-none mt-2 border-0 shadow-none"
+        style={{ color: color }}
         type="button"
       >
         {isExpanded ? 'Ver menos' : 'Ver más'}
