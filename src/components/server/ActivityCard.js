@@ -39,8 +39,8 @@ export default function ActivityCard({
         </div>
 
         {/* 2. Content Section */}
-        <div className="p-3 d-flex flex-column gap-2">
-          <h3 className="font-inter fw-bold text-gray-900 mb-1" 
+        <div className="p-3 pt-2 d-flex flex-column gap-2">
+          <h3 className="font-inter fw-bold text-gray-900 mb-0" 
               style={{ fontSize: '17px', lineHeight: '1.3', color: '#111928' }}>
             {title}
           </h3>
@@ -48,9 +48,9 @@ export default function ActivityCard({
           {/* Info List */}
           <div className="d-flex flex-column gap-2 mt-1">
             {/* Ubicación / Dirección */}
-            <div className="d-flex align-items-start gap-2">
-              <i className="bi bi-geo-alt-fill mt-1" style={{ fontSize: '14px', color: '#8a38f5' }}></i>
-              <p className="font-inter text-gray-700 mb-0 small text-truncate" 
+            <div className="d-flex align-items-center gap-2">
+              <i className="bi bi-geo-alt-fill" style={{ fontSize: '14px', color: '#8a38f5' }}></i>
+              <p className="font-inter text-gray-900 mb-0 small text-truncate fw-medium" 
                  title={address}
                  style={{ lineHeight: '1.4' }}>
                 {address}
@@ -58,26 +58,13 @@ export default function ActivityCard({
             </div>
 
             {/* Días / Horario */}
-            <div className="d-flex align-items-start gap-2">
-              <i className="bi bi-clock mt-1" style={{ fontSize: '14px', color: '#8a38f5' }}></i>
-              <p className="font-inter text-gray-700 mb-0 small" 
-                 style={{ lineHeight: '1.4' }}>
+            <div className="d-flex align-items-center gap-2">
+              <i className="bi bi-calendar3" style={{ fontSize: '14px', color: '#8a38f5' }}></i>
+              <p className="font-inter text-gray-800 mb-0 small text-truncate fw-semibold" 
+                 style={{ lineHeight: '1.4', fontSize: '13px' }}>
                 {schedule}
               </p>
             </div>
-
-            {/* Description */}
-            <p className="font-inter text-gray-600 mb-0 mt-2" 
-               style={{ 
-                 fontSize: '14px', 
-                 lineHeight: '1.5',
-                 display: '-webkit-box',
-                 WebkitLineClamp: 2,
-                 WebkitBoxOrient: 'vertical',
-                 overflow: 'hidden'
-               }}>
-              {description}
-            </p>
           </div>
         </div>
       </div>

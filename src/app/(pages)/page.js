@@ -28,14 +28,14 @@ export default async function Home() {
       apiEvents = apiEvents.filter(evt => evt.status?.toLowerCase() !== 'inactive');
       apiEvents = apiEvents.slice(0, 5);
     }
-    if (resActivities.ok) {
-      const data = await resActivities.json();
-      const all = Array.isArray(data) ? data : (data.data || []);
-      // Filtrar para no mostrar experiencias en la sección de actividades
-      apiActivities = all
-        .filter(p => p.status?.toLowerCase() !== 'inactive' && !p.categories?.some(c => c.name?.toLowerCase().includes('experiencia')))
-        .slice(0, 5);
-    }
+      if (resActivities.ok) {
+        const data = await resActivities.json();
+        const all = Array.isArray(data) ? data : (data.data || []);
+        // Filtrar por tipo 'activity' como pidió el usuario
+        apiActivities = all
+          .filter(p => p.status?.toLowerCase() !== 'inactive' && p.types?.some(t => t.key === 'activity'))
+          .slice(0, 5);
+      }
     if (resExperiences.ok) {
       const data = await resExperiences.json();
       const all = Array.isArray(data) ? data : (data.data || []);
@@ -118,23 +118,39 @@ export default async function Home() {
         return [
           ...apiActivities.map((item) => {
             const categoryName = item.categories?.[0]?.name?.trim() || 'Actividad';
-            const placeName = item.addresses?.[0]?.addressable?.name;
-            const placeAddress = item.addresses?.[0]?.address;
-            const address = placeName ? `${placeName}${placeAddress ? ` / ${placeAddress.split(',')[0]}` : ''}` : (placeAddress || 'Río Cuarto');
             
-            const startTime = item.calendars?.[0]?.start_time?.substring(0, 5);
-            const time = startTime ? `${startTime} hs` : categoryName;
+            // Lugar: Solo nombre del lugar (priorizando organization dentro de addresses)
+            const address = item.addresses?.[0]?.organization?.name || item.organization?.name || item.addresses?.[0]?.addressable?.name || item.addresses?.[0]?.address || 'Río Cuarto';
+            
+            // Horario claro y corto
+            const cal = item.calendars?.[0];
+            let timeBadge = categoryName;
+            if (cal) {
+              if (cal.start_time && cal.end_time) {
+                timeBadge = `${cal.start_time.substring(0, 5)} a ${cal.end_time.substring(0, 5)} hs`;
+              } else if (cal.start_time) {
+                timeBadge = `${cal.start_time.substring(0, 5)} hs`;
+              }
+            }
+
+            // Imagen con prioridad: small -> medium -> large
+            let thumbnail = '/Thumbnail.png';
+            if (item.cover && typeof item.cover === 'object') {
+              thumbnail = item.cover.small || item.cover.medium || item.cover.large || item.cover.original || getThumbnail(item.cover, item.gallery);
+            } else {
+              thumbnail = getThumbnail(item.cover, item.gallery);
+            }
 
             return (
               <div key={item.id} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)', scrollSnapAlign: 'start' }}>
                   <ActivityCard 
                       id={item.id}
                       title={item.title}
-                      time={time}
+                      time={timeBadge}
                       address={address}
-                      schedule={item.calendars?.[0]?.observations || 'Consultar'}
+                      schedule={cal?.observations || 'Consultar'}
                       description=""
-                      thumbnail={getThumbnail(item.cover, item.gallery)}
+                      thumbnail={thumbnail}
                   />
               </div>
             );

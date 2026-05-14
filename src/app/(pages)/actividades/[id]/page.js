@@ -22,7 +22,7 @@ export default async function ActivityDetailPage({ params }) {
   // 1. Obtener datos de la actividad desde la API
   let activityData = null;
   try {
-    const res = await fetch(`http://destbackdev.aggility.io/api/v1/proposals/${id}`, { cache: 'no-store' });
+    const res = await fetch(`https://destbackdev.aggility.io/api/v1/proposals/${id}`, { cache: 'no-store' });
     if (res.ok) {
        activityData = (await res.json()).data || (await res.json());
     }
@@ -76,7 +76,7 @@ export default async function ActivityDetailPage({ params }) {
   // 2b. Obtener actividades aleatorias para el slider
   let randomActivities = [];
   try {
-    const resActs = await fetch(`http://destbackdev.aggility.io/api/v1/proposals?per_page=50`, { cache: 'no-store' });
+    const resActs = await fetch(`https://destbackdev.aggility.io/api/v1/proposals?per_page=50`, { cache: 'no-store' });
     if (resActs.ok) {
       const actsData = await resActs.json();
       const allActs = (Array.isArray(actsData) ? actsData : actsData.data || [])
@@ -86,18 +86,44 @@ export default async function ActivityDetailPage({ params }) {
         const j = Math.floor(Math.random() * (i + 1));
         [allActs[i], allActs[j]] = [allActs[j], allActs[i]];
       }
-      randomActivities = allActs.slice(0, 10).map(e => ({
-        id: e.id,
-        title: e.title || 'Actividad',
-        date: e.calendars?.[0]?.observations || 'Consultar',
-        location: e.addresses?.[0]?.addressable?.name || e.addresses?.[0]?.address || 'Río Cuarto',
-        thumbnail: getThumbnail(e.cover, e.gallery),
-        category: e.categories?.[0]?.name?.toUpperCase() || 'ACTIVIDAD',
-        typeColor: themeColor,
-        basePath: 'actividades',
-        lat: parseFloat(e.addresses?.[0]?.latitude) || null,
-        lng: parseFloat(e.addresses?.[0]?.longitude) || null,
-      }));
+      randomActivities = allActs.slice(0, 10).map(e => {
+        const catName = e.categories?.[0]?.name?.trim() || 'Actividad';
+        
+        // Lugar: Solo nombre del lugar (priorizando organization dentro de addresses)
+        const addr = e.addresses?.[0]?.organization?.name || e.organization?.name || e.addresses?.[0]?.addressable?.name || e.addresses?.[0]?.address || 'Río Cuarto';
+        
+        // Horario claro y corto
+        const c = e.calendars?.[0];
+        let tBadge = catName;
+        if (c) {
+          if (c.start_time && c.end_time) {
+            tBadge = `${c.start_time.substring(0, 5)} a ${c.end_time.substring(0, 5)} hs`;
+          } else if (c.start_time) {
+            tBadge = `${c.start_time.substring(0, 5)} hs`;
+          }
+        }
+
+        // Imagen con prioridad: small -> medium -> large
+        let thumb = '/Thumbnail.png';
+        if (e.cover && typeof e.cover === 'object') {
+          thumb = e.cover.small || e.cover.medium || e.cover.large || e.cover.original || getThumbnail(e.cover, e.gallery);
+        } else {
+          thumb = getThumbnail(e.cover, e.gallery);
+        }
+
+        return {
+          id: e.id,
+          title: e.title || 'Actividad',
+          date: tBadge,
+          location: addr,
+          thumbnail: thumb,
+          category: catName.toUpperCase(),
+          typeColor: themeColor,
+          basePath: 'actividades',
+          lat: parseFloat(e.addresses?.[0]?.latitude) || null,
+          lng: parseFloat(e.addresses?.[0]?.longitude) || null,
+        };
+      });
     }
   } catch (err) {
     console.error('Error fetching random activities:', err);
@@ -106,7 +132,7 @@ export default async function ActivityDetailPage({ params }) {
   // 3. Obtener Organizaciones (Servicios) para filtrar por cercanía
   let allOrganizations = [];
   try {
-    const resOrg = await fetch(`http://destbackdev.aggility.io/api/v1/organizations`, { cache: 'no-store' });
+    const resOrg = await fetch(`https://destbackdev.aggility.io/api/v1/organizations`, { cache: 'no-store' });
     if (resOrg.ok) {
         const orgData = await resOrg.json();
         allOrganizations = orgData.data || [];

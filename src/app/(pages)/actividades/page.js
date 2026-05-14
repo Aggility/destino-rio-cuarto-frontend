@@ -20,7 +20,7 @@ export default async function ActivitiesPage() {
       // Filtrar inactivas y también aquellas que son "Experiencias" (se mueven a su propia página)
       rawActivities = all.filter(p => 
         p.status?.toLowerCase() !== 'inactive' && 
-        !p.categories?.some(c => c.name?.toLowerCase().includes('experiencia'))
+        p.types?.some(t => t.key === 'activity')
       );
     }
   } catch (error) {
@@ -29,22 +29,30 @@ export default async function ActivitiesPage() {
 
   // Formatear datos para los componentes
   const activities = rawActivities.map(p => {
-    // La API de proposals no expone address/horario como campos explícitos.
-    // Usamos los tags como referencia de lugar/tipo y las categorías como clasificación.
+    // Categoría y Tag
     const categoryName = p.categories?.[0]?.name?.trim() || 'Actividad';
-    const tagName = p.tags?.[0]?.name?.trim() || '';
 
-    // Lugar: Nombre del lugar (addressable) + Dirección
-    const placeName = p.addresses?.[0]?.addressable?.name;
-    const placeAddress = p.addresses?.[0]?.address;
-    const address = placeName ? `${placeName}${placeAddress ? ` / ${placeAddress.split(',')[0]}` : ''}` : (placeAddress || 'Río Cuarto, Córdoba');
+    // Lugar: Solo nombre del lugar (priorizando organization dentro de addresses)
+    const address = p.addresses?.[0]?.organization?.name || p.organization?.name || p.addresses?.[0]?.addressable?.name || p.addresses?.[0]?.address || 'Río Cuarto';
 
-    // Horario: Observaciones del calendario o fallback
-    const schedule = p.calendars?.[0]?.observations || 'Consultar horarios';
+    // Horario: Extraer de calendars de forma clara y corta
+    const cal = p.calendars?.[0];
+    let timeBadge = categoryName;
+    if (cal) {
+      if (cal.start_time && cal.end_time) {
+        timeBadge = `${cal.start_time.substring(0, 5)} a ${cal.end_time.substring(0, 5)} hs`;
+      } else if (cal.start_time) {
+        timeBadge = `${cal.start_time.substring(0, 5)} hs`;
+      }
+    }
 
-    // time (badge en imagen) → Horario resumido
-    const startTime = p.calendars?.[0]?.start_time?.substring(0, 5);
-    const time = startTime ? `${startTime} hs` : categoryName;
+    // Prioridad de imagen: small -> medium -> large -> fallback
+    let thumbnail = '/Thumbnail.png';
+    if (p.cover && typeof p.cover === 'object') {
+      thumbnail = p.cover.small || p.cover.medium || p.cover.large || p.cover.original || getThumbnail(p.cover, p.gallery);
+    } else {
+      thumbnail = getThumbnail(p.cover, p.gallery);
+    }
 
     return {
       id: p.id,
@@ -53,10 +61,10 @@ export default async function ActivitiesPage() {
       description: p.description
         ? p.description.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').substring(0, 110) + '...'
         : 'Actividad turística en Río Cuarto.',
-      thumbnail: getThumbnail(p.cover, p.gallery),
+      thumbnail,
       address,
-      schedule,
-      time,
+      schedule: cal?.observations || 'Consultar horarios',
+      time: timeBadge,
       lat: p.addresses?.[0]?.latitude,
       lng: p.addresses?.[0]?.longitude,
     };

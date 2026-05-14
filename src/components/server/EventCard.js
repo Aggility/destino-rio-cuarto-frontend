@@ -25,7 +25,7 @@ export default function EventCard({
       <div className="card h-100 border-0 bg-transparent shadow-none w-100 overflow-hidden" style={{ minWidth: 0 }}>
         
         {/* 1. Header (Thumbnail & Tag) — Figma ID I3781:19227;3389:3472 */}
-        <div className="position-relative overflow-hidden rounded-2 mb-2 card-zoom-effect w-100" 
+        <div className="position-relative overflow-hidden rounded-2 mb-1 card-zoom-effect w-100" 
              style={{ 
                 aspectRatio: '16 / 10.5',
                 borderRadius: '8px',
@@ -46,7 +46,7 @@ export default function EventCard({
         </div>
 
         {/* 2. Body — Figma ID I3781:19227;3389:3474 */}
-        <div className="card-body p-0 pt-2 d-flex flex-column" style={{ minWidth: 0 }}>
+        <div className="card-body p-0 pt-1 d-flex flex-column" style={{ minWidth: 0 }}>
           
           {/* Badge Proyectivo */}
           {category && (
@@ -72,22 +72,21 @@ export default function EventCard({
           </div>
 
           {/* Location — Figma ID I3781:19227;3389:3480 */}
-          <p className="text-gray-800 mb-1 font-inter text-truncate w-100" style={{ fontSize: '13px', fontWeight: 400 }}>
-            <i className="bi bi-geo-alt me-1"></i>{location}
-          </p>
-
-          {/* Description — Figma ID I3781:19227;3679:33962 */}
-          {description && (
-            <p className="text-gray-800 font-inter mb-0 overflow-hidden w-100" style={{ 
-              fontSize: 'clamp(13px, 3.5vw, 15px)', 
-              lineHeight: '1.5',
-              opacity: 0.9,
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical'
-            }}>
-              {description}
+          <div className="d-flex align-items-center gap-1 mb-1">
+            <i className="bi bi-geo-alt-fill" style={{ fontSize: '13px', color: typeColor }}></i>
+            <p className="text-gray-800 mb-0 font-inter text-truncate w-100" style={{ fontSize: '13px', fontWeight: 500 }}>
+              {location}
             </p>
+          </div>
+
+          {/* Schedule / Days — Nuevo requerimiento */}
+          {description && (
+            <div className="d-flex align-items-center gap-1">
+              <i className="bi bi-calendar3" style={{ fontSize: '13px', color: typeColor }}></i>
+              <p className="text-gray-800 mb-0 font-inter text-truncate w-100" style={{ fontSize: '13px', fontWeight: 600 }}>
+                {description}
+              </p>
+            </div>
           )}
         </div>
       </div>
