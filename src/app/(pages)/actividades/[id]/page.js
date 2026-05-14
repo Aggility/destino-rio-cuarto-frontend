@@ -7,6 +7,8 @@ import { getNearbyLocations, getDistance } from '@/utils/geo';
 import ExpandableDescription from '@/components/client/ExpandableDescription';
 import EventsSlider from '@/components/client/EventsSlider';
 import { getThumbnail } from '@/utils/image';
+import HomeSectionSlider from '@/components/client/HomeSectionSlider';
+import ActivityCard from '@/components/server/ActivityCard';
 
 /**
  * ActivityDetailPage - Destino Río Cuarto
@@ -119,7 +121,7 @@ export default async function ActivityDetailPage({ params }) {
     lng: org.addresses?.[0]?.longitude
   }));
   
-  const nearbyServices = getNearbyLocations(activity.coords, formattedOrgs, 5000);
+  const nearbyServices = getNearbyLocations(activity.coords, formattedOrgs, 20000); // Radio de 20km
   
   const accommodation = nearbyServices.filter(s => 
     s.categories?.some(c => {
@@ -150,6 +152,8 @@ export default async function ActivityDetailPage({ params }) {
     distance: getDistance(activity.coords.lat, activity.coords.lng, parseFloat(item.lat || item.addresses?.[0]?.latitude), parseFloat(item.lng || item.addresses?.[0]?.longitude))
   });
 
+  const nearestAccommodation = accommodation.length > 0 ? accommodation[0] : (fallbackAccommodation.length > 0 ? computeDist(fallbackAccommodation[0]) : null);
+  
   const finalAccommodation = accommodation.length > 0 ? accommodation.slice(0, 2).map(computeDist) : fallbackAccommodation.map(computeDist);
   const finalRestaurants = restaurants.length > 0 ? restaurants.slice(0, 2).map(computeDist) : fallbackRestaurants.map(computeDist);
 
@@ -177,47 +181,66 @@ export default async function ActivityDetailPage({ params }) {
                   className="w-100 h-100"
                   style={{ objectFit: 'cover' }}
                 />
+                {/* Distance Badge over Image (Desktop) */}
+                {nearestAccommodation && (
+                    <div className="position-absolute top-0 start-0 m-4 animate-fade-in" style={{ zIndex: 5 }}>
+                        <div className="rounded-pill px-3 py-2 shadow-premium d-flex align-items-center gap-2" 
+                             style={{ backgroundColor: '#1a56db', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(4px)' }}>
+                            <i className="bi bi-geo-alt-fill small"></i>
+                            <span className="font-inter fw-bold small" style={{ letterSpacing: '0.2px' }}>
+                                A {nearestAccommodation.distance < 1000 ? `${Math.round(nearestAccommodation.distance)}m` : `${(nearestAccommodation.distance / 1000).toFixed(1)}km`} de un alojamiento
+                            </span>
+                        </div>
+                    </div>
+                )}
             </div>
 
-            <img 
-              src={activity.thumbnail} 
-              alt={activity.title} 
-              className="d-block d-md-none w-100 h-100"
-              style={{ objectFit: 'cover', objectPosition: 'center' }}
-            />
-
-            <div className="position-absolute bottom-0 end-0 p-4 d-none d-lg-flex gap-3 mb-2 me-lg-5" style={{ zIndex: 10 }}>
-                <button className="btn shadow-premium d-flex align-items-center gap-2 px-4 py-2 rounded-3 border-0 transition-all hover-lift"
-                        style={{ backgroundColor: themeColor, color: '#fff' }}>
-                    <span className="font-inter fw-semibold small">Participar</span>
-                    <i className="bi bi-plus-lg"></i>
-                </button>
-                <button className="btn shadow-premium d-flex align-items-center gap-2 px-4 py-2 rounded-3 border-0 transition-all hover-lift"
-                        style={{ backgroundColor: themeColor, color: '#fff' }}>
-                    <span className="font-inter fw-semibold small">Compartir</span>
-                    <i className="bi bi-share"></i>
-                </button>
+            <div className="d-block d-md-none w-100 h-100 position-relative">
+                <img 
+                  src={activity.thumbnail} 
+                  alt={activity.title} 
+                  className="w-100 h-100"
+                  style={{ objectFit: 'cover', objectPosition: 'center' }}
+                />
+                {/* Distance Badge over Image (Mobile) */}
+                {nearestAccommodation && (
+                    <div className="position-absolute top-0 start-0 m-3 animate-fade-in" style={{ zIndex: 5 }}>
+                        <div className="rounded-pill px-3 py-2 shadow-premium d-flex align-items-center gap-2" 
+                             style={{ backgroundColor: '#1a56db', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(4px)' }}>
+                            <i className="bi bi-geo-alt-fill" style={{ fontSize: '12px' }}></i>
+                            <span className="font-inter fw-bold" style={{ fontSize: '11px', letterSpacing: '0.2px' }}>
+                                A {nearestAccommodation.distance < 1000 ? `${Math.round(nearestAccommodation.distance)}m` : `${(nearestAccommodation.distance / 1000).toFixed(1)}km`} de un alojamiento
+                            </span>
+                        </div>
+                    </div>
+                )}
             </div>
+
         </div>
       </section>
 
       {/* 2. MAIN CONTAINER */}
-      <div className="container-xxl px-lg-5 mt-n4 mt-md-n5-detail position-relative z-1 mb-5">
+      <div className="container-xxl px-lg-5 mt-4 position-relative z-1 mb-5">
+        
+        {/* Action Buttons Row — Ubicados debajo de la portada */}
+        <div className="d-flex justify-content-center justify-content-md-end gap-2 gap-md-3 mb-4 pe-lg-5">
+            <button className="btn shadow-premium d-flex align-items-center gap-2 px-4 py-2 rounded-3 border-0 transition-all hover-lift"
+                    style={{ backgroundColor: themeColor, color: '#fff' }}>
+                <span className="font-inter fw-semibold small">Participar</span>
+                <i className="bi bi-plus-lg"></i>
+            </button>
+            <button className="btn shadow-premium d-flex align-items-center gap-2 px-4 py-2 rounded-3 border-0 transition-all hover-lift"
+                    style={{ backgroundColor: themeColor, color: '#fff' }}>
+                <span className="font-inter fw-semibold small">Compartir</span>
+                <i className="bi bi-share"></i>
+            </button>
+        </div>
         <div className="row g-4">
           
           {/* LEFT COLUMN: Main Info */}
           <div className="col-12 col-lg-8">
             <div className="bg-white p-4 p-lg-5 rounded-4 shadow-sm h-100">
                 
-                {/* Mobile Action Buttons */}
-                <div className="d-flex d-lg-none gap-2 mb-4">
-                  <button className="btn flex-grow-1 py-2 fw-bold rounded-2 shadow-premium text-white" style={{ backgroundColor: themeColor }}>
-                    Participar
-                  </button>
-                  <button className="btn py-2 px-3 rounded-2 border-2" style={{ borderColor: themeColor, color: themeColor }}>
-                    <i className="bi bi-share"></i>
-                  </button>
-                </div>
 
                 {/* Sticky Header block for Title and Category */}
                 <div className="bg-white">
@@ -296,7 +319,8 @@ export default async function ActivityDetailPage({ params }) {
                             lng: activity.coords.lng,
                             phones: activityData?.phones || []
                         }} 
-                        type="actividad" 
+                        type="actividad"
+                        showContact={false}
                     />
                 </div>
             </div>
@@ -308,7 +332,7 @@ export default async function ActivityDetailPage({ params }) {
               
               {/* Dormir */}
               <div className="bg-white p-4 rounded-4 mb-4 shadow-sm border">
-                <h3 className="font-inter fw-bold text-listing-title mb-4" style={{ fontSize: '22px', color: '#203f83' }}>Donde alojarme</h3>
+                <h3 className="font-inter fw-bold text-listing-title mb-4" style={{ fontSize: '22px', color: '#1a56db' }}>Donde alojarme</h3>
                 <div className="d-flex flex-column gap-3 mb-4">
                     {finalAccommodation.map((item, idx) => {
                         const displayName = item.name || item.title || 'Servicio';
@@ -321,7 +345,7 @@ export default async function ActivityDetailPage({ params }) {
                                 <div className="d-flex justify-content-between align-items-start mb-2">
                                     <p className="font-inter fw-bold text-gray-900 small mb-0">{displayName}</p>
                                     {item.distance && (
-                                        <span className="badge rounded-pill fw-bold" style={{ backgroundColor: '#ebf5ff', color: '#203f83', fontSize: '10px' }}>
+                                        <span className="badge rounded-pill fw-bold" style={{ backgroundColor: '#e1effe', color: '#1a56db', fontSize: '11px', border: '1px solid #a4cafe' }}>
                                             {item.distance < 1000 ? `${Math.round(item.distance)}m` : `${(item.distance / 1000).toFixed(1)}km`}
                                         </span>
                                     )}
@@ -346,7 +370,7 @@ export default async function ActivityDetailPage({ params }) {
 
               {/* Comer */}
               <div className="bg-white p-4 rounded-4 shadow-sm border">
-                <h3 className="font-inter fw-bold text-listing-title mb-4" style={{ fontSize: '22px', color: '#9a3412' }}>Donde comer</h3>
+                <h3 className="font-inter fw-bold text-listing-title mb-4" style={{ fontSize: '22px', color: '#1a56db' }}>Donde comer</h3>
                 <div className="d-flex flex-column gap-3 mb-4">
                     {finalRestaurants.map((item, idx) => {
                         const displayName = item.name || item.title || 'Restaurante';
@@ -359,7 +383,7 @@ export default async function ActivityDetailPage({ params }) {
                                  <div className="d-flex justify-content-between align-items-start mb-2">
                                     <p className="font-inter fw-bold text-gray-900 small mb-0">{displayName}</p>
                                     {item.distance && (
-                                        <span className="badge rounded-pill fw-bold" style={{ backgroundColor: '#fff7ed', color: '#9a3412', fontSize: '10px' }}>
+                                        <span className="badge rounded-pill fw-bold" style={{ backgroundColor: '#fff7ed', color: '#c2410c', fontSize: '11px', border: '1px solid #fed7aa' }}>
                                             {item.distance < 1000 ? `${Math.round(item.distance)}m` : `${(item.distance / 1000).toFixed(1)}km`}
                                         </span>
                                     )}
@@ -377,7 +401,7 @@ export default async function ActivityDetailPage({ params }) {
                         );
                     })}
                 </div>
-                <Link href="/servicios" className="btn btn-outline-warning w-100 py-2 font-inter fw-medium rounded-2 border-1-5 text-decoration-none d-flex justify-content-center" style={{ color: '#c2410c', borderColor: '#fed7aa' }}>
+                <Link href="/servicios" className="btn btn-outline-primary w-100 py-2 font-inter fw-medium rounded-2 border-1-5 text-decoration-none d-flex justify-content-center" style={{ color: '#1a56db', borderColor: '#a4cafe' }}>
                     Ver más
                 </Link>
               </div>
@@ -386,19 +410,41 @@ export default async function ActivityDetailPage({ params }) {
           </div>
         </div>
 
-        {/* RELATED ACTIVITIES SECTION — Slider con actividades aleatorias */}
+        {/* RELATED ACTIVITIES SECTION — Slider con actividades aleatorias estilo Home */}
         {randomActivities.length > 0 && (
-          <div className="mt-5 pt-5 border-top">
-            <EventsSlider events={randomActivities} />
-            <div className="text-center mt-5">
-              <Link
-                href="/actividades"
-                className="btn px-5 py-3 rounded-3 border-2 fw-bold shadow-sm transition-all hover-lift"
-                style={{ color: themeColor, borderColor: themeColor, backgroundColor: 'transparent' }}
-              >
-                Ver todas las actividades
-              </Link>
-            </div>
+          <div className="mt-5 pt-5 border-top w-100">
+            <HomeSectionSlider title="También te puede interesar">
+              {randomActivities.map((item) => (
+                <div key={item.id} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)', scrollSnapAlign: 'start' }}>
+                  <ActivityCard 
+                    id={item.id}
+                    title={item.title}
+                    time={item.date}
+                    address={item.location}
+                    schedule={item.schedule || 'Consultar'}
+                    description=""
+                    thumbnail={item.thumbnail}
+                  />
+                </div>
+              ))}
+              {/* Ver más card */}
+              <div key="more-activities" className="flex-shrink-0" style={{ width: 'clamp(200px, 50vw, 240px)', scrollSnapAlign: 'start' }}>
+                <Link href="/actividades" className="text-decoration-none h-100 d-block">
+                  <div className="rounded-4 d-flex flex-column align-items-center justify-content-center text-white shadow-premium p-4 h-100" 
+                       style={{ 
+                         backgroundColor: '#8a38f5', 
+                         transition: 'all 0.3s ease'
+                       }}>
+                    <div className="rounded-circle border border-2 border-white d-flex align-items-center justify-content-center mb-3" 
+                         style={{ width: '54px', height: '54px', backgroundColor: 'transparent' }}>
+                      <i className="bi bi-plus-lg fs-3"></i>
+                    </div>
+                    <span className="fw-bold font-inter" style={{ fontSize: '18px' }}>Ver más</span>
+                    <span className="opacity-80 small text-center mt-1 font-inter">Actividades</span>
+                  </div>
+                </Link>
+              </div>
+            </HomeSectionSlider>
           </div>
         )}
       </div>

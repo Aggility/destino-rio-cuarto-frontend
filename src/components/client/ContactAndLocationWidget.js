@@ -3,7 +3,7 @@ import React from 'react';
 import GoogleMapViewer from './GoogleMapViewer';
 import ContactButtons from './ContactButtons';
 
-export default function ContactAndLocationWidget({ service, type = 'service' }) {
+export default function ContactAndLocationWidget({ service, type = 'service', showContact = true }) {
   const targetLat = parseFloat(service?.lat);
   const targetLng = parseFloat(service?.lng);
 
@@ -39,16 +39,18 @@ export default function ContactAndLocationWidget({ service, type = 'service' }) 
         <div className="col-12 col-md-6">
           <div className="d-flex flex-column h-100 justify-content-center p-md-2 text-center text-md-start">
             <h3 className="font-inter fw-bold mb-1" style={{ color: theme.color, fontSize: '20px' }}>
-              {service?.name || 'Contactate con nosotros'}
+              {showContact ? (service?.name || 'Contactate con nosotros') : 'Ubicación'}
             </h3>
             <p className="font-inter text-muted small mb-3">
               <i className="bi bi-geo-alt-fill me-1"></i>{service?.address}
             </p>
             
-            <ContactButtons 
-              phone={service.phones?.[0]} 
-              whatsapp={service.phones?.[0]} 
-            />
+            {showContact && (
+              <ContactButtons 
+                phone={service.phones?.[0]} 
+                whatsapp={service.phones?.[0]} 
+              />
+            )}
             
             <p className="font-inter text-muted x-small mt-3 opacity-75">
               Hacé clic en el mapa para navegar con Google Maps y ver la ruta óptima desde tu ubicación.

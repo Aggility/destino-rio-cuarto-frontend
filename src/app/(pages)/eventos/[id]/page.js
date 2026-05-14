@@ -7,6 +7,8 @@ import { getNearbyLocations, getDistance } from '@/utils/geo';
 import ExpandableDescription from '@/components/client/ExpandableDescription';
 import EventsSlider from '@/components/client/EventsSlider';
 import { getThumbnail } from '@/utils/image';
+import HomeSectionSlider from '@/components/client/HomeSectionSlider';
+import EventCard from '@/components/server/EventCard';
 
 
 /**
@@ -102,7 +104,7 @@ export default async function EventDetailPage({ params }) {
   
   // Usamos 5000m (5km) para asegurar que aparezcan resultados reales si existen, 
   // pero el usuario puede preferir 500m. Ajustado aquí para mayor cobertura.
-  const nearbyServices = getNearbyLocations(event.coords, formattedOrgs, 5000);
+  const nearbyServices = getNearbyLocations(event.coords, formattedOrgs, 20000); // Radio de 20km
   
   // Separar por categorías con filtros más amplios
   const accommodation = nearbyServices.filter(s => 
@@ -175,39 +177,31 @@ export default async function EventDetailPage({ params }) {
               style={{ objectFit: 'cover', objectPosition: 'center' }}
             />
 
-            {/* Desktop Buttons — Ahora dentro del container para alinearse con la web */}
-            <div className="position-absolute bottom-0 end-0 p-4 d-none d-lg-flex gap-3 mb-2 me-lg-5" style={{ zIndex: 10 }}>
-                <button className="btn shadow-premium d-flex align-items-center gap-2 px-4 py-2 rounded-3 border-0 transition-all hover-lift"
-                        style={{ backgroundColor: '#f54286', color: '#fff' }}>
-                    <span className="font-inter fw-semibold small">Agendar</span>
-                    <i className="bi bi-calendar-event"></i>
-                </button>
-                <button className="btn shadow-premium d-flex align-items-center gap-2 px-4 py-2 rounded-3 border-0 transition-all hover-lift"
-                        style={{ backgroundColor: '#f54286', color: '#fff' }}>
-                    <span className="font-inter fw-semibold small">Compartir</span>
-                    <i className="bi bi-share"></i>
-                </button>
-            </div>
         </div>
       </section>
 
       {/* 2. MAIN CONTAINER */}
-      <div className="container-xxl px-lg-5 mt-n4 mt-md-n5-detail position-relative z-1 mb-5">
+      <div className="container-xxl px-lg-5 mt-4 position-relative z-1 mb-5">
+        
+        {/* Action Buttons Row — Ubicados debajo de la portada */}
+        <div className="d-flex justify-content-center justify-content-md-end gap-2 gap-md-3 mb-4 pe-lg-5">
+            <button className="btn shadow-premium d-flex align-items-center gap-2 px-4 py-2 rounded-3 border-0 transition-all hover-lift"
+                    style={{ backgroundColor: '#f54286', color: '#fff' }}>
+                <span className="font-inter fw-semibold small">Agendar</span>
+                <i className="bi bi-calendar-plus"></i>
+            </button>
+            <button className="btn shadow-premium d-flex align-items-center gap-2 px-4 py-2 rounded-3 border-0 transition-all hover-lift"
+                    style={{ backgroundColor: '#f54286', color: '#fff' }}>
+                <span className="font-inter fw-semibold small">Compartir</span>
+                <i className="bi bi-share"></i>
+            </button>
+        </div>
         <div className="row g-4">
           
           {/* LEFT COLUMN: Main Info */}
           <div className="col-12 col-lg-8">
             <div className="bg-white p-4 p-lg-5 rounded-4 shadow-sm h-100">
                 
-                {/* Mobile Action Buttons */}
-                <div className="d-flex d-lg-none gap-2 mb-4">
-                  <button className="btn flex-grow-1 py-2 fw-bold rounded-2 shadow-premium text-white" style={{ backgroundColor: '#f54286' }}>
-                    Agendar
-                  </button>
-                  <button className="btn py-2 px-3 rounded-2 border-2" style={{ borderColor: '#f54286', color: '#f54286' }}>
-                    <i className="bi bi-share"></i>
-                  </button>
-                </div>
 
                 {/* Sticky Header block for Title and Category */}
                 <div className="bg-white">
@@ -288,7 +282,7 @@ export default async function EventDetailPage({ params }) {
               
               {/* Dormir */}
               <div className="bg-white p-4 rounded-4 mb-4 shadow-sm border">
-                <h3 className="font-inter fw-bold text-listing-title mb-4" style={{ fontSize: '22px', color: '#203f83' }}>Donde alojarme</h3>
+                <h3 className="font-inter fw-bold text-listing-title mb-4" style={{ fontSize: '22px', color: '#1a56db' }}>Donde alojarme</h3>
                 <div className="d-flex flex-column gap-3 mb-4">
                     {finalAccommodation.map((item, idx) => {
                         const displayName = item.name || item.title || 'Servicio';
@@ -301,7 +295,7 @@ export default async function EventDetailPage({ params }) {
                                 <div className="d-flex justify-content-between align-items-start mb-2">
                                     <p className="font-inter fw-bold text-gray-900 small mb-0">{displayName}</p>
                                     {item.distance && (
-                                        <span className="badge rounded-pill fw-bold" style={{ backgroundColor: '#ebf5ff', color: '#203f83', fontSize: '10px' }}>
+                                        <span className="badge rounded-pill fw-bold" style={{ backgroundColor: '#e1effe', color: '#1a56db', fontSize: '11px', border: '1px solid #a4cafe' }}>
                                             {item.distance < 1000 ? `${Math.round(item.distance)}m` : `${(item.distance / 1000).toFixed(1)}km`}
                                         </span>
                                     )}
@@ -326,7 +320,7 @@ export default async function EventDetailPage({ params }) {
 
               {/* Comer */}
               <div className="bg-white p-4 rounded-4 shadow-sm border">
-                <h3 className="font-inter fw-bold text-listing-title mb-4" style={{ fontSize: '22px', color: '#9a3412' }}>Donde comer</h3>
+                <h3 className="font-inter fw-bold text-listing-title mb-4" style={{ fontSize: '22px', color: '#1a56db' }}>Donde comer</h3>
                 <div className="d-flex flex-column gap-3 mb-4">
                     {finalRestaurants.map((item, idx) => {
                         const displayName = item.name || item.title || 'Restaurante';
@@ -339,7 +333,7 @@ export default async function EventDetailPage({ params }) {
                                  <div className="d-flex justify-content-between align-items-start mb-2">
                                     <p className="font-inter fw-bold text-gray-900 small mb-0">{displayName}</p>
                                     {item.distance && (
-                                        <span className="badge rounded-pill fw-bold" style={{ backgroundColor: '#fff7ed', color: '#9a3412', fontSize: '10px' }}>
+                                        <span className="badge rounded-pill fw-bold" style={{ backgroundColor: '#fff7ed', color: '#c2410c', fontSize: '11px', border: '1px solid #fed7aa' }}>
                                             {item.distance < 1000 ? `${Math.round(item.distance)}m` : `${(item.distance / 1000).toFixed(1)}km`}
                                         </span>
                                     )}
@@ -357,7 +351,7 @@ export default async function EventDetailPage({ params }) {
                         );
                     })}
                 </div>
-                <Link href="/servicios" className="btn btn-outline-warning w-100 py-2 font-inter fw-medium rounded-2 border-1-5 text-decoration-none d-flex justify-content-center" style={{ color: '#c2410c', borderColor: '#fed7aa' }}>
+                <Link href="/servicios" className="btn btn-outline-primary w-100 py-2 font-inter fw-medium rounded-2 border-1-5 text-decoration-none d-flex justify-content-center" style={{ color: '#1a56db', borderColor: '#a4cafe' }}>
                     Ver más
                 </Link>
               </div>
@@ -366,19 +360,41 @@ export default async function EventDetailPage({ params }) {
           </div>
         </div>
 
-        {/* RELATED EVENTS SECTION — Slider con eventos aleatorios */}
+        {/* RELATED EVENTS SECTION — Slider con eventos aleatorios estilo Home */}
         {randomEvents.length > 0 && (
-          <div className="mt-5 pt-5 border-top">
-            <EventsSlider events={randomEvents} />
-            <div className="text-center mt-5">
-              <Link
-                href="/eventos"
-                className="btn px-5 py-3 rounded-3 border-2 fw-bold shadow-sm transition-all hover-lift"
-                style={{ color: '#f54286', borderColor: '#f54286', backgroundColor: 'transparent' }}
-              >
-                Ver todos los eventos
-              </Link>
-            </div>
+          <div className="mt-5 pt-5 border-top w-100">
+            <HomeSectionSlider title="También te puede interesar">
+              {randomEvents.map((evt) => (
+                <div key={evt.id} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)', scrollSnapAlign: 'start' }}>
+                  <EventCard
+                    id={evt.id}
+                    title={evt.title}
+                    date={evt.date}
+                    location={evt.location}
+                    category={evt.category}
+                    typeColor="#8a38f5"
+                    thumbnail={evt.thumbnail}
+                  />
+                </div>
+              ))}
+              {/* Ver más card */}
+              <div key="more-events" className="flex-shrink-0" style={{ width: 'clamp(200px, 50vw, 240px)', scrollSnapAlign: 'start' }}>
+                <Link href="/eventos" className="text-decoration-none h-100 d-block">
+                  <div className="rounded-4 d-flex flex-column align-items-center justify-content-center text-white shadow-premium p-4 h-100" 
+                       style={{ 
+                         backgroundColor: '#8a38f5', 
+                         transition: 'all 0.3s ease'
+                       }}>
+                    <div className="rounded-circle border border-2 border-white d-flex align-items-center justify-content-center mb-3" 
+                         style={{ width: '54px', height: '54px', backgroundColor: 'transparent' }}>
+                      <i className="bi bi-plus-lg fs-3"></i>
+                    </div>
+                    <span className="fw-bold font-inter" style={{ fontSize: '18px' }}>Ver más</span>
+                    <span className="opacity-80 small text-center mt-1 font-inter">Eventos</span>
+                  </div>
+                </Link>
+              </div>
+            </HomeSectionSlider>
           </div>
         )}
       </div>
