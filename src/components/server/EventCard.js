@@ -58,16 +58,15 @@ export default function EventCard({
           )}
 
           {/* Title — Figma ID I3781:19227;3389:3478 */}
-          <h3 className="fw-semibold text-gray-900 mb-1 font-inter text-truncate-2 w-100" style={{ 
-            fontSize: 'clamp(13px, 3.5vw, 16px)', 
+          <h3 className="fw-semibold text-gray-900 mb-0 font-inter text-truncate-2 w-100" style={{ 
+            fontSize: 'clamp(14px, 3.5vw, 17px)', 
             letterSpacing: '-0.2px',
-            lineHeight: '1.2',
-            minHeight: '2.4em'
+            lineHeight: '1.2'
           }}>
             {title}
           </h3>
 
-          <div className="mb-2">
+          <div className="mb-1">
             <EventDistanceBadge eventLat={lat} eventLng={lng} type="event" minimal={true} />
           </div>
 

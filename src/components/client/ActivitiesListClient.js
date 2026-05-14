@@ -128,10 +128,8 @@ export default function ActivitiesListClient({ initialActivities = [], categorie
 
           {/* Contador + reset */}
           <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-            <h2 className="font-inter fw-bold text-gray-900 mb-0" style={{ fontSize: 'clamp(20px, 3.5vw, 26px)', letterSpacing: '-0.5px' }}>
-              {filtered.length > 0
-                ? <>{filtered.length} <span className="fw-normal text-muted">actividad{filtered.length !== 1 ? 'es' : ''} encontrada{filtered.length !== 1 ? 's' : ''}</span></>
-                : 'Sin resultados'}
+            <h2 className="font-inter fw-bold text-gray-900 mb-0" style={{ fontSize: 'clamp(22px, 4vw, 28px)', letterSpacing: '-0.5px' }}>
+              Todas las Actividades
             </h2>
 
             {(searchTerm || selectedCategory !== 'Todos') && (

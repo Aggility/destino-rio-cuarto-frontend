@@ -46,7 +46,7 @@ export default function ActivityCard({
           </h3>
 
           {/* Info List */}
-          <div className="d-flex flex-column gap-2 mt-1">
+          <div className="d-flex flex-column gap-1 mt-0">
             {/* Ubicación / Dirección */}
             <div className="d-flex align-items-center gap-2">
               <i className="bi bi-geo-alt-fill" style={{ fontSize: '14px', color: '#8a38f5' }}></i>
