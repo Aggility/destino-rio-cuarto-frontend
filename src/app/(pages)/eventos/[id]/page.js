@@ -66,18 +66,27 @@ export default async function EventDetailPage({ params }) {
         const j = Math.floor(Math.random() * (i + 1));
         [allEvents[i], allEvents[j]] = [allEvents[j], allEvents[i]];
       }
-      randomEvents = allEvents.slice(0, 10).map(e => ({
-        id: e.id,
-        title: e.title || 'Evento',
-        date: e.calendars?.[0]?.start_date
-          ? new Date(e.calendars[0].start_date).toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' })
-          : '',
-        location: e.organization?.name || e.organization?.addresses?.[0]?.address || 'Río Cuarto',
-        thumbnail: getThumbnail(e.cover, e.gallery),
-        category: e.categories?.[0]?.name?.toUpperCase() || 'EVENTO',
-        lat: parseFloat(e.organization?.addresses?.[0]?.latitude) || null,
-        lng: parseFloat(e.organization?.addresses?.[0]?.longitude) || null,
-      }));
+      randomEvents = allEvents.slice(0, 10).map(e => {
+        let thumbnail = '/no-img.webp';
+        if (e.cover && typeof e.cover === 'object') {
+          thumbnail = e.cover.medium || e.cover.small || e.cover.large || e.cover.original || getThumbnail(e.cover, e.gallery);
+        } else {
+          thumbnail = getThumbnail(e.cover, e.gallery);
+        }
+
+        return {
+          id: e.id,
+          title: e.title || 'Evento',
+          date: e.calendars?.[0]?.start_date
+            ? new Date(e.calendars[0].start_date).toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' })
+            : '',
+          location: e.organization?.name || e.organization?.addresses?.[0]?.address || 'Río Cuarto',
+          thumbnail,
+          category: e.categories?.[0]?.name?.toUpperCase() || 'EVENTO',
+          lat: parseFloat(e.organization?.addresses?.[0]?.latitude) || null,
+          lng: parseFloat(e.organization?.addresses?.[0]?.longitude) || null,
+        };
+      });
     }
   } catch (err) {
     console.error('Error fetching random events:', err);

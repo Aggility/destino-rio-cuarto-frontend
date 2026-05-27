@@ -54,13 +54,20 @@ export default async function EventsPage() {
     rawDesc = rawDesc.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ');
     const descStr = rawDesc.length > 100 ? rawDesc.substring(0, 100) + '...' : rawDesc;
 
+    let thumbnail = '/no-img.webp';
+    if (evt.cover && typeof evt.cover === 'object') {
+      thumbnail = evt.cover.medium || evt.cover.small || evt.cover.large || evt.cover.original || getThumbnail(evt.cover, evt.gallery);
+    } else {
+      thumbnail = getThumbnail(evt.cover, evt.gallery);
+    }
+
     return {
       id: evt.id,
       title: evt.title,
       date: dateStr,
       location: evt.organization?.name || 'Ubicación a confirmar',
       description: descStr,
-      thumbnail: getThumbnail(evt.cover, evt.gallery),
+      thumbnail,
       category: evt.categories?.[0]?.name?.toUpperCase() || (idx % 2 === 0 ? "POP" : "KIDS"),
       typeColor: "#f54286",
       lat: evt.organization?.addresses?.[0]?.latitude,
@@ -95,6 +102,13 @@ export default async function EventsPage() {
       const time = fw.start_time || fw.calendars?.[0]?.start_time;
       if (time) timeStr = `${String(time).substring(0, 5)}hs`;
     }
+    let thumbnail = '/no-img.webp';
+    if (fw.cover && typeof fw.cover === 'object') {
+      thumbnail = fw.cover.medium || fw.cover.small || fw.cover.large || fw.cover.original || getThumbnail(fw.cover, fw.gallery);
+    } else {
+      thumbnail = getThumbnail(fw.cover, fw.gallery);
+    }
+
     return {
       id: fw.id,
       title: fw.title || fw.name,
@@ -102,7 +116,7 @@ export default async function EventsPage() {
       time: timeStr,
       location: fw.organization?.name || fw.location || 'Río Cuarto',
       // Portada del slider: imagen grande
-      thumbnail: getThumbnail(fw.cover, fw.gallery),
+      thumbnail,
       href: `/macro-evento/${fw.id}`,
     };
   });
@@ -117,13 +131,20 @@ export default async function EventsPage() {
       dateStr = d.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
       if (primaryCalendar.start_time) timeStr = `${primaryCalendar.start_time.substring(0, 5)}hs`;
     }
+    let thumbnail = '/no-img.webp';
+    if (evt.cover && typeof evt.cover === 'object') {
+      thumbnail = evt.cover.medium || evt.cover.small || evt.cover.large || evt.cover.original || getThumbnail(evt.cover, evt.gallery);
+    } else {
+      thumbnail = getThumbnail(evt.cover, evt.gallery);
+    }
+
     return {
       id: evt.id,
       title: evt.title,
       date: dateStr,
       time: timeStr,
       location: evt.organization?.name || 'Río Cuarto',
-      thumbnail: getThumbnail(evt.cover, evt.gallery),
+      thumbnail,
       href: `/eventos/${evt.id}`,
     };
   });
