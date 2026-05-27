@@ -44,10 +44,10 @@ export default async function ExperiencesPage() {
       }
     }
 
-    // Prioridad de imagen: small -> medium -> large -> fallback
+    // Prioridad de imagen: medium -> small -> large -> fallback
     let thumbnail = '/no-img.webp';
     if (p.cover && typeof p.cover === 'object') {
-      thumbnail = p.cover.small || p.cover.medium || p.cover.large || p.cover.original || getThumbnail(p.cover, p.gallery);
+      thumbnail = p.cover.medium || p.cover.small || p.cover.large || p.cover.original || getThumbnail(p.cover, p.gallery);
     } else {
       thumbnail = getThumbnail(p.cover, p.gallery);
     }
