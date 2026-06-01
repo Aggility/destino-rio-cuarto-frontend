@@ -104,7 +104,7 @@ export default async function EventsPage() {
     }
     let thumbnail = '/no-img.webp';
     if (fw.cover && typeof fw.cover === 'object') {
-      thumbnail = fw.cover.medium || fw.cover.small || fw.cover.large || fw.cover.original || getThumbnail(fw.cover, fw.gallery);
+      thumbnail = fw.cover.large || fw.cover.original || fw.cover.medium || fw.cover.small || getThumbnail(fw.cover, fw.gallery);
     } else {
       thumbnail = getThumbnail(fw.cover, fw.gallery);
     }
@@ -133,7 +133,7 @@ export default async function EventsPage() {
     }
     let thumbnail = '/no-img.webp';
     if (evt.cover && typeof evt.cover === 'object') {
-      thumbnail = evt.cover.medium || evt.cover.small || evt.cover.large || evt.cover.original || getThumbnail(evt.cover, evt.gallery);
+      thumbnail = evt.cover.large || evt.cover.original || evt.cover.medium || evt.cover.small || getThumbnail(evt.cover, evt.gallery);
     } else {
       thumbnail = getThumbnail(evt.cover, evt.gallery);
     }

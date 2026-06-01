@@ -5,15 +5,11 @@ import Link from 'next/link';
 
 /**
  * MacroEventCard - Destino Río Cuarto
- * Basado en Figma ID 3786:24022 / 3786:27623
- * Slider de eventos marco (macro eventos) destacados.
- * - Acepta un array `events` para mostrar múltiples slides.
- * - Autoplay de 5s, pausable en hover.
- * - Flechas desktop + dots indicadores expandibles.
- * - Cada slide: thumbnail izquierda + contenido derecho sobre gradiente pink.
+ * Slider de eventos destacados con imagen fullscreen de fondo,
+ * overlay degradado y contenido superpuesto.
  */
 export default function MacroEventCard({ events = [], title, date, time, location, thumbnail, href }) {
-  // ── Modo compatibilidad: si recibe props individuales, los envuelve en array
+  // Modo compatibilidad: si recibe props individuales, los envuelve en array
   const slides = events.length > 0 ? events : (title ? [{
     id: 'single',
     title,
@@ -60,7 +56,7 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
   return (
     <div
       className="macro-event-card position-relative overflow-hidden rounded-4 shadow-premium"
-      style={{ background: 'linear-gradient(135deg, #f54286 0%, #d92d6b 100%)', minHeight: '200px' }}
+      style={{ minHeight: '420px' }}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
@@ -76,92 +72,135 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
           WebkitOverflowScrolling: 'touch',
           msOverflowStyle: 'none',
           scrollbarWidth: 'none',
+          minHeight: '420px',
         }}
       >
         {slides.map((event, index) => (
           <div
             key={event.id || index}
-            style={{ flexShrink: 0, width: '100%', scrollSnapAlign: 'start' }}
+            style={{
+              flexShrink: 0,
+              width: '100%',
+              scrollSnapAlign: 'start',
+              position: 'relative',
+              minHeight: '420px',
+            }}
           >
-            <div className="row g-0 align-items-stretch" style={{ minHeight: '340px' }}>
+            {/* Imagen de fondo */}
+            <img
+              src={event.thumbnail || '/no-img.webp'}
+              alt={event.title}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                objectPosition: 'center',
+                display: 'block',
+              }}
+            />
 
-              {/* 1. Thumbnail */}
-              <div className="col-12 col-md-5 position-relative" style={{ minHeight: '220px' }}>
-                <img
-                  src={event.thumbnail || '/no-img.webp'}
-                  alt={event.title}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    minHeight: '220px',
-                    maxHeight: '440px',
-                    objectFit: 'cover',
-                    display: 'block',
-                  }}
-                />
-                <span
-                  className="position-absolute top-0 start-0 m-3 badge rounded-pill bg-white fw-bold px-3 py-2 font-inter shadow-sm"
-                  style={{ color: '#df2a6b', fontSize: '10px', zIndex: 2 }}
-                >
-                  EVENTO DESTACADO
-                </span>
-              </div>
+            {/* Overlay degradado para legibilidad */}
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.10) 100%)',
+              }}
+            />
 
-              {/* 2. Contenido */}
-              <div className="col-12 col-md-7 d-flex flex-column justify-content-center p-4 p-md-5 text-white" style={{ backgroundColor: '#df2a6b' }}>
-                <h3
-                  className="font-inter fw-semibold mb-4"
-                  style={{ fontSize: 'clamp(26px, 4.5vw, 38px)', lineHeight: '1.2', letterSpacing: '-0.5px' }}
-                >
-                  {event.title}
-                </h3>
+            {/* Badge superior izquierdo */}
+            <span
+              className="position-absolute top-0 start-0 m-3 badge rounded-pill fw-bold px-3 py-2 font-inter shadow-sm"
+              style={{
+                backgroundColor: '#f54286',
+                color: '#ffffff',
+                fontSize: '10px',
+                letterSpacing: '0.5px',
+                zIndex: 2,
+              }}
+            >
+              EVENTO DESTACADO
+            </span>
 
-                <div className="d-flex flex-column gap-3 mb-5">
-                  {/* Fecha */}
-                  {event.date && (
-                    <div className="d-flex align-items-center gap-3">
-                      <div
-                        className="bg-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                        style={{ width: '32px', height: '32px', minWidth: '32px' }}
-                      >
-                        <i className="bi bi-calendar-event" style={{ color: '#df2a6b', fontSize: '14px' }}></i>
-                      </div>
-                      <span className="font-inter fw-medium" style={{ fontSize: 'clamp(14px, 3.5vw, 16px)', color: '#ffffff' }}>
-                        {event.date}
-                      </span>
+            {/* Contenido superpuesto — alineado al fondo */}
+            <div
+              className="position-absolute bottom-0 start-0 end-0 p-4 p-md-5"
+              style={{ zIndex: 2 }}
+            >
+              {/* Título */}
+              <h3
+                className="font-inter fw-bold text-white mb-3"
+                style={{
+                  fontSize: 'clamp(22px, 4vw, 38px)',
+                  lineHeight: '1.2',
+                  letterSpacing: '-0.5px',
+                  textShadow: '0 2px 8px rgba(0,0,0,0.4)',
+                }}
+              >
+                {event.title}
+              </h3>
+
+              {/* Metadatos */}
+              <div className="d-flex flex-wrap gap-3 mb-4">
+                {event.date && (
+                  <div className="d-flex align-items-center gap-2">
+                    <div
+                      className="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                      style={{ width: '28px', height: '28px', backgroundColor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(4px)' }}
+                    >
+                      <i className="bi bi-calendar-event text-white" style={{ fontSize: '12px' }}></i>
                     </div>
-                  )}
-
-                  <div className="d-flex flex-wrap gap-4 mt-2 ps-1">
-                    {/* Lugar */}
-                    {event.location && (
-                      <div className="d-flex align-items-center gap-2">
-                        <i className="bi bi-geo-alt" style={{ fontSize: '15px' }}></i>
-                        <span className="font-inter fw-medium" style={{ fontSize: '14px' }}>{event.location}</span>
-                      </div>
-                    )}
-                    {/* Hora */}
-                    {event.time && (
-                      <div className="d-flex align-items-center gap-2">
-                        <i className="bi bi-clock" style={{ fontSize: '15px' }}></i>
-                        <span className="font-inter fw-medium" style={{ fontSize: '14px' }}>{event.time}</span>
-                      </div>
-                    )}
+                    <span className="font-inter fw-medium text-white" style={{ fontSize: 'clamp(13px, 3vw, 15px)' }}>
+                      {event.date}
+                    </span>
                   </div>
-                </div>
+                )}
 
-                {/* CTA */}
-                <div className="d-flex align-items-start mt-2">
-                  <Link
-                    href={event.href || `/eventos/${event.id}`}
-                    className="btn btn-light rounded-pill font-inter fw-bold px-5 py-3 transition-all hover-scale border-0"
-                    style={{ fontSize: '14px', color: '#df2a6b', letterSpacing: '0.5px' }}
-                  >
-                    VER MÁS DETALLES <i className="bi bi-chevron-right ms-2 fw-bold"></i>
-                  </Link>
-                </div>
+                {event.location && (
+                  <div className="d-flex align-items-center gap-2">
+                    <div
+                      className="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                      style={{ width: '28px', height: '28px', backgroundColor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(4px)' }}
+                    >
+                      <i className="bi bi-geo-alt text-white" style={{ fontSize: '12px' }}></i>
+                    </div>
+                    <span className="font-inter fw-medium text-white" style={{ fontSize: 'clamp(13px, 3vw, 15px)' }}>
+                      {event.location}
+                    </span>
+                  </div>
+                )}
+
+                {event.time && (
+                  <div className="d-flex align-items-center gap-2">
+                    <div
+                      className="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                      style={{ width: '28px', height: '28px', backgroundColor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(4px)' }}
+                    >
+                      <i className="bi bi-clock text-white" style={{ fontSize: '12px' }}></i>
+                    </div>
+                    <span className="font-inter fw-medium text-white" style={{ fontSize: 'clamp(13px, 3vw, 15px)' }}>
+                      {event.time}
+                    </span>
+                  </div>
+                )}
               </div>
 
+              {/* CTA */}
+              <Link
+                href={event.href || `/eventos/${event.id}`}
+                className="btn rounded-pill font-inter fw-bold px-4 px-md-5 py-2 py-md-3 transition-all hover-scale border-0"
+                style={{
+                  fontSize: '14px',
+                  backgroundColor: '#f54286',
+                  color: '#ffffff',
+                  letterSpacing: '0.5px',
+                  boxShadow: '0 4px 15px rgba(245,66,134,0.4)',
+                }}
+              >
+                VER MÁS DETALLES <i className="bi bi-chevron-right ms-1 fw-bold"></i>
+              </Link>
             </div>
           </div>
         ))}
@@ -172,13 +211,16 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
         <div className="d-none d-md-block">
           <button
             onClick={() => canPrev && scrollToIndex(activeIndex - 1)}
-            className="position-absolute top-50 start-0 translate-middle-y ms-3 btn rounded-circle d-flex align-items-center justify-content-center border-0 shadow-premium"
+            className="position-absolute top-50 start-0 translate-middle-y ms-3 btn rounded-circle d-flex align-items-center justify-content-center border-0"
             style={{
               width: '44px', height: '44px',
-              backgroundColor: '#000', color: '#fff',
-              opacity: canPrev ? 0.85 : 0.2,
+              backgroundColor: 'rgba(255,255,255,0.15)',
+              backdropFilter: 'blur(6px)',
+              color: '#fff',
+              opacity: canPrev ? 1 : 0.25,
               cursor: canPrev ? 'pointer' : 'default',
               zIndex: 10,
+              border: '1px solid rgba(255,255,255,0.3)',
             }}
             aria-label="Evento anterior"
           >
@@ -186,13 +228,16 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
           </button>
           <button
             onClick={() => canNext && scrollToIndex(activeIndex + 1)}
-            className="position-absolute top-50 end-0 translate-middle-y me-3 btn rounded-circle d-flex align-items-center justify-content-center border-0 shadow-premium"
+            className="position-absolute top-50 end-0 translate-middle-y me-3 btn rounded-circle d-flex align-items-center justify-content-center border-0"
             style={{
               width: '44px', height: '44px',
-              backgroundColor: '#000', color: '#fff',
-              opacity: canNext ? 0.85 : 0.2,
+              backgroundColor: 'rgba(255,255,255,0.15)',
+              backdropFilter: 'blur(6px)',
+              color: '#fff',
+              opacity: canNext ? 1 : 0.25,
               cursor: canNext ? 'pointer' : 'default',
               zIndex: 10,
+              border: '1px solid rgba(255,255,255,0.3)',
             }}
             aria-label="Evento siguiente"
           >
@@ -204,7 +249,7 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
       {/* ── Dots indicadores — Solo si hay más de 1 slide ── */}
       {slides.length > 1 && (
         <div
-          className="position-absolute bottom-0 start-50 translate-middle-x mb-3 d-flex gap-2"
+          className="position-absolute bottom-0 end-0 mb-4 me-4 d-flex gap-2"
           style={{ zIndex: 10 }}
         >
           {slides.map((_, idx) => (
@@ -219,7 +264,7 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
                 border: 'none',
                 backgroundColor: 'white',
                 padding: 0,
-                opacity: activeIndex === idx ? 1 : 0.4,
+                opacity: activeIndex === idx ? 1 : 0.45,
                 transition: 'all 0.35s ease',
                 cursor: 'pointer',
               }}
