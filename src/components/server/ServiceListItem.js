@@ -59,8 +59,8 @@ export default function ServiceListItem({
                 <div className="d-flex flex-column gap-1">
                    <EventDistanceBadge eventLat={lat} eventLng={lng} distance={distance} type="service" />
                    <div className="rounded-1 px-2 py-0-5 w-fit-content" 
-                        style={{ backgroundColor: '#ebf5ff' }}>
-                       <span className="font-inter fw-medium" style={{ color: '#1a56db', fontSize: '12px' }}>
+                        style={{ backgroundColor: '#1a56db' }}>
+                       <span className="font-inter fw-medium" style={{ color: '#ffffff', fontSize: '12px' }}>
                        {category}
                        </span>
                    </div>
@@ -92,26 +92,11 @@ export default function ServiceListItem({
           </p>
         </div>
       </div>
-      </Link>
-
-      {/* 3. ACTIONS FOOTER - Figma ID 3605:22704 */}
-      <div className="d-flex align-items-center justify-content-between gap-2 mt-3 pt-2 border-top">
-        <div className="d-flex gap-2 flex-grow-1 flex-md-grow-0">
-          <button className="btn btn-sm shadow-premium bg-white border rounded-2 font-inter fw-medium px-3 transition-all hover-lift d-flex align-items-center justify-content-center gap-2" 
-                  style={{ fontSize: '13px', color: '#0f172a', height: '37px', borderColor: '#e5e7eb' }}>
-            Contactar <i className="bi bi-telephone text-muted" style={{ fontSize: '12px' }}></i>
-          </button>
-          <button className="btn btn-sm shadow-premium bg-white border rounded-2 font-inter fw-medium px-3 transition-all hover-lift d-flex align-items-center justify-content-center gap-2" 
-                  style={{ fontSize: '13px', color: '#0f172a', height: '37px', borderColor: '#e5e7eb' }}>
-            WhatsApp <i className="bi bi-whatsapp text-success" style={{ fontSize: '14px' }}></i>
-          </button>
-        </div>
-
-        {/* Arrow Icon (Figma 3605:22706) */}
-        <div className="flex-shrink-0">
+        {/* Arrow Icon */}
+        <div className="d-flex align-items-center justify-content-end mt-2 pt-1">
            <i className="bi bi-chevron-right text-muted opacity-50" style={{ fontSize: '18px' }}></i>
         </div>
-      </div>
+      </Link>
     </div>
   );
 }

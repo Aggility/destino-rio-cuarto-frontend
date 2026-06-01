@@ -167,6 +167,7 @@ export default async function ServicioDetailPage({ params }) {
                 
                 <ContactAndLocationWidget 
                     service={service} 
+                    showContact={false}
                     type={
                         service.category.toLowerCase().includes('alojamiento') ? 'alojamiento' : 
                         service.category.toLowerCase().includes('gastronomía') ? 'gastronomia' : 'service'

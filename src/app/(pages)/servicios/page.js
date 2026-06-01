@@ -54,7 +54,7 @@ export default async function ServiciosPage() {
       {/* 4. CONTENT GRID */}
       <section className="py-5 bg-listing-page">
         <div className="container-xxl px-lg-5">
-          <div className="row g-5">
+          <div className="row g-5 align-items-start">
             
             {/* MAIN LIST & FILTERS */}
             <div className="col-12 col-xl-8">
