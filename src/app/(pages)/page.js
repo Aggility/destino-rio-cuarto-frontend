@@ -20,7 +20,7 @@ export default async function Home() {
     const [resEvents, resActivities, resExperiences] = await Promise.all([
       fetch('https://destbackdev.aggility.io/api/v1/events', { cache: 'no-store' }),
       fetch('https://destbackdev.aggility.io/api/v1/proposals', { cache: 'no-store' }),
-      fetch('https://destbackdev.aggility.io/api/v1/event-frameworks', { cache: 'no-store' })
+      fetch('https://destbackdev.aggility.io/api/v1/proposals', { cache: 'no-store' })
     ]);
     if (resEvents.ok) {
       const data = await resEvents.json();
@@ -39,7 +39,10 @@ export default async function Home() {
     if (resExperiences.ok) {
       const data = await resExperiences.json();
       const all = Array.isArray(data) ? data : (data.data || []);
-      apiExperiences = all.filter(e => e.status?.toLowerCase() !== 'inactive').slice(0, 5);
+      // Filtrar por tipo 'experience' como pidió el usuario
+      apiExperiences = all
+        .filter(p => p.status?.toLowerCase() !== 'inactive' && p.types?.some(t => t.key === 'experience'))
+        .slice(0, 5);
     }
   } catch (error) {
     console.error("Error fetching home data:", error);
@@ -159,25 +162,46 @@ export default async function Home() {
         ];
     }
 
-    // 3. EXPERIENCIAS (API real /event-frameworks)
+    // 3. EXPERIENCIAS (API real /proposals)
     if (cat.slug === 'experiencias') {
         return [
           ...apiExperiences.map((exp) => {
-            const calendar = exp.calendars?.[0];
-            const time = calendar?.observations || 'Todo el día';
-            const location = exp.organization?.name || 'Río Cuarto';
-            const category = exp.categories?.[0]?.name || 'Experiencia';
+            const category = exp.categories?.[0]?.name?.trim() || 'Experiencia';
+            
+            // Lugar: Solo nombre del lugar (priorizando organización)
+            const location = exp.addresses?.[0]?.organization?.name || exp.organization?.name || exp.addresses?.[0]?.addressable?.name || exp.addresses?.[0]?.address || 'Río Cuarto';
+
+            // Horario: Extraer de calendars de forma clara
+            const cal = exp.calendars?.[0];
+            let timeBadge = category;
+            if (cal) {
+              if (cal.start_time && cal.end_time) {
+                timeBadge = `${cal.start_time.substring(0, 5)} a ${cal.end_time.substring(0, 5)} hs`;
+              } else if (cal.start_time) {
+                timeBadge = `${cal.start_time.substring(0, 5)} hs`;
+              }
+            }
+
+            // Imagen con prioridad: medium (como solicitó el usuario) -> small -> large -> fallback
+            let thumbnail = '/no-img.webp';
+            if (exp.cover && typeof exp.cover === 'object') {
+              thumbnail = exp.cover.medium || exp.cover.small || exp.cover.large || exp.cover.original || getThumbnail(exp.cover, exp.gallery);
+            } else {
+              thumbnail = getThumbnail(exp.cover, exp.gallery);
+            }
 
             return (
               <div key={exp.id} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)', scrollSnapAlign: 'start' }}>
                   <EventCard 
                       id={exp.id}
-                      title={exp.title || exp.name}
-                      date={time}
+                      title={exp.title || 'Sin título'}
+                      date={timeBadge}
                       location={location}
                       category={category}
-                      description=""
-                      thumbnail={getThumbnail(exp.cover, exp.gallery)}
+                      description={cal?.observations || 'Consultar horarios'}
+                      thumbnail={thumbnail}
+                      lat={exp.addresses?.[0]?.latitude}
+                      lng={exp.addresses?.[0]?.longitude}
                       basePath="experiencias"
                       typeColor={cat.color}
                   />
