@@ -136,10 +136,10 @@ export default async function Home() {
               }
             }
 
-            // Imagen con prioridad: small -> medium -> large
+            // Imagen con prioridad: medium -> small -> large
             let thumbnail = '/Thumbnail.png';
             if (item.cover && typeof item.cover === 'object') {
-              thumbnail = item.cover.small || item.cover.medium || item.cover.large || item.cover.original || getThumbnail(item.cover, item.gallery);
+              thumbnail = item.cover.medium || item.cover.small || item.cover.large || item.cover.original || getThumbnail(item.cover, item.gallery);
             } else {
               thumbnail = getThumbnail(item.cover, item.gallery);
             }
