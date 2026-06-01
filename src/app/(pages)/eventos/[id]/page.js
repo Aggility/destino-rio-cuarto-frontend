@@ -3,6 +3,7 @@ import Link from 'next/link';
 import ChatbotIcon from '@/components/server/ChatbotIcon';
 import EventDistanceBadge from '@/components/client/EventDistanceBadge';
 import ContactAndLocationWidget from '@/components/client/ContactAndLocationWidget';
+import UserDistanceBadge from '@/components/client/UserDistanceBadge';
 import { getNearbyLocations, getDistance } from '@/utils/geo';
 import ExpandableDescription from '@/components/client/ExpandableDescription';
 import EventsSlider from '@/components/client/EventsSlider';
@@ -304,11 +305,13 @@ export default async function EventDetailPage({ params }) {
                             <Link href={displayId ? `/servicio/${displayId}` : '#'} key={idx} className="bg-white p-3 rounded-3 shadow-sm border position-relative text-decoration-none d-block transition-all hover-lift">
                                 <div className="d-flex justify-content-between align-items-start mb-2">
                                     <p className="font-inter fw-bold text-gray-900 small mb-0">{displayName}</p>
-                                    {item.distance && (
-                                        <span className="badge rounded-pill fw-bold" style={{ backgroundColor: '#e1effe', color: '#1a56db', fontSize: '11px', border: '1px solid #a4cafe' }}>
-                                            {item.distance < 1000 ? `${Math.round(item.distance)}m` : `${(item.distance / 1000).toFixed(1)}km`}
-                                        </span>
-                                    )}
+                                    <UserDistanceBadge 
+                                        targetLat={item.lat || item.addresses?.[0]?.latitude} 
+                                        targetLng={item.lng || item.addresses?.[0]?.longitude} 
+                                        staticDistance={item.distance} 
+                                        staticLabel={`de ${event.fullLocation.name}`} 
+                                        theme="blue"
+                                    />
                                 </div>
                                 <div className="d-flex align-items-start gap-2 mb-1">
                                     <i className="bi bi-geo-alt text-muted" style={{ fontSize: '12px' }}></i>
@@ -342,11 +345,13 @@ export default async function EventDetailPage({ params }) {
                             <Link href={displayId ? `/servicio/${displayId}` : '#'} key={idx} className="bg-white p-3 rounded-3 shadow-sm border position-relative text-decoration-none d-block transition-all hover-lift">
                                  <div className="d-flex justify-content-between align-items-start mb-2">
                                     <p className="font-inter fw-bold text-gray-900 small mb-0">{displayName}</p>
-                                    {item.distance && (
-                                        <span className="badge rounded-pill fw-bold" style={{ backgroundColor: '#fff7ed', color: '#c2410c', fontSize: '11px', border: '1px solid #fed7aa' }}>
-                                            {item.distance < 1000 ? `${Math.round(item.distance)}m` : `${(item.distance / 1000).toFixed(1)}km`}
-                                        </span>
-                                    )}
+                                    <UserDistanceBadge 
+                                        targetLat={item.lat || item.addresses?.[0]?.latitude} 
+                                        targetLng={item.lng || item.addresses?.[0]?.longitude} 
+                                        staticDistance={item.distance} 
+                                        staticLabel={`de ${event.fullLocation.name}`} 
+                                        theme="orange"
+                                    />
                                 </div>
                                 <div className="d-flex align-items-start gap-2 mb-1">
                                     <i className="bi bi-geo-alt text-muted" style={{ fontSize: '12px' }}></i>
