@@ -8,10 +8,10 @@ export default function EventDistanceBadge({ eventLat, eventLng, distance: initi
 
   const getTheme = (t) => {
     switch (t) {
-      case 'event': return { bg: '#fdf2f8', color: '#f54286', dark: '#be185d' }; // Pink
-      case 'activity': return { bg: '#f5f3ff', color: '#8a38f5', dark: '#6d28d9' }; // Purple
-      case 'experience': return { bg: '#fff7ed', color: '#ff5a1f', dark: '#c2410c' }; // Orange
-      case 'service': return { bg: '#ebf5ff', color: '#1a56db', dark: '#1e429f' }; // Blue
+      case 'event': return { bg: '#f54286', color: '#ffffff', dark: '#ffffff' }; // Pink
+      case 'activity': return { bg: '#8a38f5', color: '#ffffff', dark: '#ffffff' }; // Purple
+      case 'experience': return { bg: '#ff5a1f', color: '#ffffff', dark: '#ffffff' }; // Orange
+      case 'service': return { bg: '#1a56db', color: '#ffffff', dark: '#ffffff' }; // Blue
       default: return { bg: '#f3f4f6', color: '#374151', dark: '#111827' }; // Gray
     }
   };
@@ -54,11 +54,14 @@ export default function EventDistanceBadge({ eventLat, eventLng, distance: initi
 
   if (minimal) {
     return (
-      <div className="d-flex align-items-center gap-1 mt-1" style={{ minWidth: 0 }}>
-        <i className="bi bi-cursor-fill" style={{ color: theme.color, fontSize: '11px' }}></i>
-        <span className="font-inter fw-bold" style={{ fontSize: '12px', color: theme.dark, whiteSpace: 'nowrap' }}>
-          a {formatDist(distance)} de vos
-        </span>
+      <div className="d-flex align-items-center mt-1" style={{ minWidth: 0 }}>
+        <div className="rounded-1 px-1 py-0 d-flex align-items-center shadow-sm" 
+             style={{ backgroundColor: theme.bg, whiteSpace: 'nowrap' }}>
+          <i className="bi bi-cursor-fill me-1" style={{ color: theme.color, fontSize: '10px' }}></i>
+          <span className="font-inter fw-bold" style={{ fontSize: '11px', color: theme.dark, whiteSpace: 'nowrap' }}>
+            {formatDist(distance)}
+          </span>
+        </div>
       </div>
     );
   }
@@ -66,10 +69,10 @@ export default function EventDistanceBadge({ eventLat, eventLng, distance: initi
   return (
     <div className="d-flex align-items-center pt-1">
         <div className="rounded-1 px-2 py-1 d-flex align-items-center shadow-sm" 
-             style={{ backgroundColor: theme.bg, border: `1px solid ${theme.color}33`, whiteSpace: 'nowrap' }}>
+             style={{ backgroundColor: theme.bg, border: `1px solid ${theme.bg}`, whiteSpace: 'nowrap' }}>
             <i className="bi bi-cursor-fill me-1" style={{ color: theme.color, fontSize: '13px' }}></i>
             <span className="font-inter fw-bold" style={{ color: theme.dark, fontSize: '13px' }}>
-              a {formatDist(distance)} de tu ubicación
+              {formatDist(distance)}
             </span>
         </div>
     </div>

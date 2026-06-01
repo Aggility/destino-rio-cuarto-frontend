@@ -6,6 +6,8 @@ import React from 'react';
  * Tamaño 80px x 80px con efecto de elevación.
  */
 export default function ChatbotIcon() {
+  return null;
+  /*
   return (
     <div className="position-fixed bottom-0 end-0 m-4 z-max" style={{ zIndex: 999999 }}>
       <div className="chatbot-bubble">
@@ -19,4 +21,5 @@ export default function ChatbotIcon() {
       </div>
     </div>
   );
+  */
 }

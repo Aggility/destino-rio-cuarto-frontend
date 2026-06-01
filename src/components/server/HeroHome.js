@@ -57,9 +57,9 @@ export default function HeroHome({ initialSlug = null }) {
     padding: '4px 14px',
     borderRadius: '8px',
     display: 'inline-block',
-    lineHeight: '1.1',
-    margin: '0 4px',
-    verticalAlign: 'baseline'
+    lineHeight: '1.2',
+    margin: '4px 4px',
+    verticalAlign: 'middle'
   });
 
   if (!activeCategory) {
@@ -117,7 +117,7 @@ export default function HeroHome({ initialSlug = null }) {
           <h1 className="hero-title text-white mb-0 text-center text-md-start mx-auto mx-md-0" style={{
             maxWidth: '800px',
             fontSize: 'clamp(42px, 11vw, 64px)',
-            lineHeight: '1.1',
+            lineHeight: '1.4',
             letterSpacing: '-1.5px',
             fontWeight: '700'
           }}>
