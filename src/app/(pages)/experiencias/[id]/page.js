@@ -9,6 +9,7 @@ import ExpandableDescription from '@/components/client/ExpandableDescription';
 import { getThumbnail } from '@/utils/image';
 import HomeSectionSlider from '@/components/client/HomeSectionSlider';
 import ActivityCard from '@/components/server/ActivityCard';
+import EventCard from '@/components/server/EventCard';
 
 /**
  * ExperienceDetailPage - Destino Río Cuarto
@@ -413,14 +414,18 @@ export default async function ExperienceDetailPage({ params }) {
             <HomeSectionSlider title="También te puede interesar">
               {relatedExperiences.map((item) => (
                 <div key={item.id} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)', scrollSnapAlign: 'start' }}>
-                  <ActivityCard 
+                  <EventCard 
                     id={item.id}
                     title={item.title}
-                    time={item.date}
-                    address={item.location}
-                    schedule={item.schedule || 'Consultar'}
-                    description=""
+                    date={item.date}
+                    location={item.location}
+                    category={item.category}
+                    description={item.schedule}
                     thumbnail={item.thumbnail}
+                    lat={item.lat}
+                    lng={item.lng}
+                    basePath="experiencias"
+                    typeColor={themeColor}
                   />
                 </div>
               ))}
