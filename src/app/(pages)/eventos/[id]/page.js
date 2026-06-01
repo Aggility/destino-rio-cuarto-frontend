@@ -280,6 +280,7 @@ export default async function EventDetailPage({ params }) {
                             phones: eventData?.organization?.phone ? [eventData.organization.phone] : []
                         }} 
                         type="event" 
+                        showContact={false}
                     />
                 </div>
             </div>
@@ -381,7 +382,7 @@ export default async function EventDetailPage({ params }) {
                     date={evt.date}
                     location={evt.location}
                     category={evt.category}
-                    typeColor="#8a38f5"
+                    typeColor="#f54286"
                     thumbnail={evt.thumbnail}
                   />
                 </div>
@@ -391,7 +392,7 @@ export default async function EventDetailPage({ params }) {
                 <Link href="/eventos" className="text-decoration-none h-100 d-block">
                   <div className="rounded-4 d-flex flex-column align-items-center justify-content-center text-white shadow-premium p-4 h-100" 
                        style={{ 
-                         backgroundColor: '#8a38f5', 
+                         backgroundColor: '#f54286', 
                          transition: 'all 0.3s ease'
                        }}>
                     <div className="rounded-circle border border-2 border-white d-flex align-items-center justify-content-center mb-3" 
