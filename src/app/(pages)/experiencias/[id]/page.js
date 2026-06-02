@@ -84,11 +84,13 @@ export default async function ExperienceDetailPage({ params }) {
 
   // 2b. Obtener experiencias relacionadas por misma ubicación
   let relatedExperiences = [];
+  let allProposals = [];
   try {
     const resActs = await fetch(`https://destbackdev.aggility.io/api/v1/proposals?per_page=50`, { cache: 'no-store' });
     if (resActs.ok) {
       const actsData = await resActs.json();
-      const allActs = (Array.isArray(actsData) ? actsData : actsData.data || [])
+      allProposals = Array.isArray(actsData) ? actsData : actsData.data || [];
+      const allActs = allProposals
         .filter(e => String(e.id) !== String(id) && e.status?.toLowerCase() !== 'inactive');
         
       const currentLoc = experience.location.toLowerCase();
@@ -189,6 +191,24 @@ export default async function ExperienceDetailPage({ params }) {
 
   const finalAccommodation = accommodation.slice(0, 2).map(computeDist);
   const finalRestaurants = restaurants.slice(0, 2).map(computeDist);
+
+  // 4. Obtener lugares incluidos en la experiencia actual y sus actividades relacionadas
+  const includedPlaces = experienceData.addresses
+    ?.map(addr => addr.organization)
+    ?.filter((org, index, self) => org && self.findIndex(o => o.id === org.id) === index) || [];
+
+  const placesWithActivities = includedPlaces.map(place => {
+    const activities = allProposals.filter(prop => {
+      const isActivity = prop.types?.some(t => t.slug === 'actividad' || t.key === 'activity');
+      if (!isActivity) return false;
+      const belongsToOrg = prop.addresses?.some(addr => addr.organization?.id === place.id);
+      return belongsToOrg;
+    });
+    return {
+      ...place,
+      activities
+    };
+  });
 
   return (
     <div className="bg-white min-vh-100 pb-5">
@@ -301,6 +321,76 @@ export default async function ExperienceDetailPage({ params }) {
                         {tag.name}
                       </span>
                     ))}
+                  </div>
+                )}
+
+                {/* Places & Activities Included Section */}
+                {placesWithActivities.length > 0 && (
+                  <div className="mt-5 pt-4 border-top">
+                    <h2 className="font-inter fw-bold text-gray-900 mb-4" style={{ fontSize: '24px' }}>
+                      Lugares que incluye
+                    </h2>
+                    <div className="d-flex flex-column gap-4">
+                      {placesWithActivities.map((place) => (
+                        <div key={place.id} className="bg-light-subtle rounded-4 p-4 border border-light-subtle shadow-sm" style={{ border: '1px solid #e5e7eb', borderRadius: '12px' }}>
+                          <div className="row g-3 align-items-center">
+                            {place.cover && (
+                              <div className="col-12 col-md-3">
+                                <img
+                                  src={getThumbnail(place.cover, place.gallery)}
+                                  alt={place.name}
+                                  className="img-fluid rounded-3 w-100"
+                                  style={{ maxHeight: '140px', objectFit: 'cover' }}
+                                />
+                              </div>
+                            )}
+                            <div className={place.cover ? "col-12 col-md-9" : "col-12"}>
+                              <span className="badge font-inter fw-semibold mb-2" style={{ backgroundColor: themeColorLight, color: themeColor }}>Lugar</span>
+                              <h3 className="font-inter fw-bold text-gray-900 mb-2" style={{ fontSize: '20px' }}>
+                                {place.name}
+                              </h3>
+                              <p className="text-muted small mb-0 font-inter">
+                                {place.excerpt || place.description?.replace(/<[^>]*>?/gm, '')}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Activities at this Place */}
+                          {place.activities?.length > 0 && (
+                            <div className="mt-4 pt-3 border-top" style={{ borderColor: '#e5e7eb' }}>
+                              <h4 className="font-inter fw-semibold text-gray-800 mb-3" style={{ fontSize: '15px' }}>
+                                <i className="bi bi-compass-fill me-2" style={{ color: themeColor }}></i>
+                                Actividades y atracciones en {place.name}:
+                              </h4>
+                              <div className="row g-3">
+                                {place.activities.map((act) => {
+                                  const actTime = act.calendars?.[0]
+                                    ? (act.calendars[0].start_time ? `${act.calendars[0].start_time.substring(0,5)} hs` : 'Consultar')
+                                    : 'Consultar';
+                                  const actSchedule = act.calendars?.[0]?.observations || 'Horarios no especificados';
+                                  const actThumb = getThumbnail(act.cover, act.gallery);
+
+                                  return (
+                                    <div key={act.id} className="col-12 col-sm-6">
+                                      <ActivityCard
+                                        id={act.id}
+                                        title={act.title}
+                                        time={actTime}
+                                        address={place.name}
+                                        schedule={actSchedule}
+                                        description={act.excerpt || act.description?.replace(/<[^>]*>?/gm, '')}
+                                        thumbnail={actThumb}
+                                        type="actividades"
+                                      />
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
 
