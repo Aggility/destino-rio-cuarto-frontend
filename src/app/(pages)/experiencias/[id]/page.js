@@ -436,9 +436,17 @@ export default async function ExperienceDetailPage({ params }) {
                                 <h3 className="font-inter fw-bold text-gray-900 mb-2" style={{ fontSize: '20px' }}>
                                   {place.name}
                                 </h3>
-                                <p className="text-muted small mb-0 font-inter">
-                                  {place.excerpt || place.description?.replace(/<[^>]*>?/gm, '')}
-                                </p>
+                                 <p 
+                                   className="text-muted small mb-0 font-inter"
+                                   style={{ 
+                                     display: '-webkit-box', 
+                                     WebkitLineClamp: 2, 
+                                     WebkitBoxOrient: 'vertical', 
+                                     overflow: 'hidden' 
+                                   }}
+                                 >
+                                   {place.excerpt || place.description?.replace(/<[^>]*>?/gm, '')}
+                                 </p>
                                 <div className="d-flex align-items-center gap-2 mt-3">
                                   {place.id && (
                                     <Link 
