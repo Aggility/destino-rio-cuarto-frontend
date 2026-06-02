@@ -3,6 +3,7 @@ import Link from 'next/link';
 import ChatbotIcon from '@/components/server/ChatbotIcon';
 import EventDistanceBadge from '@/components/client/EventDistanceBadge';
 import ContactAndLocationWidget from '@/components/client/ContactAndLocationWidget';
+import GoogleMapViewer from '@/components/client/GoogleMapViewer';
 import UserDistanceBadge from '@/components/client/UserDistanceBadge';
 import { getNearbyLocations, getDistance } from '@/utils/geo';
 import ExpandableDescription from '@/components/client/ExpandableDescription';
@@ -60,10 +61,41 @@ export default async function ExperienceDetailPage({ params }) {
     }
   }
 
+  let dateText = 'Consultar';
+  if (cal) {
+    let formattedDate = '';
+    if (cal.start_date) {
+      const dStart = new Date(cal.start_date + 'T00:00:00');
+      if (!isNaN(dStart.getTime())) {
+        if (cal.end_date && cal.end_date !== cal.start_date) {
+          const dEnd = new Date(cal.end_date + 'T00:00:00');
+          if (!isNaN(dEnd.getTime())) {
+            formattedDate = `${dStart.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })} al ${dEnd.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })}`;
+          } else {
+            formattedDate = dStart.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+            formattedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+          }
+        } else {
+          formattedDate = dStart.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+          formattedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+        }
+      }
+    }
+    
+    if (formattedDate && cal.observations) {
+      dateText = `${formattedDate} - ${cal.observations}`;
+    } else if (formattedDate) {
+      dateText = formattedDate;
+    } else if (cal.observations) {
+      dateText = cal.observations;
+    }
+  }
+
   const experience = {
     id: experienceData.id,
     title: experienceData.title || 'Sin título',
     date: timeBadge,
+    dateText: dateText,
     location: experienceData.addresses?.[0]?.organization?.name || experienceData.organization?.name || experienceData.addresses?.[0]?.addressable?.name || experienceData.addresses?.[0]?.address || 'Río Cuarto',
     coords: {
         lat: parseFloat(experienceData.addresses?.[0]?.latitude) || 
@@ -289,23 +321,11 @@ export default async function ExperienceDetailPage({ params }) {
 
                 {/* Info Bar */}
                 <div className="row g-3 mb-5 border-top border-bottom py-4 mx-0">
-                    <div className="col-12 col-md-6 d-flex align-items-start gap-3 border-md-end mb-3 mb-md-0">
-                        <span className="text-muted font-inter fw-normal" style={{ minWidth: '80px' }}>Horarios</span>
-                        <div className="d-flex align-items-center gap-2">
-                            <i className="bi bi-calendar3" style={{ color: themeColor }}></i>
-                            <span className="text-gray-900 font-inter fw-medium">{experience.date}</span>
-                        </div>
-                    </div>
-                    <div className="col-12 col-md-6 d-flex align-items-start gap-3 ps-md-4">
-                        <span className="text-muted font-inter fw-normal" style={{ minWidth: '80px' }}>Lugar</span>
-                        <div className="d-flex flex-column gap-1">
-                            <div className="d-flex align-items-center gap-2">
-                                <i className="bi bi-geo-alt-fill" style={{ color: themeColor }}></i>
-                                <span className="text-gray-900 font-inter fw-medium text-decoration-underline" style={{ cursor: 'pointer' }}>
-                                    {experience.location}
-                                </span>
-                            </div>
-                        </div>
+                    <div className="col-12 d-flex align-items-start gap-2 py-1">
+                        <i className="bi bi-file-text" style={{ color: themeColor, fontSize: '1.1rem', marginTop: '2px' }}></i>
+                        <span className="text-gray-900 font-inter fw-medium">
+                            {experienceData.excerpt || (experience.description.length > 220 ? `${experience.description.substring(0, 220)}...` : experience.description)}
+                        </span>
                     </div>
                 </div>
 
@@ -427,18 +447,38 @@ export default async function ExperienceDetailPage({ params }) {
 
                 {/* Location Box */}
                 <div className="mt-5 pt-4 border-top">
-                    <h2 className="font-inter fw-bold text-gray-900 mb-4" style={{ fontSize: '24px' }}>Ubicación y Contacto</h2>
-                    <ContactAndLocationWidget 
-                        service={{
-                            name: experience.fullLocation.name,
-                            address: experience.fullLocation.address,
-                            lat: experience.coords.lat,
-                            lng: experience.coords.lng,
-                            phones: experienceData?.phones || []
-                        }} 
-                        type="experiencia"
-                        showContact={false}
-                    />
+                    {(() => {
+                        const mapMarkers = placesWithActivities
+                          .map(place => {
+                            const matchingAddress = experienceData.addresses?.find(addr => addr.organization?.id === place.id);
+                            const placeLat = parseFloat(matchingAddress?.latitude) || parseFloat(place.addresses?.[0]?.latitude);
+                            const placeLng = parseFloat(matchingAddress?.longitude) || parseFloat(place.addresses?.[0]?.longitude);
+                            
+                            return {
+                              lat: placeLat,
+                              lng: placeLng,
+                              title: place.name,
+                              description: place.excerpt || place.description?.replace(/<[^>]*>?/gm, '')
+                            };
+                          })
+                          .filter(marker => !isNaN(marker.lat) && !isNaN(marker.lng));
+
+                        const finalMapMarkers = mapMarkers.length > 0 ? mapMarkers : [{
+                          lat: experience.coords.lat,
+                          lng: experience.coords.lng,
+                          title: experience.title,
+                          description: experience.location
+                        }];
+
+                        return (
+                          <GoogleMapViewer 
+                              markers={finalMapMarkers}
+                              type="experiencia"
+                              title={experience.title}
+                              height="450px"
+                          />
+                        );
+                    })()}
                 </div>
             </div>
           </div>

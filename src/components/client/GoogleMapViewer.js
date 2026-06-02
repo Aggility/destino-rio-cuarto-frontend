@@ -10,7 +10,7 @@ import React, { useEffect, useRef, useState } from 'react';
  * @param {string} title - Título del lugar
  * @param {string} type - Tipo (event, activity, etc) para el color del marcador
  */
-export default function GoogleMapViewer({ lat, lng, markers = [], title, type = 'service' }) {
+export default function GoogleMapViewer({ lat, lng, markers = [], title, type = 'service', height = '300px' }) {
   const mapRef = useRef(null);
   const [distance, setDistance] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -136,7 +136,7 @@ export default function GoogleMapViewer({ lat, lng, markers = [], title, type = 
   }, [points, isMobile, themeColor, title]);
 
   return (
-    <div className="position-relative w-100 rounded-4 overflow-hidden shadow-premium" style={{ height: '300px', border: '4px solid white' }}>
+    <div className="position-relative w-100 rounded-4 overflow-hidden shadow-premium" style={{ height: height, border: '4px solid white' }}>
       <div ref={mapRef} style={{ width: '100%', height: '100%' }} />
       
       {/* Etiqueta de distancia en Mobile */}
