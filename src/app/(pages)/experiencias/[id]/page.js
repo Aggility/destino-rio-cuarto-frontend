@@ -555,45 +555,7 @@ export default async function ExperienceDetailPage({ params }) {
           {/* RIGHT COLUMN: Sidebar (Recommendations) */}
           <div className="col-12 col-lg-4">
             <div>
-              {/* Donde Alojarme */}
-              <div className="p-4 rounded-4 mb-4 shadow-sm border" style={{ backgroundColor: '#f0f7ff' }}>
-                <h3 className="font-inter fw-bold text-listing-title mb-4" style={{ fontSize: '22px', color: '#1a56db' }}>Donde Alojarme</h3>
-                <div className="d-flex flex-column gap-3 mb-4">
-                    {finalAccommodation.map((item, idx) => {
-                        const displayName = item.name || item.title || 'Servicio';
-                        const displayAddress = item.addresses?.[0]?.address || item.address || 'Río Cuarto';
-                        const displayPhone = item.phone || 'Consultar contacto';
-                        const displayId = item.id || '';
 
-                        return (
-                            <Link href={displayId ? `/servicio/${displayId}` : '#'} key={idx} className="bg-white p-3 rounded-3 shadow-sm border position-relative text-decoration-none d-block transition-all hover-lift">
-                                <div className="d-flex justify-content-between align-items-start mb-2">
-                                    <p className="font-inter fw-bold text-gray-900 small mb-0">{displayName}</p>
-                                    <UserDistanceBadge 
-                                        targetLat={item.lat || item.addresses?.[0]?.latitude} 
-                                        targetLng={item.lng || item.addresses?.[0]?.longitude} 
-                                        staticDistance={item.distance} 
-                                        staticLabel={`de ${experience.location}`} 
-                                        theme={getOrgTheme(item)}
-                                    />
-                                </div>
-                                <div className="d-flex align-items-start gap-2 mb-1">
-                                    <i className="bi bi-geo-alt text-muted" style={{ fontSize: '12px' }}></i>
-                                    <span className="font-inter text-muted text-decoration-underline" style={{ fontSize: '12px' }}>{displayAddress}</span>
-                                </div>
-                                <div className="d-flex align-items-center gap-2">
-                                    <i className="bi bi-telephone text-muted" style={{ fontSize: '12px' }}></i>
-                                    <span className="font-inter text-muted" style={{ fontSize: '12px' }}>{displayPhone}</span>
-                                </div>
-                                <i className="bi bi-chevron-right position-absolute bottom-0 end-0 m-3 opacity-50"></i>
-                            </Link>
-                        );
-                    })}
-                </div>
-                <Link href="/servicios" className="btn btn-outline-primary w-100 py-2 font-inter fw-medium rounded-2 border-1-5 text-decoration-none d-flex justify-content-center" style={{ color: '#1a56db', borderColor: '#a4cafe' }}>
-                    Ver más
-                </Link>
-              </div>
 
               {/* Donde Comer */}
               <div className="p-4 rounded-4 mb-4 shadow-sm border" style={{ backgroundColor: '#f0f7ff' }}>
