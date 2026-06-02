@@ -331,29 +331,59 @@ export default async function ExperienceDetailPage({ params }) {
                       Lugares que incluye
                     </h2>
                     <div className="d-flex flex-column gap-4">
-                      {placesWithActivities.map((place) => (
-                        <div key={place.id} className="bg-light-subtle rounded-4 p-4 border border-light-subtle shadow-sm" style={{ border: '1px solid #e5e7eb', borderRadius: '12px' }}>
-                          <div className="row g-3 align-items-center">
-                            {place.cover && (
-                              <div className="col-12 col-md-3">
-                                <img
-                                  src={getThumbnail(place.cover, place.gallery)}
-                                  alt={place.name}
-                                  className="img-fluid rounded-3 w-100"
-                                  style={{ maxHeight: '140px', objectFit: 'cover' }}
-                                />
+                      {placesWithActivities.map((place) => {
+                        const matchingAddress = experienceData.addresses?.find(addr => addr.organization?.id === place.id);
+                        const placeLat = parseFloat(matchingAddress?.latitude) || parseFloat(place.addresses?.[0]?.latitude);
+                        const placeLng = parseFloat(matchingAddress?.longitude) || parseFloat(place.addresses?.[0]?.longitude);
+                        const hasCoords = !isNaN(placeLat) && !isNaN(placeLng);
+
+                        return (
+                          <div key={place.id} className="bg-light-subtle rounded-4 p-4 border border-light-subtle shadow-sm" style={{ border: '1px solid #e5e7eb', borderRadius: '12px' }}>
+                            <div className="row g-3 align-items-center">
+                              {place.cover && (
+                                <div className="col-12 col-md-3">
+                                  <img
+                                    src={getThumbnail(place.cover, place.gallery)}
+                                    alt={place.name}
+                                    className="img-fluid rounded-3 w-100"
+                                    style={{ maxHeight: '140px', objectFit: 'cover' }}
+                                  />
+                                </div>
+                              )}
+                              <div className={place.cover ? "col-12 col-md-9" : "col-12"}>
+                                <span className="badge font-inter fw-semibold mb-2" style={{ backgroundColor: themeColorLight, color: themeColor }}>Lugar</span>
+                                <h3 className="font-inter fw-bold text-gray-900 mb-2" style={{ fontSize: '20px' }}>
+                                  {place.name}
+                                </h3>
+                                <p className="text-muted small mb-0 font-inter">
+                                  {place.excerpt || place.description?.replace(/<[^>]*>?/gm, '')}
+                                </p>
+                                <div className="d-flex flex-wrap gap-2 mt-3">
+                                  {place.id && (
+                                    <Link 
+                                      href={`/servicio/${place.id}`}
+                                      className="btn shadow-premium d-inline-flex align-items-center gap-2 px-3 py-2 rounded-3 border-0 transition-all hover-lift text-decoration-none"
+                                      style={{ backgroundColor: themeColor, color: '#fff' }}
+                                    >
+                                      <span className="font-inter fw-semibold small">Ver más</span>
+                                      <i className="bi bi-info-circle-fill"></i>
+                                    </Link>
+                                  )}
+                                  {hasCoords && (
+                                    <a 
+                                      href={`https://www.google.com/maps/dir/?api=1&destination=${placeLat},${placeLng}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="btn shadow-premium d-inline-flex align-items-center gap-2 px-3 py-2 rounded-3 border-0 transition-all hover-lift text-decoration-none"
+                                      style={{ backgroundColor: themeColor, color: '#fff' }}
+                                    >
+                                      <span className="font-inter fw-semibold small">Cómo llegar</span>
+                                      <i className="bi bi-geo-alt-fill"></i>
+                                    </a>
+                                  )}
+                                </div>
                               </div>
-                            )}
-                            <div className={place.cover ? "col-12 col-md-9" : "col-12"}>
-                              <span className="badge font-inter fw-semibold mb-2" style={{ backgroundColor: themeColorLight, color: themeColor }}>Lugar</span>
-                              <h3 className="font-inter fw-bold text-gray-900 mb-2" style={{ fontSize: '20px' }}>
-                                {place.name}
-                              </h3>
-                              <p className="text-muted small mb-0 font-inter">
-                                {place.excerpt || place.description?.replace(/<[^>]*>?/gm, '')}
-                              </p>
                             </div>
-                          </div>
 
                           {/* Activities at this Place */}
                           {place.activities?.length > 0 && (
@@ -389,7 +419,8 @@ export default async function ExperienceDetailPage({ params }) {
                             </div>
                           )}
                         </div>
-                      ))}
+                      );
+                    })}
                     </div>
                   </div>
                 )}
