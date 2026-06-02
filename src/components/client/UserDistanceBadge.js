@@ -54,7 +54,34 @@ export default function UserDistanceBadge({
   };
 
   const getStyle = () => {
-    return { backgroundColor: '#1a56db', color: '#ffffff', fontSize: '10px', border: 'none' };
+    let color = '#1a56db'; // default blue
+    switch (theme) {
+      case 'orange':
+      case 'gastronomia':
+      case 'restaurant':
+      case 'restaurants':
+      case 'experiencia':
+      case 'experience':
+        color = '#ff5a1f';
+        break;
+      case 'pink':
+      case 'event':
+      case 'evento':
+        color = '#f54286';
+        break;
+      case 'purple':
+      case 'activity':
+      case 'actividad':
+        color = '#8a38f5';
+        break;
+      case 'blue':
+      case 'alojamiento':
+      case 'accommodation':
+      default:
+        color = '#1a56db';
+        break;
+    }
+    return { backgroundColor: color, color: '#ffffff', fontSize: '10px', border: 'none' };
   };
 
   // Si tenemos ubicación real del usuario

@@ -10,16 +10,27 @@ import React, { useEffect, useRef, useState } from 'react';
  * @param {string} title - Título del lugar
  * @param {string} type - Tipo (event, activity, etc) para el color del marcador
  */
-export default function GoogleMapViewer({ lat, lng, markers = [], title, type = 'service', height = '300px' }) {
+export default function GoogleMapViewer({ lat, lng, markers = [], title, type = 'service', height = '300px', allowExpand = true }) {
   const mapRef = useRef(null);
   const [distance, setDistance] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  // Bloquear scroll si el mapa está maximizado
+  useEffect(() => {
+    if (isExpanded) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isExpanded]);
 
   // Puntos a renderizar
   const points = markers.length > 0 ? markers : [{ lat, lng, title }];
 
-  // ... (rest of helper logic remains similar but iterating points)
-  
   const getThemeColor = () => {
     switch (type) {
       case 'event': return '#f54286';
@@ -136,38 +147,68 @@ export default function GoogleMapViewer({ lat, lng, markers = [], title, type = 
   }, [points, isMobile, themeColor, title]);
 
   return (
-    <div className="position-relative w-100 rounded-4 overflow-hidden shadow-premium" style={{ height: height, border: '4px solid white' }}>
-      <div ref={mapRef} style={{ width: '100%', height: '100%' }} />
-      
-      {/* Etiqueta de distancia en Mobile */}
-      {isMobile && distance && (
-        <div 
-          className="position-absolute top-0 end-0 m-3 px-3 py-2 rounded-pill shadow-sm d-flex align-items-center gap-2"
-          style={{ backgroundColor: 'rgba(255,255,255,0.95)', border: `1px solid ${themeColor}44`, zIndex: 10 }}
-        >
-          <i className="bi bi-geo-alt-fill" style={{ color: themeColor }}></i>
-          <span className="font-inter fw-bold text-dark" style={{ fontSize: '13px' }}>
-            A {distance} de vos
-          </span>
+    <>
+      <div 
+        className="position-relative w-100 rounded-4 overflow-hidden shadow-premium" 
+        style={{ height: height, border: '4px solid white', cursor: allowExpand ? 'pointer' : 'default' }}
+        onClick={allowExpand ? () => setIsExpanded(true) : undefined}
+      >
+        <div ref={mapRef} style={{ width: '100%', height: '100%' }} />
+        
+
+
+        {/* Botón Ver mapa completo / Expandir overlay */}
+        {allowExpand && (
+          <div 
+            className="position-absolute bottom-0 end-0 m-3 px-3 py-2 rounded-3 shadow-premium d-flex align-items-center gap-2"
+            style={{ 
+              background: 'rgba(255,255,255,0.95)', 
+              backdropFilter: 'blur(4px)',
+              color: themeColor,
+              fontSize: '13px',
+              fontWeight: '700',
+              zIndex: 10
+            }}
+          >
+            <i className="bi bi-arrows-angle-expand"></i>AMPLIAR MAPA
+          </div>
+        )}
+      </div>
+
+      {/* Popup de pantalla completa */}
+      {isExpanded && (
+        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column bg-white animate-fade-in" style={{ zIndex: 100000 }}>
+          {/* Header Map */}
+          <div className="d-flex align-items-center justify-content-between p-3 border-bottom shadow-sm bg-white position-relative" style={{ zIndex: 10 }}>
+            <div>
+              <h5 className="font-inter fw-bold m-0" style={{ letterSpacing: '-0.3px' }}>{title || 'Mapa de la Experiencia'}</h5>
+              <small className="text-muted font-inter"><i className="bi bi-map me-1"></i>Puntos incluidos en el recorrido</small>
+            </div>
+            <button className="btn btn-light rounded-circle shadow-sm" style={{ width: '40px', height: '40px' }} onClick={() => setIsExpanded(false)}>
+              <i className="bi bi-x-lg text-dark"></i>
+            </button>
+          </div>
+
+          {/* Map Area */}
+          <div className="flex-grow-1 p-2 bg-light position-relative">
+            <button 
+              className="position-absolute top-0 end-0 m-3 btn btn-light rounded-circle shadow-premium border-0 d-flex align-items-center justify-content-center" 
+              style={{ width: '44px', height: '44px', zIndex: 100005, backgroundColor: 'white' }} 
+              onClick={() => setIsExpanded(false)}
+              aria-label="Cerrar mapa"
+            >
+              <i className="bi bi-x-lg text-dark fs-5"></i>
+            </button>
+            <GoogleMapViewer 
+              markers={points} 
+              title={title} 
+              type={type} 
+              height="100%" 
+              allowExpand={false} 
+            />
+          </div>
         </div>
       )}
-
-      {/* Botón Abrir en Google Maps (Externo) */}
-      <a 
-        href={`https://www.google.com/maps/dir/?api=1&destination=${points[0].lat},${points[0].lng}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="position-absolute bottom-0 start-0 w-100 py-3 text-center text-decoration-none shadow-premium-subtle"
-        style={{ 
-          background: 'rgba(255,255,255,0.9)', 
-          backdropFilter: 'blur(4px)',
-          color: themeColor,
-          fontSize: '14px',
-          fontWeight: '700'
-        }}
-      >
-        <i className="bi bi-map-fill me-2"></i>CÓMO LLEGAR
-      </a>
-    </div>
+    </>
   );
 }

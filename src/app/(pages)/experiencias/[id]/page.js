@@ -221,8 +221,69 @@ export default async function ExperienceDetailPage({ params }) {
     distance: getDistance(experience.coords.lat, experience.coords.lng, parseFloat(item.lat || item.addresses?.[0]?.latitude), parseFloat(item.lng || item.addresses?.[0]?.longitude))
   });
 
-  const finalAccommodation = accommodation.slice(0, 2).map(computeDist);
-  const finalRestaurants = restaurants.slice(0, 2).map(computeDist);
+  const fallbackAccommodation = [
+    { name: 'AMERIAN RÍO CUARTO APART & SUITES', address: 'AV. GUILLERMO MARCONI 771', phone: '08108102637', lat: -33.1235, lng: -64.3486 },
+    { name: 'Colores Rio Cuarto', address: 'Caseros 1012, Río Cuarto', phone: '3584225286', lat: -33.1260, lng: -64.3460 }
+  ];
+
+  const fallbackRestaurants = [
+    { name: 'Abriles El Andino', address: 'Bv. General Roca 1020, Río Cuarto', phone: '0358 548-3882', lat: -33.1362, lng: -64.3470 },
+    { name: 'Al Dente Tradición Familiar', address: 'Fray Quirico Porreca 547, Río Cuarto', phone: '+54 9 358 425-5129', lat: -33.1110, lng: -64.3315 }
+  ];
+
+  const fallbackSuggestedPlaces = [
+    { name: 'Plaza Roca', address: 'Colón 202, Río Cuarto, Córdoba', phone: 'Consultar contacto', lat: -33.1232, lng: -64.3493 },
+    { name: 'Parque Ecológico Urbano', address: 'Río Cuarto, Córdoba', phone: 'Consultar contacto', lat: -33.1022, lng: -64.3293 }
+  ];
+
+  const finalAccommodation = accommodation.length > 0 
+    ? accommodation.slice(0, 2).map(computeDist) 
+    : fallbackAccommodation.map(computeDist);
+    
+  const finalRestaurants = restaurants.length > 0 
+    ? restaurants.slice(0, 2).map(computeDist) 
+    : fallbackRestaurants.map(computeDist);
+
+  const suggestedPlaces = nearbyServices.filter(s => 
+    !s.categories?.some(c => {
+      const name = c.name.toLowerCase();
+      return name.includes('alojamiento') || name.includes('hotel') || name.includes('dormir') || name.includes('hospedaje') ||
+             name.includes('gastronomía') || name.includes('comer') || name.includes('restaurante') || name.includes('bar');
+    })
+  );
+  
+  const finalSuggestedPlaces = suggestedPlaces.length > 0 
+    ? suggestedPlaces.slice(0, 2).map(computeDist) 
+    : fallbackSuggestedPlaces.map(computeDist);
+
+  const getOrgTheme = (org) => {
+    if (!org || !org.categories) return 'blue';
+    const isLodging = org.categories.some(c => {
+      const name = c.name?.toLowerCase() || '';
+      return name.includes('alojamiento') || name.includes('hotel') || name.includes('dormir') || name.includes('hospedaje');
+    });
+    if (isLodging) return 'blue';
+
+    const isFood = org.categories.some(c => {
+      const name = c.name?.toLowerCase() || '';
+      return name.includes('gastronomía') || name.includes('comer') || name.includes('restaurante') || name.includes('bar');
+    });
+    if (isFood) return 'orange';
+
+    const isEvent = org.categories.some(c => {
+      const name = c.name?.toLowerCase() || '';
+      return name.includes('evento') || name.includes('festival') || name.includes('recital');
+    });
+    if (isEvent) return 'pink';
+
+    const isActivity = org.categories.some(c => {
+      const name = c.name?.toLowerCase() || '';
+      return name.includes('actividad') || name.includes('recorrido') || name.includes('paseo') || name.includes('turismo');
+    });
+    if (isActivity) return 'purple';
+
+    return 'blue';
+  };
 
   // 4. Obtener lugares incluidos en la experiencia actual y sus actividades relacionadas
   const includedPlaces = experienceData.addresses
@@ -348,7 +409,7 @@ export default async function ExperienceDetailPage({ params }) {
                 {placesWithActivities.length > 0 && (
                   <div className="mt-5 pt-4 border-top">
                     <h2 className="font-inter fw-bold text-gray-900 mb-4" style={{ fontSize: '24px' }}>
-                      Lugares que incluye
+                      Lugares que Incluye la Experiencia
                     </h2>
                     <div className="d-flex flex-column gap-4">
                       {placesWithActivities.map((place) => {
@@ -378,14 +439,14 @@ export default async function ExperienceDetailPage({ params }) {
                                 <p className="text-muted small mb-0 font-inter">
                                   {place.excerpt || place.description?.replace(/<[^>]*>?/gm, '')}
                                 </p>
-                                <div className="d-flex flex-wrap gap-2 mt-3">
+                                <div className="d-flex align-items-center gap-2 mt-3">
                                   {place.id && (
                                     <Link 
                                       href={`/servicio/${place.id}`}
                                       className="btn shadow-premium d-inline-flex align-items-center gap-2 px-3 py-2 rounded-3 border-0 transition-all hover-lift text-decoration-none"
                                       style={{ backgroundColor: themeColor, color: '#fff' }}
                                     >
-                                      <span className="font-inter fw-semibold small">Ver más</span>
+                                      <span className="font-inter fw-semibold small d-none d-md-inline">Ver más</span>
                                       <i className="bi bi-info-circle-fill"></i>
                                     </Link>
                                   )}
@@ -397,7 +458,7 @@ export default async function ExperienceDetailPage({ params }) {
                                       className="btn shadow-premium d-inline-flex align-items-center gap-2 px-3 py-2 rounded-3 border-0 transition-all hover-lift text-decoration-none"
                                       style={{ backgroundColor: themeColor, color: '#fff' }}
                                     >
-                                      <span className="font-inter fw-semibold small">Cómo llegar</span>
+                                      <span className="font-inter fw-semibold small d-none d-md-inline">Cómo llegar</span>
                                       <i className="bi bi-geo-alt-fill"></i>
                                     </a>
                                   )}
@@ -505,7 +566,7 @@ export default async function ExperienceDetailPage({ params }) {
                                         targetLng={item.lng || item.addresses?.[0]?.longitude} 
                                         staticDistance={item.distance} 
                                         staticLabel={`de ${experience.location}`} 
-                                        theme="blue"
+                                        theme={getOrgTheme(item)}
                                     />
                                 </div>
                                 <div className="d-flex align-items-start gap-2 mb-1">
@@ -527,7 +588,7 @@ export default async function ExperienceDetailPage({ params }) {
               </div>
 
               {/* Donde Comer */}
-              <div className="p-4 rounded-4 shadow-sm border" style={{ backgroundColor: '#f0f7ff' }}>
+              <div className="p-4 rounded-4 mb-4 shadow-sm border" style={{ backgroundColor: '#f0f7ff' }}>
                 <h3 className="font-inter fw-bold text-listing-title mb-4" style={{ fontSize: '22px', color: '#1a56db' }}>Donde Comer</h3>
                 <div className="d-flex flex-column gap-3 mb-4">
                     {finalRestaurants.map((item, idx) => {
@@ -545,7 +606,7 @@ export default async function ExperienceDetailPage({ params }) {
                                         targetLng={item.lng || item.addresses?.[0]?.longitude} 
                                         staticDistance={item.distance} 
                                         staticLabel={`de ${experience.location}`} 
-                                        theme="orange"
+                                        theme={getOrgTheme(item)}
                                     />
                                 </div>
                                 <div className="d-flex align-items-start gap-2 mb-1">
@@ -561,6 +622,46 @@ export default async function ExperienceDetailPage({ params }) {
                         );
                     })}
                 </div>
+
+                {/* Lugares sugeridos (dentro de Donde Comer) */}
+                {finalSuggestedPlaces.length > 0 && (
+                  <div className="mt-4 pt-4 border-top" style={{ borderColor: '#d0e1fd' }}>
+                    <h3 className="font-inter fw-bold text-listing-title mb-4" style={{ fontSize: '22px', color: '#1a56db' }}>Lugares sugeridos</h3>
+                    <div className="d-flex flex-column gap-3 mb-4">
+                        {finalSuggestedPlaces.map((item, idx) => {
+                            const displayName = item.name || item.title || 'Lugar';
+                            const displayAddress = item.addresses?.[0]?.address || item.address || 'Río Cuarto';
+                            const displayPhone = item.phone || 'Consultar contacto';
+                            const displayId = item.id || '';
+
+                            return (
+                                <Link href={displayId ? `/servicio/${displayId}` : '#'} key={idx} className="bg-white p-3 rounded-3 shadow-sm border position-relative text-decoration-none d-block transition-all hover-lift">
+                                     <div className="d-flex justify-content-between align-items-start mb-2">
+                                        <p className="font-inter fw-bold text-gray-900 small mb-0">{displayName}</p>
+                                        <UserDistanceBadge 
+                                            targetLat={item.lat || item.addresses?.[0]?.latitude} 
+                                            targetLng={item.lng || item.addresses?.[0]?.longitude} 
+                                            staticDistance={item.distance} 
+                                            staticLabel={`de ${experience.location}`} 
+                                            theme={getOrgTheme(item)}
+                                        />
+                                    </div>
+                                    <div className="d-flex align-items-start gap-2 mb-1">
+                                        <i className="bi bi-geo-alt text-muted" style={{ fontSize: '12px' }}></i>
+                                        <span className="font-inter text-muted text-decoration-underline" style={{ fontSize: '12px' }}>{displayAddress}</span>
+                                    </div>
+                                    <div className="d-flex align-items-center gap-2">
+                                        <i className="bi bi-telephone text-muted" style={{ fontSize: '12px' }}></i>
+                                        <span className="font-inter text-muted" style={{ fontSize: '12px' }}>{displayPhone}</span>
+                                    </div>
+                                    <i className="bi bi-chevron-right position-absolute bottom-0 end-0 m-3 opacity-50"></i>
+                                </Link>
+                            );
+                        })}
+                    </div>
+                  </div>
+                )}
+
                 <Link href="/servicios" className="btn btn-outline-primary w-100 py-2 font-inter fw-medium rounded-2 border-1-5 text-decoration-none d-flex justify-content-center" style={{ color: '#1a56db', borderColor: '#a4cafe' }}>
                     Ver más
                 </Link>
