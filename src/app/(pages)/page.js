@@ -61,6 +61,7 @@ export default async function Home() {
     }
     return {
       id: evt.id,
+      slug: evt.slug,
       title: evt.title,
       date: dateStr,
       location: evt.organization?.name || 'A confirmar',
@@ -148,6 +149,7 @@ export default async function Home() {
               <div key={item.id} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)', scrollSnapAlign: 'start' }}>
                   <ActivityCard 
                       id={item.id}
+                      slug={item.slug}
                       title={item.title}
                       time={timeBadge}
                       address={address}
@@ -194,6 +196,7 @@ export default async function Home() {
               <div key={exp.id} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)', scrollSnapAlign: 'start' }}>
                   <EventCard 
                       id={exp.id}
+                      slug={exp.slug}
                       title={exp.title || 'Sin título'}
                       date={timeBadge}
                       location={location}

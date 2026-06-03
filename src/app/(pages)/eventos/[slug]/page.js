@@ -17,17 +17,36 @@ import EventCard from '@/components/server/EventCard';
  * Implementa la vista detallada de un evento con sugerencias basadas en cercanía (Haversine).
  */
 export default async function EventDetailPage({ params }) {
-  const { id } = await params;
+  const { slug } = await params;
   
   // 1. Obtener datos del evento desde la API
   let eventData = null;
-  try {
-    const res = await fetch(`http://destbackdev.aggility.io/api/v1/events/${id}`, { cache: 'no-store' });
-    if (res.ok) {
-       eventData = (await res.json()).data;
+  const isNumeric = /^\d+$/.test(slug);
+
+  if (isNumeric) {
+    try {
+      const res = await fetch(`http://destbackdev.aggility.io/api/v1/events/${slug}`, { cache: 'no-store' });
+      if (res.ok) {
+         eventData = (await res.json()).data;
+      }
+    } catch (err) {
+      console.error("Error fetching event by ID:", err);
     }
-  } catch (err) {
-    console.error("Error fetching event:", err);
+  }
+
+  if (!eventData) {
+    try {
+      const res = await fetch(`http://destbackdev.aggility.io/api/v1/events?slug=${slug}`, { cache: 'no-store' });
+      if (res.ok) {
+         const json = await res.json();
+         const list = json.data || json;
+         if (Array.isArray(list) && list.length > 0) {
+           eventData = list[0];
+         }
+      }
+    } catch (err) {
+      console.error("Error fetching event by slug:", err);
+    }
   }
 
   // 2. Fallback y formateo del evento (Mock si falla API)
@@ -61,7 +80,7 @@ export default async function EventDetailPage({ params }) {
     const resEvents = await fetch(`http://destbackdev.aggility.io/api/v1/events?per_page=50`, { cache: 'no-store' });
     if (resEvents.ok) {
       const eventsData = await resEvents.json();
-      const allEvents = (eventsData.data || []).filter(e => String(e.id) !== String(id));
+      const allEvents = (eventsData.data || []).filter(e => String(e.id) !== String(event.id));
       // Mezclar aleatoriamente con Fisher-Yates
       for (let i = allEvents.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -77,6 +96,7 @@ export default async function EventDetailPage({ params }) {
 
         return {
           id: e.id,
+          slug: e.slug,
           title: e.title || 'Evento',
           date: e.calendars?.[0]?.start_date
             ? new Date(e.calendars[0].start_date).toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' })
@@ -296,13 +316,14 @@ export default async function EventDetailPage({ params }) {
                 <h3 className="font-inter fw-bold text-listing-title mb-4" style={{ fontSize: '22px', color: '#1a56db' }}>Donde alojarme</h3>
                 <div className="d-flex flex-column gap-3 mb-4">
                     {finalAccommodation.map((item, idx) => {
+                        const displayId = item.slug || item.id || '';
+                        const displayLink = displayId ? `/servicio/${displayId}` : '#';
                         const displayName = item.name || item.title || 'Servicio';
                         const displayAddress = item.addresses?.[0]?.address || item.address || 'Río Cuarto';
                         const displayPhone = item.phone || 'Consultar contacto';
-                        const displayId = item.id || '';
 
                         return (
-                            <Link href={displayId ? `/servicio/${displayId}` : '#'} key={idx} className="bg-white p-3 rounded-3 shadow-sm border position-relative text-decoration-none d-block transition-all hover-lift">
+                            <Link href={displayLink} key={idx} className="bg-white p-3 rounded-3 shadow-sm border position-relative text-decoration-none d-block transition-all hover-lift">
                                 <div className="d-flex justify-content-between align-items-start mb-2">
                                     <p className="font-inter fw-bold text-gray-900 small mb-0">{displayName}</p>
                                     <UserDistanceBadge 
@@ -336,13 +357,14 @@ export default async function EventDetailPage({ params }) {
                 <h3 className="font-inter fw-bold text-listing-title mb-4" style={{ fontSize: '22px', color: '#1a56db' }}>Donde comer</h3>
                 <div className="d-flex flex-column gap-3 mb-4">
                     {finalRestaurants.map((item, idx) => {
+                        const displayId = item.slug || item.id || '';
+                        const displayLink = displayId ? `/servicio/${displayId}` : '#';
                         const displayName = item.name || item.title || 'Restaurante';
                         const displayAddress = item.addresses?.[0]?.address || item.address || 'Río Cuarto';
                         const displayPhone = item.phone || 'Consultar contacto';
-                        const displayId = item.id || '';
 
                         return (
-                            <Link href={displayId ? `/servicio/${displayId}` : '#'} key={idx} className="bg-white p-3 rounded-3 shadow-sm border position-relative text-decoration-none d-block transition-all hover-lift">
+                            <Link href={displayLink} key={idx} className="bg-white p-3 rounded-3 shadow-sm border position-relative text-decoration-none d-block transition-all hover-lift">
                                  <div className="d-flex justify-content-between align-items-start mb-2">
                                     <p className="font-inter fw-bold text-gray-900 small mb-0">{displayName}</p>
                                     <UserDistanceBadge 

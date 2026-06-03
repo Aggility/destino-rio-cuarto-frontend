@@ -27,6 +27,7 @@ export default async function ServiciosPage() {
 
   const formattedServices = apiServices.map((org) => ({
     id: org.id,
+    slug: org.slug,
     title: org.name,
     category: org.categories?.[0]?.name || 'Servicio',
     address: org.addresses?.[0]?.address?.split(',')[0] || 'Río Cuarto',
@@ -79,7 +80,7 @@ export default async function ServiciosPage() {
                         badge={s.category}
                         type="service"
                         thumbnail={s.thumbnail || localThumbnail}
-                        href={`/servicio/${s.id}`}
+                        href={`/servicio/${s.slug || s.id}`}
                         lat={s.lat}
                         lng={s.lng}
                       />

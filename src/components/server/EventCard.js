@@ -9,6 +9,7 @@ import EventImageWithFallback from '@/components/client/EventImageWithFallback';
  */
 export default function EventCard({ 
   id = "1",
+  slug,
   title = "Título", 
   date = "", 
   location = "Lugar no especificado", 
@@ -21,7 +22,7 @@ export default function EventCard({
   basePath = "eventos"
 }) {
   return (
-    <Link href={`/${basePath}/${id}`} className="text-decoration-none d-block h-100">
+    <Link href={`/${basePath}/${slug || id}`} className="text-decoration-none d-block h-100">
       <div className="card h-100 border-0 bg-transparent shadow-none w-100 overflow-hidden" style={{ minWidth: 0 }}>
         
         {/* 1. Header (Thumbnail & Tag) — Figma ID I3781:19227;3389:3472 */}

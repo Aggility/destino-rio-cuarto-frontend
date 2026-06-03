@@ -11,17 +11,35 @@ import { getThumbnail } from '@/utils/image';
  * Basado en los diseños de Macro Eventos (Day-by-Day Agenda)
  */
 export default async function MacroEventoPage({ params }) {
-  const { id } = await params;
+  const { slug } = await params;
   let frameworkData = null;
+  const isNumeric = /^\d+$/.test(slug);
 
-  try {
-    const res = await fetch(`https://destbackdev.aggility.io/api/v1/event-frameworks/${id}`, { cache: 'no-store' });
-    if (res.ok) {
-      const json = await res.json();
-      frameworkData = json.data || json;
+  if (isNumeric) {
+    try {
+      const res = await fetch(`https://destbackdev.aggility.io/api/v1/event-frameworks/${slug}`, { cache: 'no-store' });
+      if (res.ok) {
+        const json = await res.json();
+        frameworkData = json.data || json;
+      }
+    } catch (err) {
+      console.error('Error fetching event-framework by ID:', err);
     }
-  } catch (err) {
-    console.error('Error fetching event-framework:', err);
+  }
+
+  if (!frameworkData) {
+    try {
+      const res = await fetch(`https://destbackdev.aggility.io/api/v1/event-frameworks?slug=${slug}`, { cache: 'no-store' });
+      if (res.ok) {
+        const json = await res.json();
+        const list = json.data || json;
+        if (Array.isArray(list) && list.length > 0) {
+          frameworkData = list[0];
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching event-framework by slug:', err);
+    }
   }
 
   if (!frameworkData) {

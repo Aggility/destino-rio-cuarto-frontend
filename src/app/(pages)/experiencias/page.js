@@ -54,6 +54,7 @@ export default async function ExperiencesPage() {
 
     return {
       id: p.id,
+      slug: p.slug,
       title: p.title || 'Sin título',
       category: categoryName,
       description: p.description

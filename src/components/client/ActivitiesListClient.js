@@ -148,6 +148,7 @@ export default function ActivitiesListClient({ initialActivities = [], categorie
                 <EventCard
                   key={act.id}
                   id={act.id}
+                  slug={act.slug}
                   title={act.title}
                   date={act.time}
                   location={act.address}

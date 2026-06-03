@@ -30,6 +30,7 @@ export default function EventsListClient({ initialEvents }) {
 
     return {
       id: evt.id,
+      slug: evt.slug,
       title: evt.title,
       date: dateStr,
       location: evt.organization?.name || 'Ubicación a confirmar',
@@ -246,6 +247,7 @@ export default function EventsListClient({ initialEvents }) {
                 <EventCard 
                   key={idx}
                   id={event.id}
+                  slug={event.slug}
                   title={event.title}
                   date={event.date}
                   location={event.location}

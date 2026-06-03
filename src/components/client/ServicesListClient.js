@@ -43,6 +43,7 @@ export default function ServicesListClient({ initialServices, leftoverFromFirstP
   // Función para formatear datos de la API
   const formatOrg = (org) => ({
     id: org.id,
+    slug: org.slug,
     title: org.name,
     category: org.categories?.[0]?.name || 'Servicio',
     address: org.addresses?.[0]?.address?.split(',')[0] || 'Río Cuarto',
@@ -269,6 +270,7 @@ export default function ServicesListClient({ initialServices, leftoverFromFirstP
               <ServiceListItem 
                 key={service.id || idx}
                 id={service.id}
+                slug={service.slug}
                 title={service.title}
                 category={service.category}
                 address={service.address}

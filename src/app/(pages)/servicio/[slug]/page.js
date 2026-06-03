@@ -14,17 +14,36 @@ import { getThumbnail } from '@/utils/image';
  * Vista individual de una Organización/Servicio basada en los mocks "Organización - Desktop" y "Organización Ejemplo - Mobile"
  */
 export default async function ServicioDetailPage({ params }) {
-  const { id } = await params;
+  const { slug } = await params;
   
   // 1. Obtener datos de la organización desde la API
   let orgData = null;
-  try {
-    const res = await fetch(`http://destbackdev.aggility.io/api/v1/organizations/${id}`, { cache: 'no-store' });
-    if (res.ok) {
-       orgData = (await res.json()).data;
+  const isNumeric = /^\d+$/.test(slug);
+
+  if (isNumeric) {
+    try {
+      const res = await fetch(`http://destbackdev.aggility.io/api/v1/organizations/${slug}`, { cache: 'no-store' });
+      if (res.ok) {
+         orgData = (await res.json()).data;
+      }
+    } catch (err) {
+      console.error("Error fetching organization by ID:", err);
     }
-  } catch (err) {
-    console.error("Error fetching organization:", err);
+  }
+
+  if (!orgData) {
+    try {
+      const res = await fetch(`http://destbackdev.aggility.io/api/v1/organizations?slug=${slug}`, { cache: 'no-store' });
+      if (res.ok) {
+         const json = await res.json();
+         const list = json.data || json;
+         if (Array.isArray(list) && list.length > 0) {
+           orgData = list[0];
+         }
+      }
+    } catch (err) {
+      console.error("Error fetching organization by slug:", err);
+    }
   }
 
   // 2. Mapeo de datos (Fallback por si falla la API o faltan datos)
@@ -75,7 +94,7 @@ export default async function ServicioDetailPage({ params }) {
             thumbnail: getThumbnail(ev.cover, ev.gallery),
             lat: ev.lat,
             lng: ev.lng,
-            href: `/eventos/${ev.id}`
+            href: `/eventos/${ev.slug || ev.id}`
           }));
     }
 
@@ -91,6 +110,7 @@ export default async function ServicioDetailPage({ params }) {
           .slice(0, 4)
           .map(org => ({
             id: org.id,
+            slug: org.slug,
             title: org.name,
             category: org.categories?.[0]?.name || 'Servicio',
             address: org.addresses?.[0]?.address?.split(',')[0] || 'Río Cuarto',
@@ -190,6 +210,7 @@ export default async function ServicioDetailPage({ params }) {
                             <div className="col-12 col-md-6" key={i}>
                                 <ServiceListItem 
                                     id={rs.id}
+                                    slug={rs.slug}
                                     title={rs.title}
                                     category={rs.category}
                                     address={rs.address}

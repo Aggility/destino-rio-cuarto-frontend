@@ -148,6 +148,7 @@ export default function ExperiencesListClient({ initialActivities = [], categori
                 <EventCard
                   key={act.id}
                   id={act.id}
+                  slug={act.slug}
                   title={act.title}
                   date={act.time}
                   location={act.address}

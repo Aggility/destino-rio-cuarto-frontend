@@ -17,19 +17,38 @@ import EventCard from '@/components/server/EventCard';
  * Implementa la vista detallada de una experiencia alineada con el diseño de Figma.
  */
 export default async function ExperienceDetailPage({ params }) {
-  const { id } = await params;
+  const { slug } = await params;
   const themeColor = '#ff5a1f';
   const themeColorLight = '#fff7ed';
   
   // 1. Obtener datos de la experiencia desde la API
   let experienceData = null;
-  try {
-    const res = await fetch(`https://destbackdev.aggility.io/api/v1/proposals/${id}`, { cache: 'no-store' });
-    if (res.ok) {
-       experienceData = (await res.json()).data || (await res.json());
+  const isNumeric = /^\d+$/.test(slug);
+
+  if (isNumeric) {
+    try {
+      const res = await fetch(`https://destbackdev.aggility.io/api/v1/proposals/${slug}`, { cache: 'no-store' });
+      if (res.ok) {
+         experienceData = (await res.json()).data || (await res.json());
+      }
+    } catch (err) {
+      console.error("Error fetching proposal by ID:", err);
     }
-  } catch (err) {
-    console.error("Error fetching proposal:", err);
+  }
+
+  if (!experienceData) {
+    try {
+      const res = await fetch(`https://destbackdev.aggility.io/api/v1/proposals?slug=${slug}`, { cache: 'no-store' });
+      if (res.ok) {
+         const json = await res.json();
+         const list = json.data || json;
+         if (Array.isArray(list) && list.length > 0) {
+           experienceData = list[0];
+         }
+      }
+    } catch (err) {
+      console.error("Error fetching proposal by slug:", err);
+    }
   }
 
   if (!experienceData) {
@@ -123,7 +142,7 @@ export default async function ExperienceDetailPage({ params }) {
       const actsData = await resActs.json();
       allProposals = Array.isArray(actsData) ? actsData : actsData.data || [];
       const allActs = allProposals
-        .filter(e => String(e.id) !== String(id) && e.status?.toLowerCase() !== 'inactive');
+        .filter(e => String(e.id) !== String(experience.id) && e.status?.toLowerCase() !== 'inactive');
         
       const currentLoc = experience.location.toLowerCase();
       const sameLocationActs = allActs.filter(e => {
@@ -166,6 +185,7 @@ export default async function ExperienceDetailPage({ params }) {
 
         return {
           id: e.id,
+          slug: e.slug,
           title: e.title || 'Experiencia',
           date: tBadge,
           location: addr,
@@ -450,7 +470,7 @@ export default async function ExperienceDetailPage({ params }) {
                                 <div className="d-flex align-items-center gap-2 mt-3">
                                   {place.id && (
                                     <Link 
-                                      href={`/servicio/${place.id}`}
+                                      href={`/servicio/${place.slug || place.id}`}
                                       className="btn shadow-premium d-inline-flex align-items-center gap-2 px-3 py-2 rounded-3 border-0 transition-all hover-lift text-decoration-none"
                                       style={{ backgroundColor: themeColor, color: '#fff' }}
                                     >
@@ -562,13 +582,14 @@ export default async function ExperienceDetailPage({ params }) {
                 <h3 className="font-inter fw-bold text-listing-title mb-4" style={{ fontSize: '22px', color: '#1a56db' }}>Donde Comer</h3>
                 <div className="d-flex flex-column gap-3 mb-4">
                     {finalRestaurants.map((item, idx) => {
+                        const displayId = item.slug || item.id || '';
+                        const displayLink = displayId ? `/servicio/${displayId}` : '#';
                         const displayName = item.name || item.title || 'Restaurante';
                         const displayAddress = item.addresses?.[0]?.address || item.address || 'Río Cuarto';
                         const displayPhone = item.phone || 'Consultar contacto';
-                        const displayId = item.id || '';
 
                         return (
-                            <Link href={displayId ? `/servicio/${displayId}` : '#'} key={idx} className="bg-white p-3 rounded-3 shadow-sm border position-relative text-decoration-none d-block transition-all hover-lift">
+                            <Link href={displayLink} key={idx} className="bg-white p-3 rounded-3 shadow-sm border position-relative text-decoration-none d-block transition-all hover-lift">
                                  <div className="d-flex justify-content-between align-items-start mb-2">
                                     <p className="font-inter fw-bold text-gray-900 small mb-0">{displayName}</p>
                                     <UserDistanceBadge 
@@ -599,13 +620,14 @@ export default async function ExperienceDetailPage({ params }) {
                     <h3 className="font-inter fw-bold text-listing-title mb-4" style={{ fontSize: '22px', color: '#1a56db' }}>Lugares sugeridos</h3>
                     <div className="d-flex flex-column gap-3 mb-4">
                         {finalSuggestedPlaces.map((item, idx) => {
+                            const displayId = item.slug || item.id || '';
+                            const displayLink = displayId ? `/servicio/${displayId}` : '#';
                             const displayName = item.name || item.title || 'Lugar';
                             const displayAddress = item.addresses?.[0]?.address || item.address || 'Río Cuarto';
                             const displayPhone = item.phone || 'Consultar contacto';
-                            const displayId = item.id || '';
 
                             return (
-                                <Link href={displayId ? `/servicio/${displayId}` : '#'} key={idx} className="bg-white p-3 rounded-3 shadow-sm border position-relative text-decoration-none d-block transition-all hover-lift">
+                                <Link href={displayLink} key={idx} className="bg-white p-3 rounded-3 shadow-sm border position-relative text-decoration-none d-block transition-all hover-lift">
                                      <div className="d-flex justify-content-between align-items-start mb-2">
                                         <p className="font-inter fw-bold text-gray-900 small mb-0">{displayName}</p>
                                         <UserDistanceBadge 

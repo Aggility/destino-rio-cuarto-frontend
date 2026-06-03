@@ -63,6 +63,7 @@ export default async function EventsPage() {
 
     return {
       id: evt.id,
+      slug: evt.slug,
       title: evt.title,
       date: dateStr,
       location: evt.organization?.name || 'Ubicación a confirmar',
@@ -117,7 +118,7 @@ export default async function EventsPage() {
       location: fw.organization?.name || fw.location || 'Río Cuarto',
       // Portada del slider: imagen grande
       thumbnail,
-      href: `/macro-evento/${fw.id}`,
+      href: `/macro-evento/${fw.slug || fw.id}`,
     };
   });
 
@@ -145,7 +146,7 @@ export default async function EventsPage() {
       time: timeStr,
       location: evt.organization?.name || 'Río Cuarto',
       thumbnail,
-      href: `/eventos/${evt.id}`,
+      href: `/eventos/${evt.slug || evt.id}`,
     };
   });
 

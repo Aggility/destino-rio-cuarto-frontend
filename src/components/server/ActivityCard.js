@@ -9,6 +9,7 @@ import EventImageWithFallback from '@/components/client/EventImageWithFallback';
  */
 export default function ActivityCard({
   id = "1",
+  slug,
   title = "Título de la Actividad",
   time = "10:00 hs",
   address = "Dirección no especificada",
@@ -18,7 +19,7 @@ export default function ActivityCard({
   type = "actividades"
 }) {
   return (
-    <Link href={`/${type}/${id}`} className="text-decoration-none text-reset h-100 d-block">
+    <Link href={`/${type}/${slug || id}`} className="text-decoration-none text-reset h-100 d-block">
       <div className="activity-card bg-white border border-light-subtle rounded-3 overflow-hidden transition-all hover-lift h-100" 
            style={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}>
         

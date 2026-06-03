@@ -11,6 +11,7 @@ import EventImageWithFallback from '@/components/client/EventImageWithFallback';
  */
 export default function ServiceListItem({ 
   id,
+  slug,
   title = "Nombre del Servicio", 
   category = "Categoría", 
   address = "Dirección no especificada", 
@@ -30,7 +31,7 @@ export default function ServiceListItem({
          }}>
       
       {/* WRAP CONTENT IN LINK */}
-      <Link href={id ? `/servicio/${id}` : "#"} className="text-decoration-none text-reset">
+      <Link href={slug ? `/servicio/${slug}` : (id ? `/servicio/${id}` : "#")} className="text-decoration-none text-reset">
         {/* 1. HEADER ROW (Layout mixto) */}
         <div className="d-flex align-items-start justify-content-between gap-3 w-100 mb-2">
         
