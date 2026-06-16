@@ -29,15 +29,20 @@ export default async function CalendarPage() {
     console.error("Calendar: Error fetching events", err);
   }
 
-  // 2. Normalizar eventos para el cliente
-  const formattedEvents = allEvents.map(evt => ({
-    id: evt.id,
-    title: evt.title,
-    date_raw: evt.calendars?.[0]?.start_date,
-    calendars: evt.calendars,
-    image_url: getThumbnail(evt.cover, evt.gallery),
-    thumbnail: getThumbnail(evt.cover, evt.gallery)
-  }));
+  // 2. Normalizar y ordenar: más próximos primero (start_date asc)
+  const formattedEvents = allEvents
+    .filter(evt => evt.calendars?.[0]?.start_date)
+    .sort((a, b) =>
+      new Date(a.calendars[0].start_date) - new Date(b.calendars[0].start_date)
+    )
+    .map(evt => ({
+      id:        evt.id,
+      title:     evt.title,
+      date_raw:  evt.calendars?.[0]?.start_date,
+      calendars: evt.calendars,
+      image_url: getThumbnail(evt.cover, evt.gallery),
+      thumbnail: getThumbnail(evt.cover, evt.gallery),
+    }));
 
   return (
     <div className="calendar-page-container">

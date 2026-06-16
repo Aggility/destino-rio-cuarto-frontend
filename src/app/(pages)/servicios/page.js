@@ -14,12 +14,13 @@ export default async function ServiciosPage() {
   let apiServices = [];
   try {
     // Fetch initial data from the API
-    const res = await fetch('http://destbackdev.aggility.io/api/v1/organizations?page=1', { cache: 'no-store' });
+    const res = await fetch('http://destbackdev.aggility.io/api/v1/organizations?per_page=500', { cache: 'no-store' });
     if (res.ok) {
       const data = await res.json();
       apiServices = data.data || (Array.isArray(data) ? data : []);
-      // Filtramos servicios inactivos
-      apiServices = apiServices.filter(org => org.status?.toLowerCase() !== 'inactive');
+      apiServices = apiServices
+        .filter(org => org.status?.toLowerCase() !== 'inactive')
+        .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
     }
   } catch (error) {
     console.error("Error fetching organizations API: ", error);

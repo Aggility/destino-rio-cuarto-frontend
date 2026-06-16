@@ -3,234 +3,254 @@ import Link from 'next/link';
 import HeroHome from '@/components/server/HeroHome';
 import EventCard from '@/components/server/EventCard';
 import ActivityCard from '@/components/server/ActivityCard';
+
 import HomeSectionSlider from '@/components/client/HomeSectionSlider';
 import { getThumbnail } from '@/utils/image';
 
 /**
- * Home - Destino Río Cuarto (Home V2 Fidelity)
- * Sincronizado con Figma ID 3781:19219
- * Optimizado para Mobile y Desktop.
+ * Home - Destino Río Cuarto
+ * Usa el endpoint unificado /api/v1/home que devuelve en un solo request:
+ *   - featured_events
+ *   - suggested_experiences
+ *   - relevant_activities
+ *   - contextual_info (clima, segmento, avisos)
  */
+export const revalidate = 300; // ISR: revalidar cada 5 minutos
+
 export default async function Home() {
-  // 1. Fetch Events + Actividades + Experiencias en paralelo
-  let apiEvents = [];
-  let apiActivities = [];
-  let apiExperiences = [];
+  // ── 1. Fetch único al endpoint unificado ──────────────────────────────────
+  let featuredEvents     = [];
+  let suggestedExp       = [];
+  let relevantActivities = [];
+
   try {
-    const [resEvents, resActivities, resExperiences] = await Promise.all([
-      fetch('https://destbackdev.aggility.io/api/v1/events', { cache: 'no-store' }),
-      fetch('https://destbackdev.aggility.io/api/v1/proposals', { cache: 'no-store' }),
-      fetch('https://destbackdev.aggility.io/api/v1/proposals', { cache: 'no-store' })
-    ]);
-    if (resEvents.ok) {
-      const data = await resEvents.json();
-      apiEvents = Array.isArray(data) ? data : (data.data || []);
-      apiEvents = apiEvents.filter(evt => evt.status?.toLowerCase() !== 'inactive');
-      apiEvents = apiEvents.slice(0, 5);
-    }
-      if (resActivities.ok) {
-        const data = await resActivities.json();
-        const all = Array.isArray(data) ? data : (data.data || []);
-        // Filtrar por tipo 'activity' como pidió el usuario
-        apiActivities = all
-          .filter(p => p.status?.toLowerCase() !== 'inactive' && p.types?.some(t => t.key === 'activity'))
-          .slice(0, 5);
-      }
-    if (resExperiences.ok) {
-      const data = await resExperiences.json();
-      const all = Array.isArray(data) ? data : (data.data || []);
-      // Filtrar por tipo 'experience' como pidió el usuario
-      apiExperiences = all
-        .filter(p => p.status?.toLowerCase() !== 'inactive' && p.types?.some(t => t.key === 'experience'))
-        .slice(0, 5);
+    const res = await fetch('https://destbackdev.aggility.io/api/v1/home', {
+      next: { revalidate: 300 },
+    });
+
+    if (res.ok) {
+      const json = await res.json();
+      const data = json.data || {};
+
+      const sortDesc = (arr) =>
+        [...arr].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+
+      featuredEvents     = sortDesc(Array.isArray(data.featured_events)      ? data.featured_events      : []);
+      suggestedExp       = sortDesc(Array.isArray(data.suggested_experiences) ? data.suggested_experiences : []);
+      relevantActivities = sortDesc(Array.isArray(data.relevant_activities)  ? data.relevant_activities  : []);
     }
   } catch (error) {
-    console.error("Error fetching home data:", error);
+    console.error('Error fetching /api/v1/home:', error);
   }
 
-  // 2. Format Eventos limitados
-  const formatedHomeEvents = apiEvents.map((evt, idx) => {
-    const primaryCalendar = evt.calendars?.[0];
-    let dateStr = 'Fecha a conf.';
-    if (primaryCalendar) {
-       const d = new Date(primaryCalendar.start_date);
-       dateStr = d.toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' });
-       if (primaryCalendar.start_time) {
-         dateStr += `, ${primaryCalendar.start_time.substring(0, 5)}hs`;
-       }
-    }
-    return {
-      id: evt.id,
-      slug: evt.slug,
-      title: evt.title,
-      date: dateStr,
-      location: evt.organization?.name || 'A confirmar',
-      category: evt.categories?.[0]?.name?.toUpperCase() || 'EVENTO',
-      typeColor: '#f54286',
-      thumbnail: getThumbnail(evt.cover, evt.gallery)
-    };
-  });
+  // ── 2. Helpers de formato ─────────────────────────────────────────────────
 
-  const sections = [
-    { id: 1, title: 'Eventos Destacados', slug: 'eventos', color: '#f54286' },
-    { id: 2, title: 'Vivi tu propia experiencia', slug: 'experiencias', color: '#ff5a1f' },
-    { id: 3, title: 'Actividades para Disfrutar', slug: 'actividades', color: '#8a38f5' },
-  ];
-
-  const renderCards = (cat, index) => {
-    const seeMoreCard = (
-      <div key={`more-${cat.slug}`} className="flex-shrink-0" style={{ width: 'clamp(200px, 50vw, 240px)', scrollSnapAlign: 'start' }}>
-        <Link href={`/${cat.slug}`} className="text-decoration-none h-100 d-block">
-          <div className="rounded-4 d-flex flex-column align-items-center justify-content-center text-white shadow-premium p-4 h-100" 
-               style={{ 
-                 backgroundColor: cat.color, 
-                 transition: 'all 0.3s ease'
-               }}>
-            <div className="rounded-circle border border-2 border-white d-flex align-items-center justify-content-center mb-3" 
-                 style={{ width: '54px', height: '54px', backgroundColor: 'transparent' }}>
-              <i className="bi bi-plus-lg fs-3"></i>
-            </div>
-            <span className="fw-bold font-inter" style={{ fontSize: '18px' }}>Ver más</span>
-            <span className="opacity-80 small text-center mt-1 font-inter">{cat.title}</span>
-          </div>
-        </Link>
-      </div>
-    );
-
-    // 1. EVENTOS (API)
-    if (cat.slug === 'eventos' && formatedHomeEvents.length > 0) {
-      return [
-        ...formatedHomeEvents.map((evt) => (
-          <div key={evt.id} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)', scrollSnapAlign: 'start' }}>
-            <EventCard
-              id={evt.id}
-              title={evt.title}
-              date={evt.date}
-              location={evt.location}
-              category={evt.category}
-              typeColor={evt.typeColor}
-              thumbnail={evt.thumbnail}
-            />
-          </div>
-        )),
-        seeMoreCard
-      ];
-    }
-
-    // 2. ACTIVIDADES (API real /proposals)
-    if (cat.slug === 'actividades') {
-        return [
-          ...apiActivities.map((item) => {
-            const categoryName = item.categories?.[0]?.name?.trim() || 'Actividad';
-            
-            // Lugar: Solo nombre del lugar (priorizando organization dentro de addresses)
-            const address = item.addresses?.[0]?.organization?.name || item.organization?.name || item.addresses?.[0]?.addressable?.name || item.addresses?.[0]?.address || 'Río Cuarto';
-            
-            // Horario claro y corto
-            const cal = item.calendars?.[0];
-            let timeBadge = categoryName;
-            if (cal) {
-              if (cal.start_time && cal.end_time) {
-                timeBadge = `${cal.start_time.substring(0, 5)} a ${cal.end_time.substring(0, 5)} hs`;
-              } else if (cal.start_time) {
-                timeBadge = `${cal.start_time.substring(0, 5)} hs`;
-              }
-            }
-
-            // Imagen con prioridad: medium -> small -> large
-            let thumbnail = '/Thumbnail.png';
-            if (item.cover && typeof item.cover === 'object') {
-              thumbnail = item.cover.medium || item.cover.small || item.cover.large || item.cover.original || getThumbnail(item.cover, item.gallery);
-            } else {
-              thumbnail = getThumbnail(item.cover, item.gallery);
-            }
-
-            return (
-              <div key={item.id} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)', scrollSnapAlign: 'start' }}>
-                  <ActivityCard 
-                      id={item.id}
-                      slug={item.slug}
-                      title={item.title}
-                      time={timeBadge}
-                      address={address}
-                      schedule={cal?.observations || 'Consultar'}
-                      description=""
-                      thumbnail={thumbnail}
-                  />
-              </div>
-            );
-          }),
-          seeMoreCard
-        ];
-    }
-
-    // 3. EXPERIENCIAS (API real /proposals)
-    if (cat.slug === 'experiencias') {
-        return [
-          ...apiExperiences.map((exp) => {
-            const category = exp.categories?.[0]?.name?.trim() || 'Experiencia';
-            
-            // Lugar: Solo nombre del lugar (priorizando organización)
-            const location = exp.addresses?.[0]?.organization?.name || exp.organization?.name || exp.addresses?.[0]?.addressable?.name || exp.addresses?.[0]?.address || 'Río Cuarto';
-
-            // Horario: Extraer de calendars de forma clara
-            const cal = exp.calendars?.[0];
-            let timeBadge = category;
-            if (cal) {
-              if (cal.start_time && cal.end_time) {
-                timeBadge = `${cal.start_time.substring(0, 5)} a ${cal.end_time.substring(0, 5)} hs`;
-              } else if (cal.start_time) {
-                timeBadge = `${cal.start_time.substring(0, 5)} hs`;
-              }
-            }
-
-            // Imagen con prioridad: medium (como solicitó el usuario) -> small -> large -> fallback
-            let thumbnail = '/no-img.webp';
-            if (exp.cover && typeof exp.cover === 'object') {
-              thumbnail = exp.cover.medium || exp.cover.small || exp.cover.large || exp.cover.original || getThumbnail(exp.cover, exp.gallery);
-            } else {
-              thumbnail = getThumbnail(exp.cover, exp.gallery);
-            }
-
-            return (
-              <div key={exp.id} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)', scrollSnapAlign: 'start' }}>
-                  <EventCard 
-                      id={exp.id}
-                      slug={exp.slug}
-                      title={exp.title || 'Sin título'}
-                      date={timeBadge}
-                      location={location}
-                      category={category}
-                      description={cal?.observations || 'Consultar horarios'}
-                      thumbnail={thumbnail}
-                      lat={exp.addresses?.[0]?.latitude}
-                      lng={exp.addresses?.[0]?.longitude}
-                      basePath="experiencias"
-                      typeColor={cat.color}
-                  />
-              </div>
-            );
-          }),
-          seeMoreCard
-        ];
-    }
-
-    return null;
+  /** Formatea la fecha de un evento a partir de su primer calendario */
+  const formatEventDate = (evt) => {
+    const cal = evt.calendars?.[0];
+    if (!cal) return 'Fecha a confirmar';
+    const d = new Date(cal.start_date);
+    let str = d.toLocaleDateString('es-AR', {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+    });
+    if (cal.start_time) str += `, ${cal.start_time.substring(0, 5)}hs`;
+    return str;
   };
 
+  /** Extrae la mejor imagen de cover + gallery */
+  const getCover = (item) => {
+    if (item.cover && typeof item.cover === 'object') {
+      return item.cover.medium || item.cover.small || item.cover.large || getThumbnail(item.cover, item.gallery);
+    }
+    return getThumbnail(item.cover, item.gallery);
+  };
+
+  // ── 3. Card builders ──────────────────────────────────────────────────────
+
+  /** Tarjeta "Ver más" genérica */
+  const SeeMoreCard = ({ slug, title, color }) => (
+    <div className="flex-shrink-0" style={{ width: 'clamp(200px, 50vw, 240px)', scrollSnapAlign: 'start' }}>
+      <Link href={`/${slug}`} className="text-decoration-none h-100 d-block">
+        <div
+          className="rounded-4 d-flex flex-column align-items-center justify-content-center text-white shadow-premium p-4 h-100"
+          style={{ backgroundColor: color, transition: 'all 0.3s ease' }}
+        >
+          <div
+            className="rounded-circle border border-2 border-white d-flex align-items-center justify-content-center mb-3"
+            style={{ width: '54px', height: '54px' }}
+          >
+            <i className="bi bi-plus-lg fs-3" />
+          </div>
+          <span className="fw-bold font-inter" style={{ fontSize: '18px' }}>Ver más</span>
+          <span className="opacity-80 small text-center mt-1 font-inter">{title}</span>
+        </div>
+      </Link>
+    </div>
+  );
+
+  /** Wrapper de ancho para cards en el slider */
+  const CardWrapper = ({ children, wide = true }) => (
+    <div
+      className="flex-shrink-0"
+      style={{
+        width: wide ? 'clamp(280px, 80vw, 320px)' : 'clamp(200px, 50vw, 240px)',
+        scrollSnapAlign: 'start',
+      }}
+    >
+      {children}
+    </div>
+  );
+
+  // ── 4. Secciones definidas ────────────────────────────────────────────────
+  const sections = [
+    {
+      id: 'featured_events',
+      title: 'Eventos Destacados',
+      slug: 'eventos',
+      color: '#f54286',
+      hasData: featuredEvents.length > 0,
+      renderItems: () =>
+        featuredEvents.map((evt) => (
+          <CardWrapper key={evt.id}>
+            <EventCard
+              id={evt.id}
+              slug={evt.slug}
+              title={evt.title}
+              date={formatEventDate(evt)}
+              location={evt.organization?.name || 'A confirmar'}
+              category={evt.categories?.[0]?.name?.toUpperCase() || 'EVENTO'}
+              typeColor="#f54286"
+              thumbnail={getCover(evt)}
+            />
+          </CardWrapper>
+        )),
+    },
+    {
+      id: 'suggested_experiences',
+      title: 'Experiencias Sugeridas',
+      slug: 'propuestas',
+      color: '#ff5a1f',
+      hasData: suggestedExp.length > 0,
+      renderItems: () =>
+        suggestedExp.map((exp) => {
+          const category = exp.categories?.[0]?.name?.trim() || 'Experiencia';
+          const cal = exp.calendars?.[0];
+          let timeBadge = category;
+          if (cal?.start_time && cal?.end_time) {
+            timeBadge = `${cal.start_time.substring(0, 5)} a ${cal.end_time.substring(0, 5)} hs`;
+          } else if (cal?.start_time) {
+            timeBadge = `${cal.start_time.substring(0, 5)} hs`;
+          }
+
+          return (
+            <CardWrapper key={exp.id}>
+              <EventCard
+                id={exp.id}
+                slug={exp.slug}
+                title={exp.title || 'Sin título'}
+                date={timeBadge}
+                location={exp.addresses?.[0]?.organization?.name || exp.organization?.name || 'Río Cuarto'}
+                category={category}
+                description={cal?.observations || ''}
+                thumbnail={getCover(exp)}
+                lat={exp.addresses?.[0]?.latitude}
+                lng={exp.addresses?.[0]?.longitude}
+                basePath="propuestas"
+                typeColor="#ff5a1f"
+              />
+            </CardWrapper>
+          );
+        }),
+    },
+    {
+      id: 'relevant_activities',
+      title: 'Actividades para Disfrutar',
+      slug: 'actividades',
+      color: '#8a38f5',
+      hasData: relevantActivities.length > 0,
+      renderItems: () =>
+        relevantActivities.map((item) => {
+          const cal = item.calendars?.[0];
+          const category = item.categories?.[0]?.name?.trim() || 'Actividad';
+          let timeBadge = category;
+          if (cal?.start_time && cal?.end_time) {
+            timeBadge = `${cal.start_time.substring(0, 5)} a ${cal.end_time.substring(0, 5)} hs`;
+          } else if (cal?.start_time) {
+            timeBadge = `${cal.start_time.substring(0, 5)} hs`;
+          }
+
+          const address =
+            item.addresses?.[0]?.organization?.name ||
+            item.organization?.name ||
+            item.addresses?.[0]?.addressable?.name ||
+            item.addresses?.[0]?.address ||
+            'Río Cuarto';
+
+          return (
+            <CardWrapper key={item.id}>
+              <ActivityCard
+                id={item.id}
+                slug={item.slug}
+                title={item.title}
+                time={timeBadge}
+                address={address}
+                schedule={cal?.observations || 'Consultar horarios'}
+                description=""
+                thumbnail={getCover(item)}
+                type="propuestas"
+              />
+            </CardWrapper>
+          );
+        }),
+    },
+  ];
+
+  // ── 5. Render ─────────────────────────────────────────────────────────────
   return (
     <div className="bg-white overflow-hidden pb-5 font-inter">
-      {/* 1. Hero Area — Figma ID 3781:19192/19193 */}
+      {/* Hero */}
       <HeroHome />
 
-      {/* 2. Main Sections — Figma ID 3781:19217 */}
+      {/* Contenido principal */}
       <section className="container-xxl py-4 py-md-5 px-lg-5">
 
         <div className="d-flex flex-column gap-5 align-items-start position-relative w-100">
-          {sections.map((cat, index) => (
-            <div key={cat.id} className="w-100 animate-fade-in" style={{ animationDelay: `${index * 150}ms` }}>
-              <HomeSectionSlider title={cat.title}>
-                {renderCards(cat, index)}
+          {sections.map((section, index) => (
+            <div
+              key={section.id}
+              className="w-100 animate-fade-in"
+              style={{ animationDelay: `${index * 150}ms` }}
+            >
+              <HomeSectionSlider title={section.title}>
+                {section.hasData
+                  ? [
+                      ...section.renderItems(),
+                      <SeeMoreCard
+                        key={`more-${section.slug}`}
+                        slug={section.slug}
+                        title={section.title}
+                        color={section.color}
+                      />,
+                    ]
+                  : (
+                    // Estado vacío inline — no bloquea el render
+                    <div
+                      className="d-flex align-items-center justify-content-center rounded-3 text-muted font-inter"
+                      style={{
+                        width: '100%',
+                        height: '160px',
+                        backgroundColor: '#f9fafb',
+                        border: '1px dashed #d1d5db',
+                        fontSize: '14px',
+                      }}
+                    >
+                      <i className="bi bi-hourglass-split me-2" />
+                      Sin contenido disponible por ahora
+                    </div>
+                  )
+                }
               </HomeSectionSlider>
             </div>
           ))}

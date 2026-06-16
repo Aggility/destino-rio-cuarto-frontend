@@ -12,35 +12,41 @@ export default function EventsListClient({ initialEvents }) {
   const [selectedDateFilter, setSelectedDateFilter] = useState('Todos');
   const [selectedCategory, setSelectedCategory] = useState('Todos');
 
-  // Helper para formatear eventos nuevos
-  const formatEvent = (evt, idx) => {
-    const primaryCalendar = evt.calendars?.[0];
+  // Helper para formatear eventos — misma lógica que featured_events en home
+  const formatEvent = (evt) => {
+    const cal = evt.calendars?.[0];
     let dateStr = 'Fecha a confirmar';
-    if (primaryCalendar) {
-      const d = new Date(primaryCalendar.start_date);
+    if (cal) {
+      const d = new Date(cal.start_date);
       dateStr = d.toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' });
-      if (primaryCalendar.start_time) {
-        dateStr += `, ${primaryCalendar.start_time.substring(0, 5)}hs`;
-      }
+      if (cal.start_time) dateStr += `, ${cal.start_time.substring(0, 5)}hs`;
     }
-    
-    let rawDesc = evt.description || '';
-    rawDesc = rawDesc.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ');
-    const descStr = rawDesc.length > 100 ? rawDesc.substring(0, 100) + '...' : rawDesc;
+
+    // Prioridad thumbnail: medium → small → large (igual que home)
+    let thumbnail = '/no-img.webp';
+    if (evt.cover && typeof evt.cover === 'object') {
+      thumbnail = evt.cover.medium || evt.cover.small || evt.cover.large || '/no-img.webp';
+    } else if (evt.gallery?.[0]) {
+      thumbnail = evt.gallery[0].medium || evt.gallery[0].small || '/no-img.webp';
+    }
+
+    const rawDesc = (evt.description || '')
+      .replace(/<[^>]*>?/gm, '')
+      .replace(/&nbsp;/g, ' ');
 
     return {
-      id: evt.id,
-      slug: evt.slug,
-      title: evt.title,
-      date: dateStr,
-      location: evt.organization?.name || 'Ubicación a confirmar',
-      description: descStr,
-      thumbnail: evt.cover?.medium || evt.cover?.small || evt.gallery?.[0]?.medium || "/no-img.webp",
-      category: evt.categories?.[0]?.name?.toUpperCase() || (idx % 2 === 0 ? "POP" : "KIDS"),
-      typeColor: "#f54286",
-      lat: evt.organization?.addresses?.[0]?.latitude,
-      lng: evt.organization?.addresses?.[0]?.longitude,
-      rawDate: primaryCalendar?.start_date
+      id:          evt.id,
+      slug:        evt.slug,
+      title:       evt.title,
+      date:        dateStr,
+      location:    evt.organization?.name || 'A confirmar',
+      description: rawDesc.length > 120 ? rawDesc.substring(0, 120) + '...' : rawDesc,
+      thumbnail,
+      category:    evt.categories?.[0]?.name?.toUpperCase() || 'EVENTO',
+      typeColor:   '#f54286',
+      lat:         evt.organization?.addresses?.[0]?.latitude,
+      lng:         evt.organization?.addresses?.[0]?.longitude,
+      rawDate:     cal?.start_date,
     };
   };
 
@@ -58,7 +64,7 @@ export default function EventsListClient({ initialEvents }) {
         if (newApiEvents.length === 0) {
           setHasMore(false);
         } else {
-          const formatted = newApiEvents.map((evt, i) => formatEvent(evt, events.length + i));
+          const formatted = newApiEvents.map((evt) => formatEvent(evt));
           setEvents(prev => [...prev, ...formatted]);
           setCurrentPage(nextPage);
           // Si vinieron menos de 10, probablemente no hay más
@@ -141,77 +147,39 @@ export default function EventsListClient({ initialEvents }) {
                 </button>
             </form>
 
-            <div className="row g-4 mt-1">
-              {/* 2. Selector de Fechas (Chips) */}
-              <div className="col-12 col-lg-6">
-                <div className="d-flex flex-column gap-3">
-                  <div className="d-flex align-items-center justify-content-between px-1">
-                    <label className="font-inter fw-bold text-gray-900 mb-0" style={{ fontSize: '14px' }}>¿Cuándo?</label>
-                    <span className="text-muted d-lg-none" style={{ fontSize: '11px' }}>Desliza <i className="bi bi-chevron-right"></i></span>
-                  </div>
-                  <div className="mx-n3 px-3 overflow-auto hide-scrollbar">
-                    <div className="d-flex gap-2 pb-1">
-                      {['Todos', 'HOY', 'Esta semana', 'Este mes'].map((dateOpt) => {
-                        const isActive = selectedDateFilter === dateOpt;
-                        const label = dateOpt === 'Todos' ? 'Todas las fechas' : (dateOpt === 'HOY' ? 'Hoy' : dateOpt);
-                        return (
-                          <button
-                            key={dateOpt}
-                            onClick={() => setSelectedDateFilter(dateOpt)}
-                            className={`btn rounded-pill px-4 py-2 font-inter fw-medium transition-all ${
-                              isActive ? 'text-white shadow-sm' : 'bg-white text-gray-600'
-                            }`}
-                            style={{ 
-                              minWidth: 'fit-content', 
-                              whiteSpace: 'nowrap',
-                              backgroundColor: isActive ? '#f54286' : 'white',
-                              borderColor: isActive ? '#f54286' : '#e5e7eb',
-                              fontSize: '13px',
-                              borderWidth: '1px'
-                            }}
-                          >
-                            {label}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
+            <div className="row g-3 mt-1">
+              {/* 2. Selector de Fechas (Select) */}
+              <div className="col-12 col-md-6">
+                <div className="d-flex flex-column gap-2">
+                  <label className="font-inter fw-bold text-gray-900 mb-0" style={{ fontSize: '14px' }}>¿Cuándo?</label>
+                  <select
+                    className="form-select font-inter shadow-sm"
+                    value={selectedDateFilter}
+                    onChange={(e) => setSelectedDateFilter(e.target.value)}
+                    style={{ height: '48px', borderColor: '#e5e7eb', fontSize: '15px', cursor: 'pointer' }}
+                  >
+                    <option value="Todos">Todas las fechas</option>
+                    <option value="HOY">Hoy</option>
+                    <option value="Esta semana">Esta semana</option>
+                    <option value="Este mes">Este mes</option>
+                  </select>
                 </div>
               </div>
 
-              {/* 3. Selector de Categorías (Chips) */}
-              <div className="col-12 col-lg-6">
-                <div className="d-flex flex-column gap-3">
-                  <div className="d-flex align-items-center justify-content-between px-1">
-                    <label className="font-inter fw-bold text-gray-900 mb-0" style={{ fontSize: '14px' }}>Categoría</label>
-                    <span className="text-muted d-lg-none" style={{ fontSize: '11px' }}>Desliza <i className="bi bi-chevron-right"></i></span>
-                  </div>
-                  <div className="mx-n3 px-3 overflow-auto hide-scrollbar">
-                    <div className="d-flex gap-2 pb-1">
-                      {categories.map((cat) => {
-                        const isActive = selectedCategory === cat;
-                        return (
-                          <button
-                            key={cat}
-                            onClick={() => setSelectedCategory(cat)}
-                            className={`btn rounded-pill px-4 py-2 font-inter fw-medium transition-all ${
-                              isActive ? 'text-white shadow-sm' : 'bg-white text-gray-600'
-                            }`}
-                            style={{ 
-                              minWidth: 'fit-content', 
-                              whiteSpace: 'nowrap',
-                              backgroundColor: isActive ? '#f54286' : 'white',
-                              borderColor: isActive ? '#f54286' : '#e5e7eb',
-                              fontSize: '13px',
-                              borderWidth: '1px'
-                            }}
-                          >
-                            {cat}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
+              {/* 3. Selector de Categorías (Select) */}
+              <div className="col-12 col-md-6">
+                <div className="d-flex flex-column gap-2">
+                  <label className="font-inter fw-bold text-gray-900 mb-0" style={{ fontSize: '14px' }}>Categoría</label>
+                  <select
+                    className="form-select font-inter shadow-sm"
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    style={{ height: '48px', borderColor: '#e5e7eb', fontSize: '15px', cursor: 'pointer' }}
+                  >
+                    {categories.map((cat) => (
+                      <option key={cat} value={cat}>{cat === 'Todos' ? 'Todas las categorías' : cat}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </div>

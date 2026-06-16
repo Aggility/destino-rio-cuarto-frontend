@@ -13,15 +13,17 @@ export default async function ActivitiesPage() {
   let rawActivities = [];
 
   try {
-    const res = await fetch('https://destbackdev.aggility.io/api/v1/proposals', { cache: 'no-store' });
+    const res = await fetch('https://destbackdev.aggility.io/api/v1/proposals?per_page=500', { cache: 'no-store' });
     if (res.ok) {
       const data = await res.json();
       const all = Array.isArray(data) ? data : (data.data || []);
       // Filtrar inactivas y también aquellas que son "Experiencias" (se mueven a su propia página)
-      rawActivities = all.filter(p => 
-        p.status?.toLowerCase() !== 'inactive' && 
-        p.types?.some(t => t.key === 'activity')
-      );
+      rawActivities = all
+        .filter(p =>
+          p.status?.toLowerCase() !== 'inactive' &&
+          p.types?.some(t => t.key === 'activity')
+        )
+        .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
     }
   } catch (error) {
     console.error('Error fetching proposals API:', error);
