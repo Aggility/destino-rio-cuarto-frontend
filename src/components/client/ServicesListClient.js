@@ -1,19 +1,21 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import ServiceListItem from '@/components/server/ServiceListItem';
 import { getDistance } from '@/utils/geo';
 
 export default function ServicesListClient({ initialServices, leftoverFromFirstPage = [] }) {
   const [userLocation, setUserLocation] = useState(null);
-  const [services, setServices] = useState(initialServices);
-  const [leftover, setLeftover] = useState(leftoverFromFirstPage);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
+  
+  // Como ahora traemos todos los servicios desde el servidor (per_page=500), 
+  // podemos hacer el filtrado de forma local, instantánea y predictiva.
+  const allServices = useMemo(() => {
+    return [...initialServices, ...leftoverFromFirstPage];
+  }, [initialServices, leftoverFromFirstPage]);
+
+  const [visibleCount, setVisibleCount] = useState(9);
   const [selectedFilter, setSelectedFilter] = useState('Todos');
   const [searchTerm, setSearchTerm] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
 
   // Ubicación del usuario
   const fetchLocation = () => {
@@ -40,279 +42,141 @@ export default function ServicesListClient({ initialServices, leftoverFromFirstP
     return () => window.removeEventListener('geo_granted_event', fetchLocation);
   }, []);
 
-  // Función para formatear datos de la API
-  const formatOrg = (org) => ({
-    id: org.id,
-    slug: org.slug,
-    title: org.name,
-    category: org.categories?.[0]?.name || 'Servicio',
-    address: org.addresses?.[0]?.address?.split(',')[0] || 'Río Cuarto',
-    phone: org.phone || 'Consultar contacto',
-    thumbnail: org.cover?.medium || org.cover?.small || org.gallery?.[0]?.medium || "/Thumbnail.png",
-    lat: org.addresses?.[0]?.latitude,
-    lng: org.addresses?.[0]?.longitude,
-    distance: null
-  })  // Cargar servicios con filtros documentados
-  // Cargar servicios con filtros
-  const fetchServices = async (page = 1, isNewSearch = false) => {
-    setIsLoading(true);
-    try {
-      // Cargamos 100 resultados para maximizar la probabilidad de encontrar 9
-      const perPage = (selectedFilter !== 'Todos' || searchTerm) ? 100 : 9;
-      let query = `/api/organizations?page=${page}&per_page=${perPage}`;
-      
-      let effectiveSearch = searchTerm;
-      
-      if (selectedFilter !== 'Todos' && selectedFilter !== 'Cercanos') {
-          let apiCategory = selectedFilter;
-          if (selectedFilter === 'Restaurantes') {
-            apiCategory = 'gastronomia';
-            // Si no hay búsqueda del usuario, inyectamos 'gastronomia' en el search para forzar resultados
-            if (!effectiveSearch) effectiveSearch = 'gastronomia';
-          }
-          if (selectedFilter === 'Alojamiento') {
-            apiCategory = 'alojamiento';
-            if (!effectiveSearch) effectiveSearch = 'alojamiento';
-          }
-          
-          query += `&category=${encodeURIComponent(apiCategory)}`;
+  // Actualizar distancias en memoria si tenemos la ubicación
+  const servicesWithDistance = useMemo(() => {
+    if (!userLocation) return allServices;
+    return allServices.map(service => {
+      if (service.lat && service.lng) {
+        const dist = getDistance(
+          userLocation.lat,
+          userLocation.lng,
+          parseFloat(service.lat),
+          parseFloat(service.lng)
+        );
+        return { ...service, distance: dist };
       }
+      return service;
+    });
+  }, [allServices, userLocation]);
 
-      if (effectiveSearch) query += `&search=${encodeURIComponent(effectiveSearch)}`;
+  // Filtrado predictivo y por categoría
+  const filteredServices = useMemo(() => {
+    let result = servicesWithDistance;
 
-      console.log("Querying API with forced search:", query);
-
-      const res = await fetch(query);
-      if (res.ok) {
-        const data = await res.json();
-        let apiData = data.data || (Array.isArray(data) ? data : []);
-        console.log(`Received ${apiData.length} items from API`);
-
-        // Filtramos servicios inactivos
-        apiData = apiData.filter(org => org.status?.toLowerCase() !== 'inactive');
-
-        let formatted = apiData.map(formatOrg);
-
-        // EXTRA: Filtrado manual ROBUSTO para asegurar que encontramos los 9 resultados
-        if (selectedFilter !== 'Todos' && selectedFilter !== 'Cercanos') {
-           const lowFilter = selectedFilter.toLowerCase();
-           formatted = formatted.filter(s => {
-             const lowCat = (s.category || '').toLowerCase();
-             const lowTitle = (s.title || '').toLowerCase();
-             
-             if (lowFilter === 'restaurantes') {
-                return lowCat.includes('gastro') || lowCat.includes('restaurante') || lowCat.includes('comer') || 
-                       lowCat.includes('parrilla') || lowCat.includes('comida') || lowCat.includes('pizzer') || 
-                       lowCat.includes('helader') || lowCat.includes('rapida') || lowCat.includes('patio') || 
-                       lowCat.includes('paseo') || lowTitle.includes('restaurante') || lowTitle.includes('parrilla') || 
-                       lowTitle.includes('pizza') || lowTitle.includes('comida');
-             }
-             if (lowFilter === 'alojamiento') {
-                return lowCat.includes('aloja') || lowCat.includes('hotel') || lowCat.includes('dormir') || 
-                       lowCat.includes('hospedaje') || lowCat.includes('posada') || lowTitle.includes('hotel') || 
-                       lowTitle.includes('alojamiento') || lowTitle.includes('departamento');
-             }
-             return true; 
-           });
-        }
-
-        if (isNewSearch) {
-          setServices(formatted.slice(0, 9));
-          setLeftover(formatted.slice(9));
-          setCurrentPage(1);
-          setHasMore(apiData.length > 0 && (data.last_page ? data.current_page < data.last_page : true));
-        } else {
-          setServices(prev => [...prev, ...formatted]);
-          setCurrentPage(page);
-          if (apiData.length === 0 || (data.last_page && data.current_page >= data.last_page)) {
-            setHasMore(false);
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching services:", error);
-    } finally {
-      setIsLoading(false);
-      setIsSearching(false);
+    // Filtro por texto (Predictivo)
+    if (searchTerm.trim() !== '') {
+      const lowerTerm = searchTerm.toLowerCase();
+      result = result.filter(s => 
+        (s.title && s.title.toLowerCase().includes(lowerTerm)) ||
+        (s.category && s.category.toLowerCase().includes(lowerTerm)) ||
+        (s.address && s.address.toLowerCase().includes(lowerTerm)) ||
+        (s.description && s.description.toLowerCase().includes(lowerTerm))
+      );
     }
-  };
 
+    // Filtro por categoría
+    if (selectedFilter !== 'Todos' && selectedFilter !== 'Cercanos') {
+      result = result.filter(s => s.category === selectedFilter);
+    }
 
+    // Ordenar por cercanos
+    if (selectedFilter === 'Cercanos' && userLocation) {
+      result = result
+        .filter(s => s.distance !== null && s.distance !== undefined)
+        .sort((a, b) => a.distance - b.distance);
+    }
 
+    return result;
+  }, [servicesWithDistance, searchTerm, selectedFilter, userLocation]);
 
-
-
-  // Efecto para buscar cuando cambia el filtro (excepto 'Todos' inicial)
+  // Cuando cambia un filtro o búsqueda, reiniciar la cantidad visible
   useEffect(() => {
-    if (selectedFilter !== 'Todos') {
-       fetchServices(1, true);
-    } else if (searchTerm !== '') {
-       // Si volvemos a 'Todos' pero hay búsqueda
-       fetchServices(1, true);
-    } else {
-       // Reset case when going back to Todos without search
-       // Solo si no estamos en el estado inicial
-       if (currentPage > 1 || (services && initialServices && services.length !== initialServices.length)) {
-         setServices(initialServices);
-         setLeftover(leftoverFromFirstPage);
-         setCurrentPage(1);
-         setHasMore(true);
-       }
-    }
-  }, [selectedFilter]);
-
-  const handleSearch = (e) => {
-    if (e) e.preventDefault();
-    setIsSearching(true);
-    fetchServices(1, true);
-  };
+    setVisibleCount(9);
+  }, [searchTerm, selectedFilter]);
 
   const loadMore = () => {
-    if (leftover.length > 0) {
-      // Cargamos los siguientes 9 del leftover
-      const nextBatch = leftover.slice(0, 9);
-      const remainingLeftover = leftover.slice(9);
-      
-      setServices(prev => [...prev, ...nextBatch]);
-      setLeftover(remainingLeftover);
-    } else {
-      fetchServices(currentPage + 1);
-    }
+    setVisibleCount(prev => prev + 9);
   };
 
+  // ── Extraer categorías dinámicas de la API ────────────────────────────────
+  const dynamicCategories = useMemo(() => {
+    const cats = allServices.map(s => s.category).filter(Boolean);
+    const uniqueCats = Array.from(new Set(cats)).sort();
+    return ['Todos', 'Cercanos', ...uniqueCats];
+  }, [allServices]);
 
-  // Actualizar distancias cuando se tiene la ubicación
-  useEffect(() => {
-    if (userLocation && services.length > 0) {
-      const updatedServices = services.map(service => {
-        if (service.lat && service.lng && !service.distance) {
-          const dist = getDistance(
-            userLocation.lat,
-            userLocation.lng,
-            parseFloat(service.lat),
-            parseFloat(service.lng)
-          );
-          return { ...service, distance: dist };
-        }
-        return service;
-      });
-      
-      const hasChanges = updatedServices.some((s, idx) => s.distance !== services[idx].distance);
-      if (hasChanges) setServices(updatedServices);
-    }
-  }, [userLocation, services]);
-
-  const staticFilters = ['Todos', 'Cercanos', 'Restaurantes', 'Alojamiento', 'Disfrutar', 'Viajar', 'Servicios generales o al turista'];
+  const displayedServices = filteredServices.slice(0, visibleCount);
+  const hasMore = visibleCount < filteredServices.length;
 
   return (
-    <div className="d-flex flex-column gap-4">
+    <div className="d-flex flex-column gap-3">
       
-      {/* 1. Buscador */}
-      <form onSubmit={handleSearch} className="bg-white rounded-2 shadow-sm border d-flex align-items-center overflow-hidden mb-2" style={{ height: '60px' }}>
+      {/* 1. Buscador Predictivo */}
+      <div className="bg-white rounded-2 shadow-sm border d-flex align-items-center overflow-hidden" style={{ height: '60px' }}>
           <div className="px-3 border-end h-100 d-flex align-items-center bg-gray-50">
               <i className="bi bi-search text-muted"></i>
           </div>
           <input 
             type="text" 
             className="form-control border-0 shadow-none font-inter h-100 flex-grow-1" 
-            placeholder="¿Qué estás buscando? (Ej: Hotel, Parrilla, Taxi)"
+            placeholder="Buscar comercios, hoteles, servicios..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <button 
-            type="submit"
-            disabled={isLoading}
-            className="btn btn-primary h-100 px-3 px-md-4 fw-bold border-0 rounded-0" 
-            style={{ backgroundColor: '#1a56db' }}
-          >
-              {isSearching ? '...' : 'BUSCAR'}
-          </button>
-      </form>
+      </div>
 
-      {/* 2. Selector de Categorías */}
-      <div className="d-flex gap-2 overflow-auto hide-scrollbar pb-2">
-        {staticFilters.map((filter) => {
-          const isActive = selectedFilter === filter;
-          return (
-            <button
-              key={filter}
-              onClick={() => setSelectedFilter(filter)}
-              className={`btn rounded-pill px-4 py-2 font-inter fw-medium transition-all ${
-                isActive ? 'btn-primary text-white' : 'btn-outline-secondary bg-white text-muted'
-              }`}
-              style={{ 
-                minWidth: 'fit-content', 
-                whiteSpace: 'nowrap',
-                backgroundColor: isActive ? '#1a56db' : 'white',
-                borderColor: isActive ? '#1a56db' : '#dee2e6',
-                fontSize: '14px',
-                borderWidth: '1px'
-              }}
+      {/* 2. Selector de Categorías (Dropdown) */}
+      <div className="row g-3">
+        <div className="col-12 col-md-6">
+          <div className="d-flex flex-column gap-2">
+            <label className="font-inter fw-bold text-gray-900 mb-0" style={{ fontSize: '14px' }}>Categoría</label>
+            <select
+              className="form-select font-inter shadow-sm"
+              value={selectedFilter}
+              onChange={(e) => setSelectedFilter(e.target.value)}
+              style={{ height: '48px', borderColor: '#e5e7eb', fontSize: '15px', cursor: 'pointer' }}
             >
-              {filter}
-            </button>
-          );
-        })}
+              {dynamicCategories.map((filter) => (
+                <option key={filter} value={filter}>{filter}</option>
+              ))}
+            </select>
+          </div>
+        </div>
       </div>
 
       {/* 3. Lista de Resultados */}
-      <div className="d-flex flex-column gap-3 mt-2">
-        {(() => {
-          let displayServices = [...services];
-          if (selectedFilter === 'Cercanos' && userLocation) {
-            displayServices = displayServices
-              .filter(s => s.distance !== null)
-              .sort((a, b) => a.distance - b.distance);
-          }
-          
-          if (displayServices.length > 0) {
-            return displayServices.map((service, idx) => (
-              <ServiceListItem 
-                key={service.id || idx}
-                id={service.id}
-                slug={service.slug}
-                title={service.title}
-                category={service.category}
-                address={service.address}
-                phone={service.phone}
-                thumbnail={service.thumbnail}
-                distance={service.distance}
-                lat={service.lat}
-                lng={service.lng}
-              />
-            ));
-          }
-          
-          return (
-            <div className="text-center py-5 bg-white rounded-4 border shadow-sm">
-              {isLoading ? (
-                <div className="spinner-border text-primary" role="status">
-                  <span className="visually-hidden">Cargando...</span>
-                </div>
-              ) : (
-                <>
-                  <i className="bi bi-search fs-1 text-muted mb-3 d-block"></i>
-                  <p className="text-muted font-inter">No se encontraron servicios que coincidan con tu búsqueda.</p>
-                </>
-              )}
-            </div>
-          );
-        })()}
+      <div className="d-flex flex-column gap-3 mt-3">
+        {displayedServices.length > 0 ? (
+          displayedServices.map((service, idx) => (
+            <ServiceListItem 
+              key={service.id || idx}
+              id={service.id}
+              slug={service.slug}
+              title={service.title}
+              category={service.category}
+              address={service.address}
+              phone={service.phone}
+              thumbnail={service.thumbnail}
+              distance={service.distance}
+              lat={service.lat}
+              lng={service.lng}
+            />
+          ))
+        ) : (
+          <div className="text-center py-5 bg-white rounded-4 border shadow-sm">
+            <i className="bi bi-search fs-1 text-muted mb-3 d-block"></i>
+            <p className="text-muted font-inter">No se encontraron servicios que coincidan con tu búsqueda.</p>
+          </div>
+        )}
       </div>
 
-
-      {(hasMore || leftover.length > 0) && (
-
+      {hasMore && (
         <div className="text-center mt-4">
           <button 
             onClick={loadMore}
-            disabled={isLoading}
             className="btn btn-load-more-blue shadow-premium" 
           >
-            {isLoading ? (
-              <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-            ) : null}
-            {isLoading ? 'CARGANDO...' : 'CARGAR MÁS RESULTADOS'}
+            CARGAR MÁS RESULTADOS
           </button>
         </div>
       )}
