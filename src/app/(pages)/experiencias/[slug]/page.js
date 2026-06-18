@@ -127,8 +127,8 @@ export default async function ExperienceDetailPage({ params }) {
         address: experienceData.addresses?.[0]?.address || experienceData.organization?.addresses?.[0]?.address || 'Río Cuarto, Córdoba',
         city: 'Río Cuarto, Córdoba'
     },
-    description: experienceData.description?.replace(/<[^>]*>?/gm, '') || 'Sin descripción disponible.',
-    fullDescription: [experienceData.description?.replace(/<[^>]*>?/gm, '') || 'Sin descripción disponible.'],
+    description: experienceData.description || 'Sin descripción disponible.',
+    fullDescription: experienceData.description || 'Sin descripción disponible.',
     thumbnail: getThumbnail(experienceData.cover, experienceData.gallery),
     category: categoryName.toUpperCase(),
   };
@@ -405,13 +405,16 @@ export default async function ExperienceDetailPage({ params }) {
                     <div className="col-12 d-flex align-items-start gap-2 py-1">
                         <i className="bi bi-file-text" style={{ color: themeColor, fontSize: '1.1rem', marginTop: '2px' }}></i>
                         <span className="text-gray-900 font-inter fw-medium">
-                            {experienceData.excerpt || (experience.description.length > 220 ? `${experience.description.substring(0, 220)}...` : experience.description)}
+                            {(() => {
+                                const plainText = experienceData.excerpt || (experienceData.description || '').replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ');
+                                return plainText.length > 220 ? `${plainText.substring(0, 220)}...` : plainText;
+                            })()}
                         </span>
                     </div>
                 </div>
 
                 {/* Full Description */}
-                <ExpandableDescription fullDescription={experience.fullDescription} color={themeColor} />
+                <ExpandableDescription htmlContent={experience.fullDescription} color={themeColor} />
 
                 {/* Tags */}
                 {experienceData.tags?.length > 1 && (

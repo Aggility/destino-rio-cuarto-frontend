@@ -197,9 +197,22 @@ export default async function ServicioDetailPage({ params }) {
                 {/* Más Información */}
                 <div className="mb-5">
                     <h2 className="h4 fw-bold font-inter text-gray-900 mb-3" style={{ fontSize: '24px' }}>Más Información</h2>
-                    <p className="font-inter text-gray-700" style={{ fontSize: '16px', lineHeight: '1.6' }}>
-                        {service.description}
-                    </p>
+                    <div
+                        className="font-inter text-gray-700 rich-text-content"
+                        style={{ fontSize: '16px', lineHeight: '1.7' }}
+                        dangerouslySetInnerHTML={{ __html: service.description }}
+                    />
+                    <style>{`
+                        .rich-text-content p { margin-bottom: 0.85rem; }
+                        .rich-text-content p:last-child { margin-bottom: 0; }
+                        .rich-text-content ul, .rich-text-content ol { padding-left: 1.4rem; margin-bottom: 0.85rem; }
+                        .rich-text-content li { margin-bottom: 0.3rem; }
+                        .rich-text-content strong, .rich-text-content b { font-weight: 700; color: #1a1a2e; }
+                        .rich-text-content em, .rich-text-content i { font-style: italic; }
+                        .rich-text-content a { color: #1a56db; text-decoration: underline; word-break: break-all; }
+                        .rich-text-content table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+                        .rich-text-content table td, .rich-text-content table th { border: 1px solid #e5e7eb; padding: 0.4rem 0.6rem; }
+                    `}</style>
                 </div>
 
                 {/* Otras ubicaciones relacionadas */}

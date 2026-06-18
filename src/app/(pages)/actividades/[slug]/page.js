@@ -97,8 +97,8 @@ export default async function ActivityDetailPage({ params }) {
         address: placeAddress || 'Río Cuarto, Córdoba',
         city: 'Río Cuarto, Córdoba'
     },
-    description: activityData.description?.replace(/<[^>]*>?/gm, '') || 'Sin descripción disponible.',
-    fullDescription: [activityData.description?.replace(/<[^>]*>?/gm, '') || 'Sin descripción disponible.'],
+    description: activityData.description || 'Sin descripción disponible.',
+    fullDescription: activityData.description || 'Sin descripción disponible.',
     thumbnail: getThumbnail(activityData.cover, activityData.gallery),
     category: categoryName.toUpperCase(),
   };
@@ -344,7 +344,7 @@ export default async function ActivityDetailPage({ params }) {
                 </div>
 
                 {/* Full Description */}
-                <ExpandableDescription fullDescription={activity.fullDescription} color={themeColor} />
+                <ExpandableDescription htmlContent={activity.fullDescription} color={themeColor} />
 
                 {/* Tags (Excluyendo el que ya se mostró arriba) */}
                 {activityData.tags?.length > 1 && (

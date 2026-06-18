@@ -91,8 +91,8 @@ export default async function EventDetailPage({ params }) {
         address: eventData?.organization?.addresses?.[0]?.address?.split(',')[0] || eventData?.organization?.address || 'Río Grande 688',
         city: 'Río Cuarto, Córdoba 5800'
     },
-    description: eventData?.description?.replace(/<[^>]*>?/gm, '') || 'Regresa Ulises Bueno para una noche inolvidable...',
-    fullDescription: [eventData?.description?.replace(/<[^>]*>?/gm, '') || 'Regresa Ulises Bueno para una noche inolvidable...'],
+    description: eventData?.description || 'Regresa Ulises Bueno para una noche inolvidable...',
+    fullDescription: eventData?.description || 'Regresa Ulises Bueno para una noche inolvidable...',
     thumbnail: getThumbnail(eventData?.cover, eventData?.gallery),
     relatedEvents: []
   };
@@ -309,7 +309,7 @@ export default async function EventDetailPage({ params }) {
                 </div>
 
                 {/* Full Description */}
-                <ExpandableDescription fullDescription={event.fullDescription} />
+                <ExpandableDescription htmlContent={event.fullDescription} />
 
 
                 {/* Location Box */}
