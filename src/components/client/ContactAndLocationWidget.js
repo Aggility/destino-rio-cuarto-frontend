@@ -1,64 +1,99 @@
 'use client';
 import React from 'react';
 import GoogleMapViewer from './GoogleMapViewer';
-import ContactButtons from './ContactButtons';
 
-export default function ContactAndLocationWidget({ service, type = 'service', showContact = true }) {
+/**
+ * ContactAndLocationWidget - Destino Río Cuarto
+ * Card de ubicación: mapa expandido al 100% (sin info de texto).
+ * Respeta los colores temáticos: rosa (eventos), violeta (actividades), naranja (experiencias), azul (servicios).
+ */
+export default function ContactAndLocationWidget({ service, type = 'service' }) {
   const targetLat = parseFloat(service?.lat);
   const targetLng = parseFloat(service?.lng);
 
   const getTheme = () => {
     switch (type) {
-      case 'event': return { icon: 'bi-star-fill', color: '#f54286', bg: '#fdf2f8' };
+      case 'event':      return { color: '#f54286', bg: '#fdf2f8', border: '#fbcfe8', icon: 'bi-calendar-event-fill' };
       case 'actividad':
-      case 'activity': return { icon: 'bi-person-walking', color: '#8a38f5', bg: '#f5f3ff' };
-      case 'experiencia': return { icon: 'bi-stars', color: '#ff5a1f', bg: '#fff7ed' };
-      case 'alojamiento': return { icon: 'bi-house-heart-fill', color: '#1a56db', bg: '#ebf5ff' };
-      case 'gastronomia': return { icon: 'bi-cup-hot-fill', color: '#1a56db', bg: '#ebf5ff' };
-      default: return { icon: 'bi-geo-alt-fill', color: '#1a56db', bg: '#ebf5ff' };
+      case 'activity':   return { color: '#8a38f5', bg: '#f5f3ff', border: '#ddd6fe', icon: 'bi-person-walking' };
+      case 'experiencia':return { color: '#ff5a1f', bg: '#fff7ed', border: '#fed7aa', icon: 'bi-stars' };
+      case 'alojamiento':return { color: '#1a56db', bg: '#eff6ff', border: '#bfdbfe', icon: 'bi-house-heart-fill' };
+      case 'gastronomia':return { color: '#1a56db', bg: '#eff6ff', border: '#bfdbfe', icon: 'bi-cup-hot-fill' };
+      default:           return { color: '#1a56db', bg: '#eff6ff', border: '#bfdbfe', icon: 'bi-geo-alt-fill' };
     }
   };
 
   const theme = getTheme();
+  const hasCoords = !isNaN(targetLat) && !isNaN(targetLng) && targetLat !== 0 && targetLng !== 0;
+  const mapsUrl = hasCoords
+    ? `https://www.google.com/maps/dir/?api=1&destination=${targetLat},${targetLng}`
+    : '#';
 
   return (
-    <div className="rounded-4 shadow-premium border-0 p-4 mb-5" style={{ backgroundColor: theme.bg }}>
-      <div className="row g-4 align-items-center">
-        
-        {/* Mapa de Google */}
-        <div className="col-12 col-md-6">
-          <GoogleMapViewer 
-            lat={targetLat} 
-            lng={targetLng} 
-            title={service?.name} 
-            type={type} 
-          />
-        </div>
+    <div
+      className="rounded-4 p-2 p-md-3 mb-4 w-100"
+      style={{
+        backgroundColor: theme.bg,
+        border: `1.5px solid ${theme.border}`,
+      }}
+    >
+      <a
+        href={mapsUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="d-block text-decoration-none w-100"
+        style={{ cursor: hasCoords ? 'pointer' : 'default' }}
+        title="Abrir en Google Maps"
+      >
+        <div
+          className="position-relative overflow-hidden w-100"
+          style={{
+            borderRadius: '16px',
+            border: `3px solid white`,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
+            height: '280px',
+          }}
+        >
+          {hasCoords ? (
+            <GoogleMapViewer
+              lat={targetLat}
+              lng={targetLng}
+              title={service?.name}
+              type={type}
+              height="280px"
+              allowExpand={false}
+            />
+          ) : (
+            <div
+              className="w-100 h-100 d-flex align-items-center justify-content-center"
+              style={{ backgroundColor: '#e5e7eb' }}
+            >
+              <div className="text-center text-muted">
+                <i className="bi bi-map fs-2 d-block mb-2" />
+                <small className="font-inter">Ubicación no disponible</small>
+              </div>
+            </div>
+          )}
 
-        {/* Datos de Contacto */}
-        <div className="col-12 col-md-6">
-          <div className="d-flex flex-column h-100 justify-content-center p-md-2 text-center text-md-start">
-            <h3 className="font-inter fw-bold mb-1" style={{ color: theme.color, fontSize: '20px' }}>
-              {showContact ? (service?.name || 'Contactate con nosotros') : 'Ubicación'}
-            </h3>
-            <p className="font-inter text-muted small mb-3">
-              <i className="bi bi-geo-alt-fill me-1"></i>{service?.address}
-            </p>
-            
-            {showContact && (
-              <ContactButtons 
-                phone={service.phones?.[0]} 
-                whatsapp={service.phones?.[0]} 
-              />
-            )}
-            
-            <p className="font-inter text-muted x-small mt-3 opacity-75">
-              Hacé clic en el mapa para navegar con Google Maps y ver la ruta óptima desde tu ubicación.
-            </p>
-          </div>
+          {hasCoords && (
+            <div
+              className="position-absolute bottom-0 end-0 m-2 mb-2 me-2 px-3 py-2 rounded-2 shadow-sm d-flex align-items-center gap-2"
+              style={{
+                backgroundColor: '#ffffff',
+                color: theme.color,
+                fontSize: '12px',
+                fontWeight: '800',
+                letterSpacing: '0.5px',
+                pointerEvents: 'none',
+                zIndex: 10
+              }}
+            >
+              <i className="bi bi-arrows-angle-expand" style={{ fontSize: '12px', strokeWidth: '1px' }} />
+              AMPLIAR MAPA
+            </div>
+          )}
         </div>
-
-      </div>
+      </a>
     </div>
   );
 }
