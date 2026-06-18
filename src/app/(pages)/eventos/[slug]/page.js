@@ -23,6 +23,7 @@ export default async function EventDetailPage({ params }) {
   let eventData = null;
   const isNumeric = /^\d+$/.test(slug);
 
+  // Si el slug es un ID numérico, buscar directamente por ID
   if (isNumeric) {
     try {
       const res = await fetch(`http://destbackdev.aggility.io/api/v1/events/${slug}`, { cache: 'no-store' });
@@ -34,24 +35,46 @@ export default async function EventDetailPage({ params }) {
     }
   }
 
+  // Si no se encontró por ID (o el slug no es numérico), buscar paginando
+  // NOTA: La API ignora el parámetro ?slug= y devuelve todos los eventos paginados,
+  // por eso hay que filtrar localmente buscando el evento cuyo slug coincide exactamente.
   if (!eventData) {
     try {
-      const res = await fetch(`http://destbackdev.aggility.io/api/v1/events?slug=${slug}`, { cache: 'no-store' });
-      if (res.ok) {
-         const json = await res.json();
-         const list = json.data || json;
-         if (Array.isArray(list) && list.length > 0) {
-           eventData = list[0];
-         }
+      let page = 1;
+      let found = false;
+      const PER_PAGE = 100;
+
+      while (!found) {
+        const res = await fetch(
+          `http://destbackdev.aggility.io/api/v1/events?per_page=${PER_PAGE}&page=${page}`,
+          { cache: 'no-store' }
+        );
+        if (!res.ok) break;
+
+        const json = await res.json();
+        const list = Array.isArray(json) ? json : (json.data || []);
+
+        // Buscar el evento con slug exactamente igual al parámetro de URL
+        const match = list.find(e => e.slug === slug);
+        if (match) {
+          eventData = match;
+          found = true;
+          break;
+        }
+
+        // Si ya no hay más páginas, salir
+        const totalPages = json.pagination?.total_pages || 1;
+        if (page >= totalPages || list.length === 0) break;
+        page++;
       }
     } catch (err) {
-      console.error("Error fetching event by slug:", err);
+      console.error("Error fetching event by slug (pagination):", err);
     }
   }
 
   // 2. Fallback y formateo del evento (Mock si falla API)
   const event = {
-    id: eventData?.id || id || '2',
+    id: eventData?.id || slug || '2',
     title: eventData?.title || 'Ulises Bueno en Opus Costanera',
     date: eventData?.calendars?.[0]?.start_date ? new Date(eventData.calendars[0].start_date).toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'sáb, 7 de mar, 21 hs',
     location: eventData?.organization?.name ? `${eventData.organization.name} / ${eventData.organization.addresses?.[0]?.address?.split(',')[0] || eventData.organization.address || ''}` : 'Opus Costanera / Río Grande 688, Río Cuarto',
