@@ -7,8 +7,8 @@ export async function GET(request) {
   const search = searchParams.get('search') || '';
   const category = searchParams.get('category') || '';
   
-  // Modificamos para traer todos (500), ordenar descendente y luego paginar localmente
-  let url = `http://destbackdev.aggility.io/api/v1/organizations?per_page=500`;
+  // Modificamos para traer todos (2000), ordenar descendente y luego paginar localmente
+  let url = `https://destbackdev.aggility.io/api/v1/organizations?per_page=2000`;
 
   if (search) url += `&search=${encodeURIComponent(search)}`;
   if (category) url += `&category=${encodeURIComponent(category)}`;

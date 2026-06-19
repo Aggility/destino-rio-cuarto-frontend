@@ -14,7 +14,7 @@ export default async function ServiciosPage() {
   let apiServices = [];
   try {
     // Fetch initial data from the API
-    const res = await fetch('http://destbackdev.aggility.io/api/v1/organizations?per_page=500', { cache: 'no-store' });
+    const res = await fetch('https://destbackdev.aggility.io/api/v1/organizations?per_page=2000', { cache: 'no-store' });
     if (res.ok) {
       const data = await res.json();
       apiServices = data.data || (Array.isArray(data) ? data : []);

@@ -8,21 +8,20 @@ import { getNearbyLocations } from "@/utils/geo";
 import EventDistanceBadge from '@/components/client/EventDistanceBadge';
 import EventImageWithFallback from '@/components/client/EventImageWithFallback';
 import { getThumbnail } from '@/utils/image';
+import ContactButtons from '@/components/client/ContactButtons';
 
 /**
  * ServicioDetailPage - Destino Río Cuarto
  * Vista individual de una Organización/Servicio basada en los mocks "Organización - Desktop" y "Organización Ejemplo - Mobile"
  */
 export default async function ServicioDetailPage({ params }) {
-  const { slug } = await params;
-  
-  // 1. Obtener datos de la organización desde la API
+  const { slug } = await params;  // 1. Obtener datos de la organización desde la API
   let orgData = null;
   const isNumeric = /^\d+$/.test(slug);
 
   if (isNumeric) {
     try {
-      const res = await fetch(`http://destbackdev.aggility.io/api/v1/organizations/${slug}`, { cache: 'no-store' });
+      const res = await fetch(`https://destbackdev.aggility.io/api/v1/organizations/${slug}`, { cache: 'no-store' });
       if (res.ok) {
          orgData = (await res.json()).data;
       }
@@ -33,12 +32,12 @@ export default async function ServicioDetailPage({ params }) {
 
   if (!orgData) {
     try {
-      const res = await fetch(`http://destbackdev.aggility.io/api/v1/organizations?slug=${slug}`, { cache: 'no-store' });
+      const res = await fetch(`https://destbackdev.aggility.io/api/v1/organizations?slug=${slug}`, { cache: 'no-store' });
       if (res.ok) {
          const json = await res.json();
          const list = json.data || json;
          if (Array.isArray(list) && list.length > 0) {
-           orgData = list[0];
+            orgData = list[0];
          }
       }
     } catch (err) {
@@ -47,19 +46,24 @@ export default async function ServicioDetailPage({ params }) {
   }
 
   // 2. Mapeo de datos (Fallback por si falla la API o faltan datos)
+  const phoneContact = orgData?.contacts?.find(c => c.type === 'phone' || c.type === 'telephone');
+  const whatsappContact = orgData?.contacts?.find(c => c.type === 'whatsapp');
+  const instagramContact = orgData?.contacts?.find(c => c.type === 'instagram');
+  const facebookContact = orgData?.contacts?.find(c => c.type === 'facebook');
+  const webContact = orgData?.contacts?.find(c => c.type === 'web');
+
   const service = {
-    id: orgData?.id || id || '1',
+    id: orgData?.id || '1',
     name: orgData?.name || '47 Street',
     category: orgData?.categories?.[0]?.name || 'Tiendas de Ropa',
     address: orgData?.addresses?.[0]?.address || 'Hipólito Irigoyen 3076, Río Cuarto',
     lat: orgData?.addresses?.[0]?.latitude || -33.1293,
     lng: orgData?.addresses?.[0]?.longitude || -64.3496,
-    phones: orgData?.phone ? [orgData.phone] : ['358 475-4624', '358 422-1360'],
-    socials: [
-      { type: 'web', label: 'www.47street.com', url: 'https://www.47street.com', icon: 'bi-link-45deg' },
-      { type: 'instagram', label: 'Instagram', url: '#', icon: 'bi-instagram' },
-      { type: 'facebook', label: 'facebook', url: '#', icon: 'bi-facebook' }
-    ],
+    phone: phoneContact?.value || orgData?.phone || '',
+    whatsapp: whatsappContact?.value || '',
+    instagram: instagramContact?.value || '',
+    facebook: facebookContact?.value || '',
+    web: webContact?.value || '',
     description: orgData?.description || 'Empresa que brinda servicio de transporte automotor interurbano regular de pasajeros y servicio de transporte automotor turístico de pasajeros.',
     image: getThumbnail(orgData?.cover, orgData?.gallery)
   };
@@ -70,7 +74,7 @@ export default async function ServicioDetailPage({ params }) {
 
   try {
     // Buscar eventos cercanos
-    const resEvents = await fetch(`http://destbackdev.aggility.io/api/v1/events`, { cache: 'no-store' });
+    const resEvents = await fetch(`https://destbackdev.aggility.io/api/v1/events`, { cache: 'no-store' });
     if (resEvents.ok) {
        const allEvents = (await resEvents.json()).data || [];
        const formattedEvents = allEvents.map(ev => ({
@@ -86,20 +90,20 @@ export default async function ServicioDetailPage({ params }) {
           .filter(ev => ev.status?.toLowerCase() !== 'inactive')
           .slice(0, 3)
           .map(ev => ({
-            id: ev.id,
-            title: ev.title,
-            subtitle: ev.organization?.name || 'Río Cuarto',
-            badge: ev.calendars?.[0]?.start_date ? new Date(ev.calendars[0].start_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' }).toUpperCase() : 'PRÓXIMAMENTE',
-            type: 'event',
-            thumbnail: getThumbnail(ev.cover, ev.gallery),
-            lat: ev.lat,
-            lng: ev.lng,
-            href: `/eventos/${ev.slug || ev.id}`
+             id: ev.id,
+             title: ev.title,
+             subtitle: ev.organization?.name || 'Río Cuarto',
+             badge: ev.calendars?.[0]?.start_date ? new Date(ev.calendars[0].start_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' }).toUpperCase() : 'PRÓXIMAMENTE',
+             type: 'event',
+             thumbnail: getThumbnail(ev.cover, ev.gallery),
+             lat: ev.lat,
+             lng: ev.lng,
+             href: `/eventos/${ev.slug || ev.id}`
           }));
     }
 
     // Buscar organizaciones relacionadas (mismo rubro)
-    const resOrgs = await fetch(`http://destbackdev.aggility.io/api/v1/organizations?per_page=50`, { cache: 'no-store' });
+    const resOrgs = await fetch(`https://destbackdev.aggility.io/api/v1/organizations?category=${encodeURIComponent(service.category)}&per_page=50`, { cache: 'no-store' });
     if (resOrgs.ok) {
         let allOrgs = (await resOrgs.json()).data || [];
         // Filtramos servicios inactivos
@@ -193,6 +197,37 @@ export default async function ServicioDetailPage({ params }) {
                         service.category.toLowerCase().includes('gastronomía') ? 'gastronomia' : 'service'
                     }
                 />
+
+                {/* Botones de Contacto Rápido */}
+                {(service.phone || service.whatsapp) && (
+                  <div className="mb-4">
+                    <ContactButtons phone={service.phone} whatsapp={service.whatsapp} />
+                  </div>
+                )}
+
+                {/* Redes Sociales y Web */}
+                {(service.instagram || service.facebook || service.web) && (
+                  <div className="d-flex align-items-center flex-wrap gap-3 mb-5 mt-4 p-3 bg-light rounded-3 border">
+                    <span className="font-inter fw-bold text-gray-900 small m-0">Redes y Sitio Web:</span>
+                    <div className="d-flex align-items-center gap-2">
+                      {service.web && (
+                        <a href={service.web} target="_blank" rel="noopener noreferrer" className="btn btn-outline-primary rounded-circle d-flex align-items-center justify-content-center shadow-sm transition-all hover-lift" style={{ width: '38px', height: '38px', borderColor: '#bfdbfe' }} title="Visitar Sitio Web">
+                          <i className="bi bi-globe" style={{ fontSize: '16px' }}></i>
+                        </a>
+                      )}
+                      {service.instagram && (
+                        <a href={service.instagram} target="_blank" rel="noopener noreferrer" className="btn btn-outline-danger rounded-circle d-flex align-items-center justify-content-center shadow-sm transition-all hover-lift" style={{ width: '38px', height: '38px', borderColor: '#fecaca' }} title="Ver Instagram">
+                          <i className="bi bi-instagram" style={{ fontSize: '16px' }}></i>
+                        </a>
+                      )}
+                      {service.facebook && (
+                        <a href={service.facebook} target="_blank" rel="noopener noreferrer" className="btn btn-outline-primary rounded-circle d-flex align-items-center justify-content-center shadow-sm transition-all hover-lift" style={{ width: '38px', height: '38px', borderColor: '#bfdbfe' }} title="Ver Facebook">
+                          <i className="bi bi-facebook" style={{ fontSize: '16px' }}></i>
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {/* Más Información */}
                 <div className="mb-5">
