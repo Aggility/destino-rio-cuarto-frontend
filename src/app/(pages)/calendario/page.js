@@ -37,6 +37,7 @@ export default async function CalendarPage() {
     )
     .map(evt => ({
       id:        evt.id,
+      slug:      evt.slug,
       title:     evt.title,
       date_raw:  evt.calendars?.[0]?.start_date,
       calendars: evt.calendars,

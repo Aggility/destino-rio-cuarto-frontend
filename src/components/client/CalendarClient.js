@@ -4,30 +4,30 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import SidebarListCard from '@/components/server/SidebarListCard';
 
+const monthNames = [
+  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+];
+
+const daysOfWeek = ["DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"];
+
+const isDateInThisWeek = (date, today) => {
+  const diff = date.getTime() - today.getTime();
+  const days = Math.ceil(diff / (1000 * 3600 * 24));
+  return days >= -1 && days <= 7;
+};
+
 export default function CalendarClient({ initialEvents = [] }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState(initialEvents);
   const [isLoading, setIsLoading] = useState(false);
 
   const [viewFilter, setViewFilter] = useState('MES'); // 'HOY', 'SEMANA', 'MES'
-  const today = new Date();
-
-  const monthNames = [
-    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-  ];
-
-  const daysOfWeek = ["DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"];
 
   const changeMonth = (offset) => {
     const newDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + offset, 1);
     setCurrentDate(newDate);
-  };
-
-  const isDateInThisWeek = (date) => {
-    const diff = date.getTime() - today.getTime();
-    const days = Math.ceil(diff / (1000 * 3600 * 24));
-    return days >= -1 && days <= 7;
+    setViewFilter('MES');
   };
 
   const currentMonth = currentDate.getMonth();
@@ -46,6 +46,7 @@ export default function CalendarClient({ initialEvents = [] }) {
 
   // Agrupar eventos por día con filtro aplicado
   const eventsByDay = useMemo(() => {
+    const today = new Date();
     const map = {};
     events.forEach(evt => {
       const dateRaw = evt.calendars?.[0]?.start_date || evt.date_raw;
@@ -57,7 +58,7 @@ export default function CalendarClient({ initialEvents = [] }) {
 
       // Aplicar Filtro HOY / SEMANA / MES
       const isToday = d.getDate() === today.getDate() && d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear();
-      const inWeek = isDateInThisWeek(d);
+      const inWeek = isDateInThisWeek(d, today);
 
       if (viewFilter === 'HOY' && !isToday) return;
       if (viewFilter === 'SEMANA' && !inWeek) return;
@@ -66,6 +67,7 @@ export default function CalendarClient({ initialEvents = [] }) {
       if (!map[dayNum]) map[dayNum] = [];
       map[dayNum].push({
           id: evt.id,
+          slug: evt.slug,
           title: evt.title,
           type: 'event',
           thumbnail: evt.image_url || evt.thumbnail || '/Thumbnail.png',
@@ -79,9 +81,9 @@ export default function CalendarClient({ initialEvents = [] }) {
     <div className="calendar-client-wrapper">
       
       {/* 1. Header del Calendario */}
-      <section className="bg-white pt-5 pb-4 border-bottom shadow-sm position-sticky top-0 z-1030">
+      <section className="bg-white pt-5 pb-0 border-bottom shadow-sm">
         <div className="container-xxl px-lg-5">
-            <div className="d-flex flex-column gap-4">
+            <div className="d-flex flex-column gap-3">
                 <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                     <div>
                         <h1 className="fw-bold text-gray-900 font-inter mb-1" 
@@ -120,7 +122,7 @@ export default function CalendarClient({ initialEvents = [] }) {
                 </div>
 
                 {/* FILTROS HOY - SEMANA - MES */}
-                <div className="d-flex gap-2 pb-2">
+                <div className="d-flex gap-2">
                     {['HOY', 'SEMANA', 'MES'].map(filter => (
                         <button
                             key={filter}
@@ -137,6 +139,15 @@ export default function CalendarClient({ initialEvents = [] }) {
                         </button>
                     ))}
                 </div>
+
+                {/* Cabecera de días de la semana (Desktop) - Fijo en el encabezado */}
+                <div className="row g-0 d-none d-xl-flex border-top pt-3 pb-2 mt-2" style={{ borderColor: '#f3f4f6' }}>
+                    {daysOfWeek.map(day => (
+                        <div key={day} className="col-xl-7-cols text-center">
+                            <span className="fw-bold text-gray-500 small tracking-widest">{day}</span>
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
       </section>
@@ -144,15 +155,6 @@ export default function CalendarClient({ initialEvents = [] }) {
       {/* 2. Cuadrícula del Calendario */}
       <section className="py-5 bg-listing-page">
         <div className="container-xxl px-lg-5">
-            
-            {/* Cabecera de días de la semana (Desktop) */}
-            <div className="row g-0 mb-3 d-none d-xl-flex">
-                {daysOfWeek.map(day => (
-                    <div key={day} className="col-xl-7-cols text-center py-2">
-                        <span className="fw-bold text-gray-500 small tracking-widest">{day}</span>
-                    </div>
-                ))}
-            </div>
 
             {/* Grid Principal */}
             <div className="row g-3 g-xl-0 border-xl-start border-xl-top">
@@ -192,7 +194,7 @@ export default function CalendarClient({ initialEvents = [] }) {
                                                     subtitle=""
                                                     badge={ev.badge}
                                                     thumbnail={ev.thumbnail}
-                                                    href={`/eventos/${ev.id}`}
+                                                    href={`/eventos/${ev.slug || ev.id}`}
                                                     variant="calendar"
                                                 />
                                             </div>
