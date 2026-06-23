@@ -7,6 +7,10 @@ export default function GeolocationPopup() {
   const [dontShowAgain, setDontShowAgain] = useState(false);
 
   useEffect(() => {
+    // Solo mostrar el popup en vista mobile (< 768px)
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    if (!isMobile) return;
+
     const hasSeenPopup = localStorage.getItem('geo_popup_seen');
     const hiddenForSession = sessionStorage.getItem('geo_session_hidden');
     
@@ -67,7 +71,7 @@ export default function GeolocationPopup() {
   if (!show) return null;
 
   return (
-    <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ zIndex: 9999 }}>
+    <div className="position-fixed top-0 start-0 w-100 h-100 d-flex d-md-none align-items-center justify-content-center" style={{ zIndex: 9999 }}>
       
       {/* Viewport Black Overlay (fondo gris en toda la pagina web para aislar) */}
       <div className="position-absolute top-0 start-0 w-100 h-100 bg-black" style={{ opacity: 0.65 }}></div>
