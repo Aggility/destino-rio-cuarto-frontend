@@ -10,6 +10,7 @@ import EventsSlider from '@/components/client/EventsSlider';
 import { getThumbnail } from '@/utils/image';
 import HomeSectionSlider from '@/components/client/HomeSectionSlider';
 import ActivityCard from '@/components/server/ActivityCard';
+import ShareButton from '@/components/client/ShareButton';
 
 /**
  * ActivityDetailPage - Destino Río Cuarto
@@ -274,16 +275,7 @@ export default async function ActivityDetailPage({ params }) {
         
         {/* Action Buttons Row — Ubicados debajo de la portada */}
         <div className="d-flex justify-content-center justify-content-md-end gap-2 gap-md-3 mb-4 pe-lg-5">
-            <button className="btn shadow-premium d-flex align-items-center gap-2 px-4 py-2 rounded-3 border-0 transition-all hover-lift"
-                    style={{ backgroundColor: themeColor, color: '#fff' }}>
-                <span className="font-inter fw-semibold small">Participar</span>
-                <i className="bi bi-plus-lg"></i>
-            </button>
-            <button className="btn shadow-premium d-flex align-items-center gap-2 px-4 py-2 rounded-3 border-0 transition-all hover-lift"
-                    style={{ backgroundColor: themeColor, color: '#fff' }}>
-                <span className="font-inter fw-semibold small">Compartir</span>
-                <i className="bi bi-share"></i>
-            </button>
+            <ShareButton title={activity.title} themeColor={themeColor} />
         </div>
         <div className="row g-4">
           
