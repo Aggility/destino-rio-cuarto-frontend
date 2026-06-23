@@ -466,6 +466,7 @@ export default async function ActivityDetailPage({ params }) {
                 <div key={item.id} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)', scrollSnapAlign: 'start' }}>
                   <ActivityCard 
                     id={item.id}
+                    slug={item.slug}
                     title={item.title}
                     time={item.date}
                     address={item.location}

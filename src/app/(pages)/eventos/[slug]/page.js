@@ -10,6 +10,8 @@ import EventsSlider from '@/components/client/EventsSlider';
 import { getThumbnail } from '@/utils/image';
 import HomeSectionSlider from '@/components/client/HomeSectionSlider';
 import EventCard from '@/components/server/EventCard';
+import ShareButton from '@/components/client/ShareButton';
+import AddCalendarButton from '@/components/client/AddCalendarButton';
 
 
 /**
@@ -77,6 +79,10 @@ export default async function EventDetailPage({ params }) {
     id: eventData?.id || slug || '2',
     title: eventData?.title || 'Ulises Bueno en Opus Costanera',
     date: eventData?.calendars?.[0]?.start_date ? new Date(eventData.calendars[0].start_date).toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'sáb, 7 de mar, 21 hs',
+    startDateRaw: eventData?.calendars?.[0]?.start_date || '2026-03-07',
+    startTimeRaw: eventData?.calendars?.[0]?.start_time || '21:00:00',
+    endDateRaw: eventData?.calendars?.[0]?.end_date || null,
+    endTimeRaw: eventData?.calendars?.[0]?.end_time || null,
     location: eventData?.organization?.name ? `${eventData.organization.name} / ${eventData.organization.addresses?.[0]?.address?.split(',')[0] || eventData.organization.address || ''}` : 'Opus Costanera / Río Grande 688, Río Cuarto',
     coords: {
         lat: parseFloat(eventData?.organization?.addresses?.[0]?.latitude) || 
@@ -238,16 +244,8 @@ export default async function EventDetailPage({ params }) {
         
         {/* Action Buttons Row — Ubicados debajo de la portada */}
         <div className="d-flex justify-content-center justify-content-md-end gap-2 gap-md-3 mb-4 pe-lg-5">
-            <button className="btn shadow-premium d-flex align-items-center gap-2 px-4 py-2 rounded-3 border-0 transition-all hover-lift"
-                    style={{ backgroundColor: '#f54286', color: '#fff' }}>
-                <span className="font-inter fw-semibold small">Agendar</span>
-                <i className="bi bi-calendar-plus"></i>
-            </button>
-            <button className="btn shadow-premium d-flex align-items-center gap-2 px-4 py-2 rounded-3 border-0 transition-all hover-lift"
-                    style={{ backgroundColor: '#f54286', color: '#fff' }}>
-                <span className="font-inter fw-semibold small">Compartir</span>
-                <i className="bi bi-share"></i>
-            </button>
+            <AddCalendarButton event={event} themeColor="#f54286" />
+            <ShareButton title={event.title} themeColor="#f54286" />
         </div>
         <div className="row g-4">
           

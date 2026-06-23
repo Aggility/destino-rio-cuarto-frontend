@@ -11,6 +11,7 @@ import { getThumbnail } from '@/utils/image';
 import HomeSectionSlider from '@/components/client/HomeSectionSlider';
 import ActivityCard from '@/components/server/ActivityCard';
 import EventCard from '@/components/server/EventCard';
+import ShareButton from '@/components/client/ShareButton';
 
 /**
  * ExperienceDetailPage - Destino Río Cuarto
@@ -141,8 +142,13 @@ export default async function ExperienceDetailPage({ params }) {
     if (resActs.ok) {
       const actsData = await resActs.json();
       allProposals = Array.isArray(actsData) ? actsData : actsData.data || [];
-      const allActs = allProposals
-        .filter(e => String(e.id) !== String(experience.id) && e.status?.toLowerCase() !== 'inactive');
+      
+      // Filtrar únicamente propuestas de tipo "actividad" (activity)
+      const allActs = allProposals.filter(e => 
+        String(e.id) !== String(experience.id) && 
+        e.status?.toLowerCase() !== 'inactive' &&
+        e.types?.some(t => t.key === 'activity' || t.slug === 'actividad')
+      );
         
       const currentLoc = experience.location.toLowerCase();
       const sameLocationActs = allActs.filter(e => {
@@ -186,15 +192,16 @@ export default async function ExperienceDetailPage({ params }) {
         return {
           id: e.id,
           slug: e.slug,
-          title: e.title || 'Experiencia',
+          title: e.title || 'Actividad',
           date: tBadge,
           location: addr,
           thumbnail: thumb,
           category: catName.toUpperCase(),
-          typeColor: themeColor,
-          basePath: 'experiencias',
+          typeColor: '#8a38f5',
+          basePath: 'actividades',
           lat: parseFloat(e.addresses?.[0]?.latitude) || null,
           lng: parseFloat(e.addresses?.[0]?.longitude) || null,
+          schedule: c?.observations || ''
         };
       });
     }
@@ -363,16 +370,7 @@ export default async function ExperienceDetailPage({ params }) {
         
         {/* Action Buttons Row */}
         <div className="d-flex justify-content-center justify-content-md-end gap-2 gap-md-3 mb-4 pe-lg-5">
-            <button className="btn shadow-premium d-flex align-items-center gap-2 px-4 py-2 rounded-3 border-0 transition-all hover-lift"
-                    style={{ backgroundColor: themeColor, color: '#fff' }}>
-                <span className="font-inter fw-semibold small">Participar</span>
-                <i className="bi bi-plus-lg"></i>
-            </button>
-            <button className="btn shadow-premium d-flex align-items-center gap-2 px-4 py-2 rounded-3 border-0 transition-all hover-lift"
-                    style={{ backgroundColor: themeColor, color: '#fff' }}>
-                <span className="font-inter fw-semibold small">Compartir</span>
-                <i className="bi bi-share"></i>
-            </button>
+            <ShareButton title={experience.title} themeColor={themeColor} />
         </div>
 
         <div className="row g-4">
@@ -673,6 +671,7 @@ export default async function ExperienceDetailPage({ params }) {
                 <div key={item.id} className="flex-shrink-0" style={{ width: 'clamp(280px, 80vw, 320px)', scrollSnapAlign: 'start' }}>
                   <EventCard 
                     id={item.id}
+                    slug={item.slug}
                     title={item.title}
                     date={item.date}
                     location={item.location}
@@ -681,16 +680,16 @@ export default async function ExperienceDetailPage({ params }) {
                     thumbnail={item.thumbnail}
                     lat={item.lat}
                     lng={item.lng}
-                    basePath="experiencias"
-                    typeColor={themeColor}
+                    basePath={item.basePath}
+                    typeColor={item.typeColor}
                   />
                 </div>
               ))}
-              <div key="more-experiences" className="flex-shrink-0" style={{ width: 'clamp(200px, 50vw, 240px)', scrollSnapAlign: 'start' }}>
-                <Link href="/experiencias" className="text-decoration-none h-100 d-block">
+              <div key="more-activities" className="flex-shrink-0" style={{ width: 'clamp(200px, 50vw, 240px)', scrollSnapAlign: 'start' }}>
+                <Link href="/actividades" className="text-decoration-none h-100 d-block">
                   <div className="rounded-4 d-flex flex-column align-items-center justify-content-center text-white shadow-premium p-4 h-100" 
                        style={{ 
-                         backgroundColor: themeColor, 
+                         backgroundColor: '#8a38f5', 
                          transition: 'all 0.3s ease'
                        }}>
                     <div className="rounded-circle border border-2 border-white d-flex align-items-center justify-content-center mb-3" 
@@ -698,7 +697,7 @@ export default async function ExperienceDetailPage({ params }) {
                       <i className="bi bi-plus-lg fs-3"></i>
                     </div>
                     <span className="fw-bold font-inter" style={{ fontSize: '18px' }}>Ver más</span>
-                    <span className="opacity-80 small text-center mt-1 font-inter">Experiencias</span>
+                    <span className="opacity-80 small text-center mt-1 font-inter">Actividades</span>
                   </div>
                 </Link>
               </div>
