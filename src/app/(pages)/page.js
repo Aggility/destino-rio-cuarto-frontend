@@ -130,7 +130,7 @@ export default async function Home() {
     {
       id: 'suggested_experiences',
       title: 'Experiencias Sugeridas',
-      slug: 'propuestas',
+      slug: 'experiencias',
       color: '#ff5a1f',
       hasData: suggestedExp.length > 0,
       renderItems: () =>
@@ -157,7 +157,7 @@ export default async function Home() {
                 thumbnail={getCover(exp)}
                 lat={exp.addresses?.[0]?.latitude}
                 lng={exp.addresses?.[0]?.longitude}
-                basePath="propuestas"
+                basePath="experiencias"
                 typeColor="#ff5a1f"
               />
             </CardWrapper>
@@ -199,7 +199,7 @@ export default async function Home() {
                 schedule={cal?.observations || 'Consultar horarios'}
                 description=""
                 thumbnail={getCover(item)}
-                type="propuestas"
+                type="actividades"
               />
             </CardWrapper>
           );
