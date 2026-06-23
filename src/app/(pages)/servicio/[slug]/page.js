@@ -68,9 +68,10 @@ export default async function ServicioDetailPage({ params }) {
     image: getThumbnail(orgData?.cover, orgData?.gallery)
   };
 
-  // 3. Obtener Datos para Recomendaciones (Eventos y Organizaciones Relacionadas)
+  // 3. Obtener Datos para Recomendaciones (Eventos, Organizaciones y Actividades Relacionadas)
   let nearbyEvents = [];
   let relatedOrgs = [];
+  let realActivities = [];
 
   try {
     // Buscar eventos cercanos
@@ -122,6 +123,47 @@ export default async function ServicioDetailPage({ params }) {
             thumbnail: getThumbnail(org.cover, org.gallery)
           }));
     }
+
+    // Buscar actividades reales desde el endpoint /proposals
+    const resProp = await fetch(`https://destbackdev.aggility.io/api/v1/proposals?per_page=50`, { cache: 'no-store' });
+    if (resProp.ok) {
+       const propData = await resProp.json();
+       const list = Array.isArray(propData) ? propData : (propData.data || []);
+       const allActivities = list.filter(p => 
+          p.status?.toLowerCase() !== 'inactive' &&
+          p.types?.some(t => t.key === 'activity' || t.slug === 'actividad')
+       );
+
+       // Filtrar las vinculadas a esta organización (si aplica)
+       const orgIdStr = String(service.id);
+       const relatedToOrg = allActivities.filter(p => 
+          p.organization_id === service.id || 
+          String(p.organization?.id) === orgIdStr ||
+          p.addresses?.some(addr => String(addr.organization?.id) === orgIdStr)
+       );
+
+       // Rellenar hasta 3 con otras actividades
+       let selectedActs = [...relatedToOrg];
+       if (selectedActs.length < 3) {
+          const others = allActivities.filter(p => !relatedToOrg.some(r => r.id === p.id));
+          selectedActs = [...selectedActs, ...others.slice(0, 3 - selectedActs.length)];
+       } else {
+          selectedActs = selectedActs.slice(0, 3);
+       }
+
+       realActivities = selectedActs.map(p => {
+         const cat = p.categories?.[0]?.name?.trim() || 'Actividad';
+         const addr = p.addresses?.[0]?.organization?.name || p.organization?.name || p.addresses?.[0]?.address || 'Río Cuarto';
+         return {
+           title: p.title,
+           subtitle: addr,
+           badge: cat,
+           type: 'activity',
+           thumbnail: getThumbnail(p.cover, p.gallery),
+           href: `/actividades/${p.slug || p.id}`
+         };
+       });
+    }
   } catch (err) {
     console.error("Error fetching recommendations:", err);
   }
@@ -133,13 +175,13 @@ export default async function ServicioDetailPage({ params }) {
   ];
 
   const finalEvents = nearbyEvents.length > 0 ? nearbyEvents : [
-    { title: 'Cine Bajo las Estrellas', subtitle: 'Parque Sarmiento', badge: '15 DIC', type: 'event', thumbnail: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=300', href: '#' }
+    { title: 'Cine Bajo las Estrellas', subtitle: 'Parque Sarmiento', badge: '15 DIC', type: 'event', thumbnail: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=300&q=80&w=300', href: '#' }
   ];
 
-  const suggestedActivities = [
-    { title: 'Circuito del Bienestar', subtitle: 'Río Cuarto', badge: '4 Lugares', type: 'activity', thumbnail: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=300', href: '#' },
-    { title: 'Circuito del Bienestar', subtitle: 'Río Cuarto', badge: '4 Lugares', type: 'activity', thumbnail: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=300', href: '#' },
-    { title: 'Circuito del Bienestar', subtitle: 'Río Cuarto', badge: '4 Lugares', type: 'activity', thumbnail: 'https://images.unsplash.com/photo-1599443015574-be5fe8a05783?auto=format&fit=crop&q=80&w=300', href: '#' }
+  const finalActivities = realActivities.length > 0 ? realActivities : [
+    { title: 'Parque Ecológico Urbano', subtitle: 'Río Cuarto', badge: 'Naturaleza', type: 'activity', thumbnail: '/no-img.webp', href: '/actividades/parque-ecologico-urbano' },
+    { title: 'Taller de Fotografía', subtitle: 'Río Cuarto', badge: 'Taller', type: 'activity', thumbnail: '/no-img.webp', href: '/actividades/taller-de-fotografia-y-narrativa-visual' },
+    { title: 'Taller de Historietas', subtitle: 'Río Cuarto', badge: 'Taller', type: 'activity', thumbnail: '/no-img.webp', href: '/actividades/taller-de-historietas-breves' }
   ];
 
   return (
@@ -297,27 +339,27 @@ export default async function ServicioDetailPage({ params }) {
                             ))}
                         </div>
                         <Link href="/eventos" className="font-inter text-decoration-none small fw-medium text-pink-500" style={{ color: '#f54286' }}>
-                            Ver más Actividades
+                            Ver más eventos
                         </Link>
                     </div>
 
-                    {/* Actividades Turísticas Section */}
+                    {/* Actividades Sugeridas Section */}
                     <div className="mb-2 pt-2">
                         <div className="d-flex align-items-center gap-2 mb-3 mt-3">
                             <div className="d-flex align-items-center justify-content-center text-white rounded-2" style={{ width: '28px', height: '28px', backgroundColor: '#8a38f5' }}>
                                 <i className="bi bi-person-arms-up small"></i>
                             </div>
-                            <h4 className="font-inter fw-bold m-0" style={{ color: '#8a38f5', fontSize: '18px' }}>Actividades Turísticas</h4>
+                            <h4 className="font-inter fw-bold m-0" style={{ color: '#8a38f5', fontSize: '18px' }}>Actividades Sugeridas</h4>
                         </div>
                         <div className="d-flex flex-column mb-3 border-bottom pb-2">
-                            {suggestedActivities.map((ac, i) => (
+                            {finalActivities.map((ac, i) => (
                                 <div key={i} className={i !== 0 ? 'border-top pt-1 mt-1' : ''}>
                                     <SidebarListCard {...ac} />
                                 </div>
                             ))}
                         </div>
-                        <Link href="/actividades" className="font-inter text-decoration-none small fw- medium" style={{ color: '#8a38f5' }}>
-                            Ver más Experiencias
+                        <Link href="/actividades" className="font-inter text-decoration-none small fw-medium" style={{ color: '#8a38f5' }}>
+                            Ver más actividades
                         </Link>
                     </div>
                 </div>
