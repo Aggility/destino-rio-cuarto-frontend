@@ -20,7 +20,20 @@ export default async function ServiciosPage() {
       apiServices = data.data || (Array.isArray(data) ? data : []);
       apiServices = apiServices
         .filter(org => org.status?.toLowerCase() !== 'inactive')
-        .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+        .sort((a, b) => {
+          const isServiceA = a.types?.some(t => t.key === 'service' || t.slug === 'servicio') ? 1 : 0;
+          const isServiceB = b.types?.some(t => t.key === 'service' || t.slug === 'servicio') ? 1 : 0;
+          const isPlaceA = a.types?.some(t => t.key === 'place' || t.slug === 'lugar') ? 1 : 0;
+          const isPlaceB = b.types?.some(t => t.key === 'place' || t.slug === 'lugar') ? 1 : 0;
+          
+          const weightA = isServiceA ? 1 : (isPlaceA ? 2 : 3);
+          const weightB = isServiceB ? 1 : (isPlaceB ? 2 : 3);
+          
+          if (weightA !== weightB) {
+            return weightA - weightB;
+          }
+          return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+        });
     }
   } catch (error) {
     console.error("Error fetching organizations API: ", error);
@@ -86,14 +99,6 @@ export default async function ServiciosPage() {
                         lng={s.lng}
                       />
                     ))}
-                  </div>
-
-                  <div className="mt-4 p-4 bg-blue-50 rounded-4 text-center border border-blue-100 shadow-sm" style={{ backgroundColor: '#f0f7ff' }}>
-                    <h4 className="font-inter fw-bold text-primary mb-2">¿Sumamos tu negocio?</h4>
-                    <p className="small text-gray-600 font-inter mb-4">Llegá a más turistas y vecinos registrando tu comercio gratis.</p>
-                    <button className="btn btn-primary w-100 rounded-3 shadow-premium py-2 fw-bold" style={{ backgroundColor: '#1a56db' }}>
-                      REGISTRAR MI COMERCIO
-                    </button>
                   </div>
                </div>
             </div>
