@@ -15,12 +15,12 @@ import { getThumbnail } from '@/utils/image';
  *   - relevant_activities
  *   - contextual_info (clima, segmento, avisos)
  */
-export const revalidate = 300; // ISR: revalidar cada 5 minutos
+export const revalidate = 60; // ISR: revalidar c60ada 5 minutos
 
 export default async function Home() {
   // ── 1. Fetch único al endpoint unificado ──────────────────────────────────
-  let featuredEvents     = [];
-  let suggestedExp       = [];
+  let featuredEvents = [];
+  let suggestedExp = [];
   let relevantActivities = [];
 
   try {
@@ -35,9 +35,9 @@ export default async function Home() {
       const sortDesc = (arr) =>
         [...arr].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
 
-      featuredEvents     = sortDesc(Array.isArray(data.featured_events)      ? data.featured_events      : []);
-      suggestedExp       = sortDesc(Array.isArray(data.suggested_experiences) ? data.suggested_experiences : []);
-      relevantActivities = sortDesc(Array.isArray(data.relevant_activities)  ? data.relevant_activities  : []);
+      featuredEvents = sortDesc(Array.isArray(data.featured_events) ? data.featured_events : []);
+      suggestedExp = sortDesc(Array.isArray(data.suggested_experiences) ? data.suggested_experiences : []);
+      relevantActivities = sortDesc(Array.isArray(data.relevant_activities) ? data.relevant_activities : []);
     }
   } catch (error) {
     console.error('Error fetching /api/v1/home:', error);
@@ -226,14 +226,14 @@ export default async function Home() {
               <HomeSectionSlider title={section.title}>
                 {section.hasData
                   ? [
-                      ...section.renderItems(),
-                      <SeeMoreCard
-                        key={`more-${section.slug}`}
-                        slug={section.slug}
-                        title={section.title}
-                        color={section.color}
-                      />,
-                    ]
+                    ...section.renderItems(),
+                    <SeeMoreCard
+                      key={`more-${section.slug}`}
+                      slug={section.slug}
+                      title={section.title}
+                      color={section.color}
+                    />,
+                  ]
                   : (
                     // Estado vacío inline — no bloquea el render
                     <div

@@ -2,46 +2,56 @@ import path from 'path';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Configuración de Sass robusta
+  // 🔥 Clave para Docker liviano
+  output: 'standalone',
+
+  // 🧠 Reduce carga del server
+  compress: true,
+
+  // ⚡ Minificación rápida (menos CPU/RAM en build y runtime)
+  swcMinify: true,
+
+  // 🔒 Seguridad + menos headers innecesarios
+  poweredByHeader: false,
+
+  // 🧪 Opcional (podés dejarlo, no afecta RAM fuerte)
+  reactStrictMode: true,
+
+  // 🎨 Sass optimizado
   sassOptions: {
     includePaths: [
       path.resolve(process.cwd(), 'node_modules'),
-      path.resolve(process.cwd(), 'src/styles')
+      path.resolve(process.cwd(), 'src/styles'),
     ],
   },
 
+  // 🖼️ Imágenes optimizadas
   images: {
-    // Permitir imágenes externas para demos (Unsplash)
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
-        port: '',
-        pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'cdn-destino.riocuarto.gob.ar',
-        port: '',
-        pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'imagenes-prueba.riocuarto.gob.ar',
-        port: '',
-        pathname: '/**',
       },
     ],
     formats: ['image/avif', 'image/webp'],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+
+    // ⚠️ Reducido (menos RAM en procesamiento de imágenes)
+    deviceSizes: [640, 828, 1080, 1200, 1920],
+    imageSizes: [32, 64, 128, 256, 384],
   },
 
-  reactStrictMode: true,
-  poweredByHeader: false,
-  
-  // Habilitar salida standalone para Docker/Dokploy
-  output: 'standalone',
+  // 🚀 Reduce trabajo del server en runtime
+  experimental: {
+    optimizeCss: true,
+  },
 };
 
 export default nextConfig;
