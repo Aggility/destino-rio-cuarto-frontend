@@ -13,7 +13,7 @@ export default async function ActivitiesPage() {
   let rawActivities = [];
 
   try {
-    const res = await fetch('https://destbackdev.aggility.io/api/v1/proposals?per_page=500', { cache: 'no-store' });
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/proposals?per_page=500`, { cache: 'no-store' });
     if (res.ok) {
       const data = await res.json();
       const all = Array.isArray(data) ? data : (data.data || []);

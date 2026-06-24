@@ -24,10 +24,10 @@ export default async function EventsPage() {
 
   try {
     const [resEvents, resFrameworks] = await Promise.all([
-      fetch('https://destbackdev.aggility.io/api/v1/events?per_page=500', {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/events?per_page=500`, {
         next: { revalidate: 300 },
       }),
-      fetch('https://destbackdev.aggility.io/api/v1/event-frameworks?per_page=500', {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/event-frameworks?per_page=500`, {
         next: { revalidate: 300 },
       }),
     ]);

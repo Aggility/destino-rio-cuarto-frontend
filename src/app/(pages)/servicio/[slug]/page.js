@@ -21,7 +21,7 @@ export default async function ServicioDetailPage({ params }) {
 
   if (isNumeric) {
     try {
-      const res = await fetch(`https://destbackdev.aggility.io/api/v1/organizations/${slug}`, { cache: 'no-store' });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/organizations/${slug}`, { cache: 'no-store' });
       if (res.ok) {
          orgData = (await res.json()).data;
       }
@@ -32,7 +32,7 @@ export default async function ServicioDetailPage({ params }) {
 
   if (!orgData) {
     try {
-      const res = await fetch(`https://destbackdev.aggility.io/api/v1/organizations?slug=${slug}`, { cache: 'no-store' });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/organizations?slug=${slug}`, { cache: 'no-store' });
       if (res.ok) {
          const json = await res.json();
          const list = json.data || json;
@@ -75,7 +75,7 @@ export default async function ServicioDetailPage({ params }) {
 
   try {
     // Buscar eventos cercanos
-    const resEvents = await fetch(`https://destbackdev.aggility.io/api/v1/events`, { cache: 'no-store' });
+    const resEvents = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events`, { cache: 'no-store' });
     if (resEvents.ok) {
        const allEvents = (await resEvents.json()).data || [];
        const formattedEvents = allEvents.map(ev => ({
@@ -109,7 +109,7 @@ export default async function ServicioDetailPage({ params }) {
       ? `category_id=${categoryId}` 
       : `category=${encodeURIComponent(service.category)}`;
 
-    const resOrgs = await fetch(`https://destbackdev.aggility.io/api/v1/organizations?${relatedQuery}&per_page=50`, { cache: 'no-store' });
+    const resOrgs = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/organizations?${relatedQuery}&per_page=50`, { cache: 'no-store' });
     if (resOrgs.ok) {
         let allOrgs = (await resOrgs.json()).data || [];
         // Filtramos servicios inactivos
@@ -130,7 +130,7 @@ export default async function ServicioDetailPage({ params }) {
     }
 
     // Buscar actividades reales desde el endpoint /proposals
-    const resProp = await fetch(`https://destbackdev.aggility.io/api/v1/proposals?per_page=50`, { cache: 'no-store' });
+    const resProp = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/proposals?per_page=50`, { cache: 'no-store' });
     if (resProp.ok) {
        const propData = await resProp.json();
        const list = Array.isArray(propData) ? propData : (propData.data || []);

@@ -17,7 +17,7 @@ export default async function MacroEventoPage({ params }) {
 
   if (isNumeric) {
     try {
-      const res = await fetch(`https://destbackdev.aggility.io/api/v1/event-frameworks/${slug}`, { cache: 'no-store' });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/event-frameworks/${slug}`, { cache: 'no-store' });
       if (res.ok) {
         const json = await res.json();
         frameworkData = json.data || json;
@@ -29,7 +29,7 @@ export default async function MacroEventoPage({ params }) {
 
   if (!frameworkData) {
     try {
-      const res = await fetch(`https://destbackdev.aggility.io/api/v1/event-frameworks?slug=${slug}`, { cache: 'no-store' });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/event-frameworks?slug=${slug}`, { cache: 'no-store' });
       if (res.ok) {
         const json = await res.json();
         const list = json.data || json;

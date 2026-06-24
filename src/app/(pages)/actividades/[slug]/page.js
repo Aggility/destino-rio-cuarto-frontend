@@ -27,7 +27,7 @@ export default async function ActivityDetailPage({ params }) {
 
   if (isNumeric) {
     try {
-      const res = await fetch(`https://destbackdev.aggility.io/api/v1/proposals/${slug}`, { cache: 'no-store' });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/proposals/${slug}`, { cache: 'no-store' });
       if (res.ok) {
          activityData = (await res.json()).data || (await res.json());
       }
@@ -38,7 +38,7 @@ export default async function ActivityDetailPage({ params }) {
 
   if (!activityData) {
     try {
-      const res = await fetch(`https://destbackdev.aggility.io/api/v1/proposals?slug=${slug}`, { cache: 'no-store' });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/proposals?slug=${slug}`, { cache: 'no-store' });
       if (res.ok) {
          const json = await res.json();
          const list = json.data || json;
@@ -107,7 +107,7 @@ export default async function ActivityDetailPage({ params }) {
   // 2b. Obtener actividades aleatorias para el slider
   let randomActivities = [];
   try {
-    const resActs = await fetch(`https://destbackdev.aggility.io/api/v1/proposals?per_page=50`, { cache: 'no-store' });
+    const resActs = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/proposals?per_page=50`, { cache: 'no-store' });
     if (resActs.ok) {
       const actsData = await resActs.json();
       const allActs = (Array.isArray(actsData) ? actsData : actsData.data || [])
@@ -181,7 +181,7 @@ export default async function ActivityDetailPage({ params }) {
   // 3. Obtener Organizaciones (Servicios) para filtrar por cercanía
   let allOrganizations = [];
   try {
-    const resOrg = await fetch(`https://destbackdev.aggility.io/api/v1/organizations`, { cache: 'no-store' });
+    const resOrg = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/organizations`, { cache: 'no-store' });
     if (resOrg.ok) {
         const orgData = await resOrg.json();
         allOrganizations = orgData.data || [];

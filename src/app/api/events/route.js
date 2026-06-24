@@ -4,7 +4,7 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const page = searchParams.get('page') || 1;
   const perPage = parseInt(searchParams.get('per_page')) || 10;
-  const baseUrl = 'http://destbackdev.aggility.io/api/v1/events';
+  const baseUrl = `${process.env.NEXT_PUBLIC_API_URL}/events`;
 
   try {
     const res = await fetch(`${baseUrl}?per_page=500`, {

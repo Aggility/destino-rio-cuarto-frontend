@@ -28,7 +28,7 @@ export default async function EventDetailPage({ params }) {
   // Si el slug es un ID numérico, buscar directamente por ID
   if (isNumeric) {
     try {
-      const res = await fetch(`http://destbackdev.aggility.io/api/v1/events/${slug}`, { cache: 'no-store' });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${slug}`, { cache: 'no-store' });
       if (res.ok) {
          eventData = (await res.json()).data;
       }
@@ -48,7 +48,7 @@ export default async function EventDetailPage({ params }) {
 
       while (!found) {
         const res = await fetch(
-          `http://destbackdev.aggility.io/api/v1/events?per_page=${PER_PAGE}&page=${page}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/events?per_page=${PER_PAGE}&page=${page}`,
           { cache: 'no-store' }
         );
         if (!res.ok) break;
@@ -106,7 +106,7 @@ export default async function EventDetailPage({ params }) {
   // 2b. Obtener eventos aleatorios para el slider
   let randomEvents = [];
   try {
-    const resEvents = await fetch(`http://destbackdev.aggility.io/api/v1/events?per_page=50`, { cache: 'no-store' });
+    const resEvents = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events?per_page=50`, { cache: 'no-store' });
     if (resEvents.ok) {
       const eventsData = await resEvents.json();
       const allEvents = (eventsData.data || []).filter(e => String(e.id) !== String(event.id));
@@ -145,7 +145,7 @@ export default async function EventDetailPage({ params }) {
   // 3. Obtener Organizaciones (Servicios) para filtrar por cercanía
   let allOrganizations = [];
   try {
-    const resOrg = await fetch(`http://destbackdev.aggility.io/api/v1/organizations`, { cache: 'no-store' });
+    const resOrg = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/organizations`, { cache: 'no-store' });
     if (resOrg.ok) {
         const orgData = await resOrg.json();
         allOrganizations = orgData.data || [];

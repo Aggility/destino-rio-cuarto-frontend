@@ -24,7 +24,7 @@ export default async function Home() {
   let relevantActivities = [];
 
   try {
-    const res = await fetch('https://destbackdev.aggility.io/api/v1/home', {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/home`, {
       next: { revalidate: 300 },
     });
 

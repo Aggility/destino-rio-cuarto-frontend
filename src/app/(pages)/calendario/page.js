@@ -14,8 +14,8 @@ export default async function CalendarPage() {
   try {
     // Intentamos traer un par de páginas para tener datos suficientes
     const [res1, res2] = await Promise.all([
-      fetch('http://destbackdev.aggility.io/api/v1/events?per_page=50', { cache: 'no-store' }),
-      fetch('http://destbackdev.aggility.io/api/v1/events?page=2&per_page=50', { cache: 'no-store' })
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/events?per_page=50`, { cache: 'no-store' }),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/events?page=2&per_page=50`, { cache: 'no-store' })
     ]);
 
     const data1 = await res1.json();

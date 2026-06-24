@@ -6,56 +6,34 @@ import HomeSectionSlider from '@/components/client/HomeSectionSlider';
 import EventCard from '@/components/server/EventCard';
 import { getThumbnail } from '@/utils/image';
 
+export const revalidate = 300;
+
 /**
  * ServiciosPage - Destino Río Cuarto
  * Diseño Píxel Perfect basado en Figma ID 3640:28485 / 3777:8035 (Mobile)
  */
 export default async function ServiciosPage() {
   let apiServices = [];
-  try {
-    // Fetch initial data from the API
-    const res = await fetch('https://destbackdev.aggility.io/api/v1/organizations?per_page=2000', { cache: 'no-store' });
-    if (res.ok) {
-      const data = await res.json();
-      apiServices = data.data || (Array.isArray(data) ? data : []);
-      apiServices = apiServices
-        .filter(org => org.status?.toLowerCase() !== 'inactive')
-        .sort((a, b) => {
-          const isServiceA = a.types?.some(t => t.key === 'service' || t.slug === 'servicio') ? 1 : 0;
-          const isServiceB = b.types?.some(t => t.key === 'service' || t.slug === 'servicio') ? 1 : 0;
-          const isPlaceA = a.types?.some(t => t.key === 'place' || t.slug === 'lugar') ? 1 : 0;
-          const isPlaceB = b.types?.some(t => t.key === 'place' || t.slug === 'lugar') ? 1 : 0;
-          
-          const weightA = isServiceA ? 1 : (isPlaceA ? 2 : 3);
-          const weightB = isServiceB ? 1 : (isPlaceB ? 2 : 3);
-          
-          if (weightA !== weightB) {
-            return weightA - weightB;
-          }
-          return new Date(b.created_at || 0) - new Date(a.created_at || 0);
-        });
-    }
-  } catch (error) {
-    console.error("Error fetching organizations API: ", error);
-  }
-
-  const formattedServices = apiServices.map((org) => ({
-    id: org.id,
-    slug: org.slug,
-    title: org.name,
-    category: org.categories?.[0]?.name || 'Servicio',
-    address: org.addresses?.[0]?.address?.split(',')[0] || 'Río Cuarto',
-    phone: org.phone || 'Consultar contacto',
-    thumbnail: getThumbnail(org.cover, org.gallery),
-    lat: org.addresses?.[0]?.latitude,
-    lng: org.addresses?.[0]?.longitude,
-    description: org.description || ''
-  }));
-
-  // Obtener actividades para el slider inferior
   let activitiesForSlider = [];
+
   try {
-    const resProp = await fetch('https://destbackdev.aggility.io/api/v1/proposals?per_page=50', { cache: 'no-store' });
+    // Fetch initial data from the API in parallel, with 5-minute caching
+    const [resOrgs, resProp] = await Promise.all([
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/organizations?type=servicio&per_page=2000`, { next: { revalidate: 300 } }),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/proposals?per_page=50`, { next: { revalidate: 300 } })
+    ]);
+
+    if (resOrgs.ok) {
+      const data = await resOrgs.json();
+      const list = data.data || (Array.isArray(data) ? data : []);
+      apiServices = list
+        .filter(org => 
+          org.status?.toLowerCase() !== 'inactive' &&
+          org.types?.some(t => t.key === 'service')
+        )
+        .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+    }
+
     if (resProp.ok) {
       const propData = await resProp.json();
       const list = Array.isArray(propData) ? propData : (propData.data || []);
@@ -94,9 +72,22 @@ export default async function ServiciosPage() {
         };
       });
     }
-  } catch (err) {
-    console.error("Error fetching activities for slider:", err);
+  } catch (error) {
+    console.error("Error fetching data in ServiciosPage: ", error);
   }
+
+  const formattedServices = apiServices.map((org) => ({
+    id: org.id,
+    slug: org.slug,
+    title: org.name,
+    category: org.categories?.[0]?.name || 'Servicio',
+    address: org.addresses?.[0]?.address?.split(',')[0] || 'Río Cuarto',
+    phone: org.phone || 'Consultar contacto',
+    thumbnail: getThumbnail(org.cover, org.gallery),
+    lat: org.addresses?.[0]?.latitude,
+    lng: org.addresses?.[0]?.longitude,
+    description: org.description || ''
+  }));
 
   const finalSliderActs = activitiesForSlider.length > 0 ? activitiesForSlider : [
     { id: 1, slug: 'parque-ecologico', title: 'Parque Ecológico Urbano', date: '14:30 a 19:30 hs', location: 'Parque Ecológico Urbano', thumbnail: '/no-img.webp', category: 'NATURALEZA', typeColor: '#8a38f5', basePath: '/actividades' },
