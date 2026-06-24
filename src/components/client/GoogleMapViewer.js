@@ -132,7 +132,7 @@ export default function GoogleMapViewer({ lat, lng, markers = [], title, type = 
       if (!window._googleMapsLoading) {
         window._googleMapsLoading = true;
         const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=geometry&callback=initGoogleMap`;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=geometry&callback=initGoogleMap&loading=async`;
         script.async = true;
         script.defer = true;
         window.initGoogleMap = () => {
