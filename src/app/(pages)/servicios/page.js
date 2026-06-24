@@ -17,7 +17,11 @@ export default async function ServiciosPage() {
   let activitiesForSlider = [];
 
   try {
-    // Fetch initial data from the API in parallel, with 5-minute caching
+    // Fetch data in parallel with page-level ISR (export const revalidate = 300).
+    // The organizations response (~4.4MB) exceeds Next.js's fetch data cache limit (2MB)
+    // so Next.js cannot cache the raw response, but the rendered HTML page is still
+    // cached and served statically via ISR. The warning "items over 2MB can not be cached"
+    // is harmless and does not affect user-facing performance.
     const [resOrgs, resProp] = await Promise.all([
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/organizations?type=servicio&per_page=2000`, { next: { revalidate: 300 } }),
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/proposals?per_page=50`, { next: { revalidate: 300 } })
