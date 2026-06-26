@@ -20,11 +20,11 @@ export default function ActivityCard({
 }) {
   return (
     <Link href={`/${type}/${slug || id}`} className="text-decoration-none text-reset h-100 d-block">
-      <div className="activity-card bg-white border border-light-subtle rounded-3 overflow-hidden transition-all hover-lift h-100" 
-           style={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+      <div className="activity-card bg-white shadow-sm w-100 overflow-hidden transition-all hover-lift h-100" 
+           style={{ minWidth: 0, borderRadius: '12px', border: '1px solid #f3f4f6', padding: '12px' }}>
         
         {/* 1. Image Section with Zoom Effect */}
-        <div className="position-relative overflow-hidden card-zoom-effect" style={{ height: '160px' }}>
+        <div className="position-relative overflow-hidden card-zoom-effect rounded-2 mb-1" style={{ height: '160px' }}>
           <EventImageWithFallback 
             src={thumbnail} 
             alt={title} 
@@ -39,7 +39,7 @@ export default function ActivityCard({
         </div>
 
         {/* 2. Content Section */}
-        <div className="p-3 pt-2 d-flex flex-column gap-2">
+        <div className="p-0 pt-2 d-flex flex-column gap-2">
           <h3 className="font-inter fw-bold text-gray-900 mb-0" 
               style={{ fontSize: '17px', lineHeight: '1.3', color: '#111928' }}>
             {title}
@@ -54,15 +54,6 @@ export default function ActivityCard({
                  title={address}
                  style={{ lineHeight: '1.4' }}>
                 {address}
-              </p>
-            </div>
-
-            {/* Días / Horario */}
-            <div className="d-flex align-items-center gap-2">
-              <i className="bi bi-calendar3" style={{ fontSize: '14px', color: '#8a38f5' }}></i>
-              <p className="font-inter text-gray-800 mb-0 small text-truncate fw-semibold" 
-                 style={{ lineHeight: '1.4', fontSize: '13px' }}>
-                {schedule}
               </p>
             </div>
           </div>

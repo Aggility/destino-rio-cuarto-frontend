@@ -61,22 +61,6 @@ export default function ServiceListItem({
             {title}
           </h3>
 
-          {/* Dirección */}
-          {address && address !== 'Río Cuarto' && (
-            <p className="text-muted small mb-0 font-inter d-flex align-items-start gap-1">
-              <i className="bi bi-geo-alt mt-1 flex-shrink-0" />
-              <span>{address}</span>
-            </p>
-          )}
-
-          {/* Teléfono */}
-          {phone && phone !== 'Consultar contacto' && (
-            <p className="text-muted small mb-0 font-inter d-flex align-items-start gap-1 mt-1">
-              <i className="bi bi-telephone mt-1 flex-shrink-0" />
-              <span>{phone}</span>
-            </p>
-          )}
-
           {/* Botones */}
           <div className="d-flex align-items-center gap-2 mt-3">
             <Link

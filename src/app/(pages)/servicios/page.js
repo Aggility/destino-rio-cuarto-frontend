@@ -72,7 +72,7 @@ export default async function ServiciosPage() {
           schedule: e.calendars?.[0]?.observations || '',
           lat: e.addresses?.[0]?.latitude,
           lng: e.addresses?.[0]?.longitude,
-          basePath: '/actividades'
+          basePath: 'actividades'
         };
       });
     }
@@ -94,9 +94,9 @@ export default async function ServiciosPage() {
   }));
 
   const finalSliderActs = activitiesForSlider.length > 0 ? activitiesForSlider : [
-    { id: 1, slug: 'parque-ecologico', title: 'Parque Ecológico Urbano', date: '14:30 a 19:30 hs', location: 'Parque Ecológico Urbano', thumbnail: '/no-img.webp', category: 'NATURALEZA', typeColor: '#8a38f5', basePath: '/actividades' },
-    { id: 2, slug: 'botes-del-lago', title: 'Botes del Lago', date: '15:00 a 19:00 hs', location: 'Parque Sarmiento', thumbnail: '/no-img.webp', category: 'RECREACIÓN', typeColor: '#8a38f5', basePath: '/actividades' },
-    { id: 3, slug: 'trencito-rio-cuarto', title: 'Trencito de Rio Cuarto', date: '15:00 a 19:00 hs', location: 'Parque Sarmiento', thumbnail: '/no-img.webp', category: 'RECREACIÓN', typeColor: '#8a38f5', basePath: '/actividades' }
+    { id: 1, slug: 'parque-ecologico', title: 'Parque Ecológico Urbano', date: '14:30 a 19:30 hs', location: 'Parque Ecológico Urbano', thumbnail: '/no-img.webp', category: 'NATURALEZA', typeColor: '#8a38f5', basePath: 'actividades' },
+    { id: 2, slug: 'botes-del-lago', title: 'Botes del Lago', date: '15:00 a 19:00 hs', location: 'Parque Sarmiento', thumbnail: '/no-img.webp', category: 'RECREACIÓN', typeColor: '#8a38f5', basePath: 'actividades' },
+    { id: 3, slug: 'trencito-rio-cuarto', title: 'Trencito de Rio Cuarto', date: '15:00 a 19:00 hs', location: 'Parque Sarmiento', thumbnail: '/no-img.webp', category: 'RECREACIÓN', typeColor: '#8a38f5', basePath: 'actividades' }
   ];
 
   // Mostramos 9 inicialmente como pidió el usuario

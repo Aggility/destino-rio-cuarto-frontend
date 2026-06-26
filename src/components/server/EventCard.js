@@ -23,7 +23,15 @@ export default function EventCard({
 }) {
   return (
     <Link href={`/${basePath}/${slug || id}`} className="text-decoration-none d-block h-100">
-      <div className="card h-100 border-0 bg-transparent shadow-none w-100 overflow-hidden" style={{ minWidth: 0 }}>
+      <div 
+        className="card h-100 bg-white shadow-sm w-100 overflow-hidden transition-all" 
+        style={{ 
+          minWidth: 0, 
+          border: '1px solid #f3f4f6', 
+          borderRadius: '12px', 
+          padding: '12px' 
+        }}
+      >
         
         {/* 1. Header (Thumbnail & Tag) — Figma ID I3781:19227;3389:3472 */}
         <div className="position-relative overflow-hidden rounded-2 mb-1 card-zoom-effect w-100" 
@@ -47,7 +55,7 @@ export default function EventCard({
         </div>
 
         {/* 2. Body — Figma ID I3781:19227;3389:3474 */}
-        <div className="card-body p-0 pt-1 d-flex flex-column" style={{ minWidth: 0 }}>
+        <div className="card-body p-0 pt-2 d-flex flex-column" style={{ minWidth: 0 }}>
           
           {/* Badge Proyectivo */}
           {category && (
@@ -79,15 +87,7 @@ export default function EventCard({
             </p>
           </div>
 
-          {/* Schedule / Days — Nuevo requerimiento */}
-          {description && (
-            <div className="d-flex align-items-center gap-1">
-              <i className="bi bi-calendar3" style={{ fontSize: '13px', color: typeColor }}></i>
-              <p className="text-gray-800 mb-0 font-inter text-truncate w-100" style={{ fontSize: '13px', fontWeight: 600 }}>
-                {description}
-              </p>
-            </div>
-          )}
+
         </div>
       </div>
     </Link>
