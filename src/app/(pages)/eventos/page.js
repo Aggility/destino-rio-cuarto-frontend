@@ -162,13 +162,6 @@ export default async function EventsPage() {
             >
               Eventos Destacados
             </h2>
-            <Link
-              href="/calendario"
-              className="btn btn-link p-0 fw-bold text-decoration-none small d-none d-md-block"
-              style={{ color: '#f54286' }}
-            >
-              Ver Calendario Completo
-            </Link>
           </div>
           <MacroEventCard events={sliderEvents} />
         </div>

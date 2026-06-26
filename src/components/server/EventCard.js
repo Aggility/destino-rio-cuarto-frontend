@@ -57,14 +57,24 @@ export default function EventCard({
         {/* 2. Body — Figma ID I3781:19227;3389:3474 */}
         <div className="card-body p-0 pt-2 d-flex flex-column" style={{ minWidth: 0 }}>
           
-          {/* Badge Proyectivo */}
-          {category && (
-             <div className="d-inline-block px-2 py-0 rounded-1 mb-1 align-self-start" style={{ backgroundColor: `${typeColor}15` }}>
-                <span className="fw-bold font-inter" style={{ color: typeColor, fontSize: '12px' }}>
-                   {category}
-                </span>
-             </div>
-          )}
+          {/* Badges: Category & Distance */}
+          <div className="d-flex align-items-center gap-2 mb-1 flex-wrap">
+            {category && (
+               <div className="d-inline-block px-2 py-0 rounded-1" style={{ backgroundColor: `${typeColor}15` }}>
+                  <span className="fw-bold font-inter" style={{ color: typeColor, fontSize: '12px' }}>
+                     {category}
+                  </span>
+               </div>
+            )}
+            <div style={{ marginTop: '-4px' }}>
+              <EventDistanceBadge 
+                eventLat={lat} 
+                eventLng={lng} 
+                type={basePath === 'actividades' ? 'activity' : (basePath === 'experiencias' ? 'experience' : 'event')} 
+                minimal={true} 
+              />
+            </div>
+          </div>
 
           {/* Title — Figma ID I3781:19227;3389:3478 */}
           <h3 className="fw-semibold text-gray-900 mb-0 font-inter text-truncate-2 w-100" style={{ 
@@ -74,10 +84,6 @@ export default function EventCard({
           }}>
             {title}
           </h3>
-
-          <div className="mb-1">
-            <EventDistanceBadge eventLat={lat} eventLng={lng} type="event" minimal={true} />
-          </div>
 
           {/* Location — Figma ID I3781:19227;3389:3480 */}
           <div className="d-flex align-items-center gap-1 mb-1">
