@@ -621,13 +621,16 @@ export default function CalendarClient() {
             <div>
               <h1
                 className="fw-black mb-0"
-                style={{ fontSize: 'clamp(18px, 5vw, 26px)', letterSpacing: '-0.5px', lineHeight: '1.1', color: '#1f2a37' }}
+                style={{
+                  fontSize: 'clamp(22px, 5vw, 34px)',
+                  letterSpacing: '-0.5px',
+                  lineHeight: '1.1',
+                  color: '#1f2a37',
+                  fontWeight: 900,
+                }}
               >
                 Calendario
               </h1>
-              <p className="mb-0 d-none d-sm-block" style={{ fontSize: '13px', color: '#6b7280' }}>
-                Descubrí qué hacer en la ciudad
-              </p>
             </div>
 
             {/* Selector de mes (solo visible en modo MES) */}
