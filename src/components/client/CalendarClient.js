@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import Link from 'next/link';
 
 // ─── Constantes ────────────────────────────────────────────────────────────────
@@ -10,7 +10,7 @@ const MONTH_NAMES = [
 ];
 // Semana empieza en Lunes (1=Lun, 2=Mar, …, 7=Dom)
 const DAY_NAMES_SHORT = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
-const DAY_NAMES_FULL  = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+const DAY_NAMES_FULL = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
 
 // API days_of_week: 1=Lunes, 2=Martes, …, 6=Sábado, 7=Domingo
 // JS getDay():       0=Domingo, 1=Lunes, …, 6=Sábado
@@ -63,8 +63,8 @@ function getActiveDatesInRange(cal, fromDate, toDate) {
   const allowedJsDays = (cal.days_of_week || []).map(apiDayToJsDay);
 
   const activeDates = [];
-  const rangeStart  = new Date(Math.max(start.getTime(), fromDate.getTime()));
-  const rangeEnd    = new Date(Math.min(end.getTime(),   toDate.getTime()));
+  const rangeStart = new Date(Math.max(start.getTime(), fromDate.getTime()));
+  const rangeEnd = new Date(Math.min(end.getTime(), toDate.getTime()));
 
   if (rangeStart > rangeEnd) return []; // sin solapamiento
 
@@ -95,11 +95,11 @@ const isSameDay = (a, b) =>
 
 // ─── Sub-componente: tarjeta de evento ─────────────────────────────────────────
 function CalendarItemCard({ item }) {
-  const isEvent    = item.itemType === 'event';
-  const bgColor    = isEvent ? '#FFF0F6' : '#F5F0FF';
+  const isEvent = item.itemType === 'event';
+  const bgColor = isEvent ? '#FFF0F6' : '#F5F0FF';
   const accentColor = isEvent ? '#FA4489' : '#8A38F5';
-  const tagBg      = isEvent ? '#FA4489' : '#8A38F5';
-  const tagLabel   = isEvent ? 'Evento' : 'Actividad';
+  const tagBg = isEvent ? '#FA4489' : '#8A38F5';
+  const tagLabel = isEvent ? 'Evento' : 'Actividad';
   const href = isEvent
     ? `/eventos/${item.slug || item.calendarable_id}`
     : `/actividades/${item.slug || item.calendarable_id}`;
@@ -183,7 +183,7 @@ function CalendarItemCard({ item }) {
 }
 
 // ─── Sub-componente: vista de lista ────────────────────────────────────────────
-function ListView({ groupedItems, filterLabel }) {
+function ListView({ groupedItems, filterLabel, todayRef }) {
   const days = Object.keys(groupedItems).sort((a, b) => new Date(a) - new Date(b));
   const today = new Date();
 
@@ -215,6 +215,7 @@ function ListView({ groupedItems, filterLabel }) {
         return (
           <section
             key={dayKey}
+            ref={isToday ? todayRef : null}
             aria-label={`${dayLabel} ${dateLabel}`}
           >
             {/* Encabezado del día */}
@@ -384,15 +385,16 @@ export default function CalendarClient() {
     return d;
   }, []);
 
-  const [calendars, setCalendars]           = useState([]);
-  const [eventLocations, setEventLocations]   = useState({});
+  const [calendars, setCalendars] = useState([]);
+  const [eventLocations, setEventLocations] = useState({});
   const [proposalLocations, setProposalLocations] = useState({});
-  const [isLoading, setIsLoading]           = useState(true);
-  const [error, setError]                   = useState(null);
-  const [viewFilter, setViewFilter]         = useState('MES');
-  const [currentDate, setCurrentDate]       = useState(new Date(today.getFullYear(), today.getMonth(), 1));
-  const [selectedDay, setSelectedDay]       = useState(null);
-  const [viewMode, setViewMode]             = useState('grid'); // 'grid' | 'list'
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [viewFilter, setViewFilter] = useState('MES');
+  const [currentDate, setCurrentDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
+  const [selectedDay, setSelectedDay] = useState(null);
+  const [viewMode, setViewMode] = useState('list'); // 'grid' | 'list'
+  const todaySectionRef = useRef(null);
 
   // Fetch de la API: eventos + propuestas
   useEffect(() => {
@@ -403,7 +405,7 @@ export default function CalendarClient() {
 
         const BASE = 'https://destbackdev.aggility.io/api/v1';
         const [evRes, prRes] = await Promise.all([
-          fetch(`${BASE}/events?per_page=100`,    { cache: 'no-store' }),
+          fetch(`${BASE}/events?per_page=100`, { cache: 'no-store' }),
           fetch(`${BASE}/proposals?per_page=100`, { cache: 'no-store' }),
         ]);
 
@@ -475,7 +477,7 @@ export default function CalendarClient() {
   }, []);
 
   const currentMonth = currentDate.getMonth();
-  const currentYear  = currentDate.getFullYear();
+  const currentYear = currentDate.getFullYear();
 
   // Rango de fechas según filtro
   const { rangeStart, rangeEnd, filterLabel } = useMemo(() => {
@@ -502,7 +504,7 @@ export default function CalendarClient() {
 
     // MES
     const firstDay = new Date(currentYear, currentMonth, 1);
-    const lastDay  = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59, 999);
+    const lastDay = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59, 999);
     return { rangeStart: firstDay, rangeEnd: lastDay, filterLabel: `${MONTH_NAMES[currentMonth]} ${currentYear}` };
   }, [viewFilter, today, currentMonth, currentYear]);
 
@@ -528,15 +530,15 @@ export default function CalendarClient() {
 
       activeDates.forEach(date => {
         items.push({
-          id:              cal.id,
+          id: cal.id,
           calendarable_id: cal.calendarable_id,
           itemType,
-          title:           cal.title,
-          slug:            cal.slug,
-          startTime:       formatTime(cal.start_time),
-          endTime:         formatTime(cal.end_time),
+          title: cal.title,
+          slug: cal.slug,
+          startTime: formatTime(cal.start_time),
+          endTime: formatTime(cal.end_time),
           location,
-          activeDate:      date,
+          activeDate: date,
         });
       });
     });
@@ -575,11 +577,11 @@ export default function CalendarClient() {
   // Días del mes para la cuadrícula
   const { calendarDays, emptyDaysBefore } = useMemo(() => {
     // Con semana Lun-first: (getDay()+6)%7 → Lun=0, Mar=1, …, Dom=6
-    const firstDay  = jsDayToGridIdx(new Date(currentYear, currentMonth, 1).getDay());
+    const firstDay = jsDayToGridIdx(new Date(currentYear, currentMonth, 1).getDay());
     const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
     return {
       emptyDaysBefore: Array.from({ length: firstDay }, (_, i) => i),
-      calendarDays:    Array.from({ length: totalDays }, (_, i) => i + 1),
+      calendarDays: Array.from({ length: totalDays }, (_, i) => i + 1),
     };
   }, [currentMonth, currentYear]);
 
@@ -609,11 +611,28 @@ export default function CalendarClient() {
   const eventCount = allItems.filter(i => i.itemType === 'event').length;
   const activityCount = allItems.filter(i => i.itemType === 'activity').length;
 
+  // Scroll automático al día de hoy cuando carga la vista lista
+  useEffect(() => {
+    if (!isLoading && (viewFilter !== 'MES' || viewMode === 'list')) {
+      // Pequeño delay para que el DOM se renderice
+      const timer = setTimeout(() => {
+        if (todaySectionRef.current) {
+          // Offset = navbar (97px) + header calendario (~57px) + margen pequeño (16px)
+          const OFFSET = 300;
+          const rect = todaySectionRef.current.getBoundingClientRect();
+          const scrollTop = window.pageYOffset + rect.top - OFFSET;
+          window.scrollTo({ top: Math.max(0, scrollTop), behavior: 'smooth' });
+        }
+      }, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, viewFilter, viewMode]);
+
   return (
     <div className="calendar-client-wrapper">
 
       {/* ── HEADER ── */}
-      <header className="bg-white border-bottom" style={{ position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
+      <header className="bg-white border-bottom" style={{ position: 'sticky', top: '97px', zIndex: 100, boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
         <div className="container-xxl px-3 px-lg-5 py-3">
 
           {/* Título + navegación de mes */}
@@ -671,9 +690,9 @@ export default function CalendarClient() {
           {/* ── FILTROS HOY / SEMANA / MES ── */}
           <div role="group" aria-label="Filtrar por período" className="d-flex gap-2 mb-3">
             {[
-              { key: 'HOY',    label: 'Hoy',    icon: 'bi-sun' },
+              { key: 'HOY', label: 'Hoy', icon: 'bi-sun' },
               { key: 'SEMANA', label: 'Semana', icon: 'bi-calendar-week' },
-              { key: 'MES',    label: 'Mes',    icon: 'bi-calendar-month' },
+              { key: 'MES', label: 'Mes', icon: 'bi-calendar-month' },
             ].map(({ key, label, icon }) => {
               const active = viewFilter === key;
               return (
@@ -878,7 +897,7 @@ export default function CalendarClient() {
 
           {/* ── VISTA LISTA (HOY / SEMANA / MES lista) ── */}
           {!isLoading && !error && (viewFilter !== 'MES' || viewMode === 'list') && (
-            <ListView groupedItems={groupedByDay} filterLabel={filterLabel} />
+            <ListView groupedItems={groupedByDay} filterLabel={filterLabel} todayRef={todaySectionRef} />
           )}
         </div>
       </main>

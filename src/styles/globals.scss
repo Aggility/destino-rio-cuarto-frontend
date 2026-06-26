@@ -2,7 +2,12 @@
 // globals.scss — Diseño Directo Destino Río Cuarto (Pixel Perfect)
 // ═══════════════════════════════════════════════════════════
 
-@use "variables" as *; 
+@use "variables" as *;
+
+// Offset para scroll anclado: navbar (97px) + header del calendario (~140px)
+html {
+  scroll-padding-top: 200px;
+}
 
 // 1. CAROUSEL NAV (FIGMA ID: 3396:5178)
 .carousel-nav-container {
@@ -21,20 +26,20 @@
   border: none !important;
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   &.left {
     background-color: #9CA3AF !important; // Gray 400
   }
-  
+
   &.right {
     background-color: #1F2A37 !important; // Gray 800
   }
-  
+
   i {
     font-size: 20px !important;
     color: white !important;
   }
-  
+
   &:hover {
     filter: brightness(1.1);
     transform: scale(1.05);
@@ -57,7 +62,7 @@
   letter-spacing: -1.8px !important;
   z-index: 100 !important;
   position: relative;
-  text-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+  text-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 .category-tab-btn {
@@ -108,9 +113,10 @@
 
 .animate-hover-lift {
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+
   &:hover {
     transform: translateY(-8px) scale(1.02);
-    box-shadow: 0px 10px 25px rgba(0,0,0,0.15) !important;
+    box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.15) !important;
   }
 }
 
@@ -118,6 +124,7 @@
 .card-zoom-effect {
   overflow: hidden;
   position: relative;
+
   img {
     transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
     object-fit: cover !important;
@@ -154,12 +161,12 @@
   gap: 32px 16px;
   width: 100%;
   overflow-x: hidden; // Prevenir desbordamientos laterales
-  
+
   @media (max-width: 768px) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
   }
-  
+
   @media (max-width: 400px) {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -174,10 +181,12 @@
     margin-bottom: -20px !important;
     scrollbar-width: none;
     -ms-overflow-style: none;
+
     &::-webkit-scrollbar {
-        display: none;
+      display: none;
     }
-    & > div {
+
+    &>div {
       flex: 0 0 auto;
       width: 85%;
     }
@@ -206,7 +215,7 @@
   border-radius: 8px;
   padding: 16px;
   transition: transform 0.2s ease;
-  
+
   &:hover {
     transform: translateY(-2px);
   }
@@ -244,47 +253,62 @@
 }
 
 // 9. EVENT DETAIL UTILITIES (From [id]/page.js)
-.display-5-custom { 
-  font-size: clamp(32px, 5vw, 48px) !important; 
+.display-5-custom {
+  font-size: clamp(32px, 5vw, 48px) !important;
 }
-.bg-pink-500 { 
-  background-color: #f54286 !important; 
+
+.bg-pink-500 {
+  background-color: #f54286 !important;
 }
-.text-pink-500 { 
-  color: #f54286 !important; 
+
+.text-pink-500 {
+  color: #f54286 !important;
 }
-.mt-lg-n5-detail { 
-  margin-top: -3rem !important; 
+
+.mt-lg-n5-detail {
+  margin-top: -3rem !important;
 }
+
 @media (max-width: 991.98px) {
-  .mt-lg-n5-detail { 
-    margin-top: 1.5rem !important; 
+  .mt-lg-n5-detail {
+    margin-top: 1.5rem !important;
   }
 }
 
 // ═══════════════════════════════════════════════════════════
 // GLOBAL SAFETY & RESET
 // ═══════════════════════════════════════════════════════════
-html, body {
+html,
+body {
   overflow-x: clip; // Prevenir scroll horizontal sin romper 'sticky'
   width: 100%;
   position: relative;
 }
 
 main {
-  overflow-x: clip; 
+  overflow-x: clip;
 }
 
-.cursor-pointer { cursor: pointer; }
-.transition-all { transition: all 0.3s ease; }
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.transition-all {
+  transition: all 0.3s ease;
+}
+
 .hover-lift {
   transition: all 0.3s ease;
+
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
   }
 }
-.border-dashed { border-style: dashed !important; }
+
+.border-dashed {
+  border-style: dashed !important;
+}
 
 // 10. TEXT UTILITIES
 .text-truncate-2 {
@@ -309,7 +333,7 @@ main {
   font-size: 13px !important;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  
+
   @media (max-width: 768px) {
     font-size: 11px !important;
   }
@@ -322,10 +346,14 @@ main {
     letter-spacing: -0.8px !important;
     line-height: 1 !important;
   }
+
   .carousel-arrow {
     width: 32px !important;
     height: 32px !important;
-    i { font-size: 16px !important; }
+
+    i {
+      font-size: 16px !important;
+    }
   }
 }
 
@@ -353,6 +381,7 @@ h3 {
 .hide-scrollbar {
   scrollbar-width: none;
   -ms-overflow-style: none;
+
   &::-webkit-scrollbar {
     display: none;
   }
@@ -361,9 +390,9 @@ h3 {
 // 11. CALENDAR SPECIFIC (v2 — rediseño completo)
 
 // ── Colores semánticos del calendario
-$cal-event-bg:        #FFF0F6;
-$cal-event-accent:    #FA4489;
-$cal-activity-bg:     #F5F0FF;
+$cal-event-bg: #FFF0F6;
+$cal-event-accent: #FA4489;
+$cal-activity-bg: #F5F0FF;
 $cal-activity-accent: #8A38F5;
 
 // ── Tarjeta de item (evento / actividad)
@@ -447,7 +476,7 @@ $cal-activity-accent: #8A38F5;
 .macro-event-card {
   .macro-thumb-container {
     width: 100%;
-    
+
     @media (min-width: 768px) {
       width: 55% !important;
       flex-basis: 55% !important;
@@ -474,7 +503,7 @@ $cal-activity-accent: #8A38F5;
   @extend .btn-load-more-custom;
   border: 1px solid #f54286 !important;
   color: #f54286 !important;
-  
+
   &:hover {
     background-color: #f54286 !important;
     color: white !important;
@@ -487,7 +516,7 @@ $cal-activity-accent: #8A38F5;
   @extend .btn-load-more-custom;
   border: 1px solid #1a56db !important;
   color: #1a56db !important;
-  
+
   &:hover {
     background-color: #1a56db !important;
     color: white !important;
@@ -511,7 +540,7 @@ $cal-activity-accent: #8A38F5;
   justify-content: center;
   overflow: hidden;
   padding: 8px; // Margen interno solicitado
-  
+
   &:hover {
     transform: scale(1.1) translateY(-8px);
     box-shadow: 0px 15px 40px rgba(0, 0, 0, 0.35) !important;
@@ -523,8 +552,15 @@ $cal-activity-accent: #8A38F5;
 }
 
 @keyframes bounce-subtle {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-12px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-12px);
+  }
 }
 
 .chatbot-face-zoom {
@@ -541,11 +577,11 @@ $cal-activity-accent: #8A38F5;
   color: var(--btn-theme-color) !important;
   border: 1px solid var(--btn-theme-color) !important;
   transition: all 0.3s ease !important;
-  
+
   &:hover {
     background-color: var(--btn-theme-color) !important;
     color: white !important;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 }
