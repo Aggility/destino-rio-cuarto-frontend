@@ -358,43 +358,77 @@ h3 {
   }
 }
 
-// 11. CALENDAR SPECIFIC
-.col-xl-7-cols {
-  @media (min-width: 1200px) {
-    flex: 0 0 auto;
-    width: 14.2857% !important;
+// 11. CALENDAR SPECIFIC (v2 — rediseño completo)
+
+// ── Colores semánticos del calendario
+$cal-event-bg:        #FFF0F6;
+$cal-event-accent:    #FA4489;
+$cal-activity-bg:     #F5F0FF;
+$cal-activity-accent: #8A38F5;
+
+// ── Tarjeta de item (evento / actividad)
+.calendar-item-card {
+  transition: all 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateX(3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
   }
 }
 
-.calendar-day-box {
-  min-height: 180px;
-  display: flex;
-  flex-direction: column;
+// ── Celda de la cuadrícula mensual
+.calendar-grid-day {
+  transition: all 0.15s ease;
+
+  &:hover {
+    transform: scale(1.08);
+    z-index: 2;
+  }
+
+  &:focus-visible {
+    outline: 3px solid $cal-event-accent !important;
+    outline-offset: 2px !important;
+    z-index: 3;
+  }
 }
 
-.calendar-day-box .day-number {
-  font-size: 24px;
+// ── Wrapper principal
+.calendar-client-wrapper {
+  min-height: 100vh;
+}
+
+// ── Responsive: panel lateral en mobile ocupa todo el ancho
+@media (max-width: 991.98px) {
+  .calendar-panel-sticky {
+    position: static !important;
+    max-height: none !important;
+  }
+}
+
+// ── Lista de días — separadores
+.calendar-list-day-header {
+  border-bottom: 2px solid #f3f4f6;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+
+// ── Accesibilidad: skip link
+.skip-to-content {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  background: $cal-event-accent;
+  color: white;
+  padding: 8px 16px;
+  z-index: 9999;
   font-weight: 700;
-  margin-bottom: 12px;
-}
+  border-radius: 0 0 8px 0;
+  transition: top 0.2s ease;
 
-.calendar-day-box .mini-card-container .sidebar-list-card {
-  padding: 0 !important;
-}
-
-.calendar-day-box .mini-card-container .sidebar-list-card img {
-  width: 34px !important;
-  height: 34px !important;
-}
-
-.calendar-day-box .mini-card-container .sidebar-list-card h5 {
-  font-size: 12px !important;
-}
-
-.calendar-day-box .mini-card-container .sidebar-list-card p, 
-.calendar-day-box .mini-card-container .sidebar-list-card .bi-chevron-right, 
-.calendar-day-box .mini-card-container .sidebar-list-card .ms-2 {
-  display: none !important;
+  &:focus {
+    top: 0;
+  }
 }
 
 // 12. NAVBAR MOBILE FIX

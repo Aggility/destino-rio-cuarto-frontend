@@ -75,14 +75,33 @@ export default async function EventDetailPage({ params }) {
   }
 
   // 2. Fallback y formateo del evento (Mock si falla API)
+  // La API devuelve start_date como "YYYY-MM-DDTHH:MM:SS.000000Z" (UTC).
+  // Usar new Date() directamente desplaza un día en zonas UTC-.
+  // Solución: extraer Y, M, D de la parte de fecha y H, M de start_time (separado).
+  const buildLocalEventDate = (calendarEntry) => {
+    if (!calendarEntry?.start_date) return null;
+    const [y, m, d] = calendarEntry.start_date.split('T')[0].split('-').map(Number);
+    let hr = 0, min = 0;
+    if (calendarEntry.start_time) {
+      const parts = calendarEntry.start_time.split(':').map(Number);
+      hr = parts[0] ?? 0;
+      min = parts[1] ?? 0;
+    }
+    return new Date(y, m - 1, d, hr, min); // medianoche local, sin desfase UTC
+  };
+  const firstCal = eventData?.calendars?.[0];
+  const localEventDate = buildLocalEventDate(firstCal);
+
   const event = {
     id: eventData?.id || slug || '2',
     title: eventData?.title || 'Ulises Bueno en Opus Costanera',
-    date: eventData?.calendars?.[0]?.start_date ? new Date(eventData.calendars[0].start_date).toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'sáb, 7 de mar, 21 hs',
-    startDateRaw: eventData?.calendars?.[0]?.start_date || '2026-03-07',
-    startTimeRaw: eventData?.calendars?.[0]?.start_time || '21:00:00',
-    endDateRaw: eventData?.calendars?.[0]?.end_date || null,
-    endTimeRaw: eventData?.calendars?.[0]?.end_time || null,
+    date: localEventDate
+      ? localEventDate.toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+      : 'sáb, 7 de mar, 21 hs',
+    startDateRaw: firstCal?.start_date ? firstCal.start_date.split('T')[0] : '2026-03-07',
+    startTimeRaw: firstCal?.start_time || '21:00:00',
+    endDateRaw: firstCal?.end_date ? firstCal.end_date.split('T')[0] : null,
+    endTimeRaw: firstCal?.end_time || null,
     location: eventData?.organization?.name ? `${eventData.organization.name} / ${eventData.organization.addresses?.[0]?.address?.split(',')[0] || eventData.organization.address || ''}` : 'Opus Costanera / Río Grande 688, Río Cuarto',
     coords: {
         lat: parseFloat(eventData?.organization?.addresses?.[0]?.latitude) || 
@@ -128,7 +147,7 @@ export default async function EventDetailPage({ params }) {
           slug: e.slug,
           title: e.title || 'Evento',
           date: e.calendars?.[0]?.start_date
-            ? new Date(e.calendars[0].start_date).toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' })
+            ? (() => { const [y,m,d] = e.calendars[0].start_date.split('T')[0].split('-').map(Number); return new Date(y,m-1,d).toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' }); })()
             : '',
           location: e.organization?.name || e.organization?.addresses?.[0]?.address || 'Río Cuarto',
           thumbnail,

@@ -49,11 +49,20 @@ export default async function EventsPage() {
     console.error('Error fetching events/frameworks API:', error);
   }
 
-  // ── Formato idéntico al de featured_events en home ────────────────────────
+  // ── Parseo de fecha LOCAL (evita timezone shift UTC → UTC-3) ─────────────
+  // La API devuelve start_date como "YYYY-MM-DDTHH:MM:SS.000000Z" (UTC)
+  // o "YYYY-MM-DD". new Date(string) en UTC resta 3hs → muestra día anterior.
+  const parseLocalDate = (dateStr) => {
+    if (!dateStr) return null;
+    const [y, m, d] = dateStr.split('T')[0].split('-').map(Number);
+    return new Date(y, m - 1, d); // medianoche local
+  };
+
+  // ── Formato de fecha de evento ────────────────────────────────────────────
   const formatEventDate = (evt) => {
     const cal = evt.calendars?.[0];
-    if (!cal) return 'Fecha a confirmar';
-    const d = new Date(cal.start_date);
+    if (!cal?.start_date) return 'Fecha a confirmar';
+    const d = parseLocalDate(cal.start_date);
     let str = d.toLocaleDateString('es-AR', {
       weekday: 'short',
       day: 'numeric',
@@ -96,9 +105,9 @@ export default async function EventsPage() {
     let dateStr = 'Fecha a confirmar';
     let timeStr = '';
     if (startDate) {
-      const dStart = new Date(startDate);
+      const dStart = parseLocalDate(startDate);
       if (endDate && endDate !== startDate) {
-        const dEnd = new Date(endDate);
+        const dEnd = parseLocalDate(endDate);
         dateStr = `${dStart.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })} al ${dEnd.toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' })}`;
       } else {
         dateStr = dStart.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
