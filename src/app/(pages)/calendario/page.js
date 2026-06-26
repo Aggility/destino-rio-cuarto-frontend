@@ -3,7 +3,7 @@ import ChatbotIcon from '@/components/server/ChatbotIcon';
 import CalendarClient from '@/components/client/CalendarClient';
 
 export const metadata = {
-  title: 'Agenda de Eventos y Actividades — Destino Río Cuarto',
+  title: 'Calendario — Destino Río Cuarto',
   description:
     'Descubrí qué hacer en Río Cuarto: eventos, actividades y propuestas culturales. Filtrá por hoy, esta semana o el mes.',
 };

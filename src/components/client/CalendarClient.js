@@ -621,11 +621,11 @@ export default function CalendarClient() {
             <div>
               <h1
                 className="fw-black mb-0"
-                style={{ fontSize: 'clamp(16px, 5vw, 26px)', letterSpacing: '-0.5px', lineHeight: '1.1', color: '#1f2a37' }}
+                style={{ fontSize: 'clamp(18px, 5vw, 26px)', letterSpacing: '-0.5px', lineHeight: '1.1', color: '#1f2a37' }}
               >
-                Calendario de Eventos y Actividades
+                Calendario
               </h1>
-              <p className="mb-0" style={{ fontSize: '13px', color: '#6b7280' }}>
+              <p className="mb-0 d-none d-sm-block" style={{ fontSize: '13px', color: '#6b7280' }}>
                 Descubrí qué hacer en la ciudad
               </p>
             </div>
@@ -798,61 +798,78 @@ export default function CalendarClient() {
 
           {/* ── VISTA CUADRÍCULA MENSUAL ── */}
           {!isLoading && !error && viewFilter === 'MES' && viewMode === 'grid' && (
-            <>
-              {/* Cuadrícula — ancho completo */}
-              <div
-                className="bg-white rounded-4 p-3 shadow-sm mb-3"
-                style={{ border: '1px solid #f3f4f6' }}
-              >
-                <MonthGridView
-                  calendarDays={calendarDays}
-                  emptyDaysBefore={emptyDaysBefore}
-                  itemsByDay={itemsByDayNum}
-                  currentMonth={currentMonth}
-                  currentYear={currentYear}
-                  onDaySelect={setSelectedDay}
-                  selectedDay={selectedDay}
-                />
-              </div>
+            <div
+              className="bg-white rounded-4 p-2 p-sm-3 shadow-sm"
+              style={{ border: '1px solid #f3f4f6' }}
+            >
+              <MonthGridView
+                calendarDays={calendarDays}
+                emptyDaysBefore={emptyDaysBefore}
+                itemsByDay={itemsByDayNum}
+                currentMonth={currentMonth}
+                currentYear={currentYear}
+                onDaySelect={setSelectedDay}
+                selectedDay={selectedDay}
+              />
+            </div>
+          )}
 
-              {/* Panel de eventos del día seleccionado — aparece bajo la cuadrícula */}
-              {selectedDay && (
+          {/* ── POPUP MODAL: eventos del día seleccionado ── */}
+          {!isLoading && !error && viewFilter === 'MES' && viewMode === 'grid' && selectedDay && (
+            <>
+              {/* Overlay */}
+              <div
+                className="calendar-modal-overlay"
+                onClick={() => setSelectedDay(null)}
+                aria-hidden="true"
+              />
+              {/* Modal */}
+              <div
+                className="calendar-modal-panel"
+                role="dialog"
+                aria-modal="true"
+                aria-label={`Eventos del ${selectedDay} de ${MONTH_NAMES[currentMonth]}`}
+                aria-live="polite"
+              >
+                {/* Header del modal */}
                 <div
-                  className="bg-white rounded-4 p-3 shadow-sm"
-                  style={{ border: '1px solid #f3f4f6' }}
-                  aria-live="polite"
+                  className="d-flex align-items-center justify-content-between px-4 py-3"
+                  style={{ borderBottom: '1px solid #f3f4f6', flexShrink: 0 }}
                 >
-                  <div className="d-flex align-items-center justify-content-between mb-3">
-                    <h2
-                      className="fw-bold mb-0"
-                      style={{ fontSize: '16px', color: '#1f2a37' }}
-                    >
-                      {selectedDay} de {MONTH_NAMES[currentMonth]}
-                    </h2>
-                    <button
-                      className="btn btn-sm border-0 bg-transparent"
-                      onClick={() => setSelectedDay(null)}
-                      aria-label="Cerrar detalle del día"
-                      style={{ color: '#9ca3af', fontSize: '18px', lineHeight: 1 }}
-                    >
-                      <i className="bi bi-x" aria-hidden="true" />
-                    </button>
-                  </div>
+                  <h2
+                    className="fw-bold mb-0"
+                    style={{ fontSize: 'clamp(16px, 5vw, 22px)', color: '#1f2a37', letterSpacing: '-0.3px' }}
+                  >
+                    {selectedDay} de {MONTH_NAMES[currentMonth]}
+                  </h2>
+                  <button
+                    className="btn border-0 d-flex align-items-center justify-content-center rounded-circle"
+                    onClick={() => setSelectedDay(null)}
+                    aria-label="Cerrar"
+                    style={{
+                      width: '36px', height: '36px',
+                      backgroundColor: '#f3f4f6',
+                      color: '#374151',
+                      fontSize: '18px',
+                      flexShrink: 0,
+                    }}
+                  >
+                    <i className="bi bi-x" aria-hidden="true" />
+                  </button>
+                </div>
+                {/* Contenido scrollable */}
+                <div className="px-4 py-3" style={{ overflowY: 'auto', flex: 1 }}>
                   {selectedDayItems.length > 0 ? (
-                    <div className="row g-2">
+                    <div className="d-flex flex-column gap-2">
                       {selectedDayItems.map((item, idx) => (
-                        <div key={`${item.id}-${idx}`} className="col-12 col-md-6 col-lg-4">
-                          <CalendarItemCard item={item} />
-                        </div>
+                        <CalendarItemCard key={`${item.id}-${idx}`} item={item} />
                       ))}
                     </div>
                   ) : (
-                    <p className="text-muted mb-0" style={{ fontSize: '13px' }}>
-                      Sin eventos para este día.
-                    </p>
+                    <p className="text-muted mb-0" style={{ fontSize: '14px' }}>Sin eventos para este día.</p>
                   )}
                 </div>
-              )}
+              </div>
             </>
           )}
 
@@ -879,8 +896,55 @@ export default function CalendarClient() {
           transform: scale(1.08);
           z-index: 1;
         }
-        @media (max-width: 991.98px) {
-          .col-lg-5 { position: static !important; }
+
+        /* ── Modal popup del día ── */
+        .calendar-modal-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.45);
+          z-index: 1040;
+          backdrop-filter: blur(2px);
+          animation: fadeInOverlay 0.2s ease;
+        }
+        .calendar-modal-panel {
+          position: fixed;
+          z-index: 1050;
+          background: white;
+          border-radius: 20px 20px 0 0;
+          display: flex;
+          flex-direction: column;
+          box-shadow: 0 -8px 40px rgba(0,0,0,0.18);
+          animation: slideUpModal 0.28s cubic-bezier(0.34,1.56,0.64,1);
+          /* Mobile: bottom sheet */
+          bottom: 0;
+          left: 0;
+          right: 0;
+          max-height: 80vh;
+        }
+        @media (min-width: 768px) {
+          /* Desktop: centrado */
+          .calendar-modal-panel {
+            bottom: auto;
+            left: 50%;
+            top: 50%;
+            right: auto;
+            transform: translate(-50%, -50%);
+            width: min(640px, 92vw);
+            max-height: 75vh;
+            border-radius: 20px;
+            animation: popInModal 0.25s cubic-bezier(0.34,1.56,0.64,1);
+          }
+        }
+        @keyframes fadeInOverlay {
+          from { opacity: 0; } to { opacity: 1; }
+        }
+        @keyframes slideUpModal {
+          from { transform: translateY(100%); opacity: 0; }
+          to   { transform: translateY(0);    opacity: 1; }
+        }
+        @keyframes popInModal {
+          from { transform: translate(-50%, -48%) scale(0.95); opacity: 0; }
+          to   { transform: translate(-50%, -50%) scale(1);    opacity: 1; }
         }
       `}</style>
     </div>
