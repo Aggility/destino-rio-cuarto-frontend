@@ -6,9 +6,9 @@ export async function GET(request) {
   const per_page = searchParams.get('per_page') || 10;
   const search = searchParams.get('search') || '';
   const category = searchParams.get('category') || '';
-  
+
   // Modificamos para traer todos (2000), ordenar descendente y luego paginar localmente
-  let url = `${process.env.NEXT_PUBLIC_API_URL}/organizations?per_page=2000`;
+  let url = `${process.env.NEXT_PUBLIC_API_URL}/organizations?per_page=100`;
 
   if (search) url += `&search=${encodeURIComponent(search)}`;
   if (category) url += `&category=${encodeURIComponent(category)}`;
@@ -21,7 +21,7 @@ export async function GET(request) {
 
     const data = await res.json();
     const items = Array.isArray(data) ? data : (data.data || []);
-    
+
     // Sort descending by created_at
     const sorted = [...items].sort((a, b) =>
       new Date(b.created_at || 0) - new Date(a.created_at || 0)
