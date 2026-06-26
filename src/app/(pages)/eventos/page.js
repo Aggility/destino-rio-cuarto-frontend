@@ -137,14 +137,7 @@ export default async function EventsPage() {
       {/* Slider de eventos destacados / marcos */}
       <section className="py-4 py-md-5 bg-white border-bottom">
         <div className="container-xxl px-lg-5">
-          <div className="d-flex justify-content-between align-items-end mb-4">
-            <h2
-              className="font-inter fw-bold text-gray-900 mb-0"
-              style={{ fontSize: 'clamp(24px, 4vw, 32px)', letterSpacing: '-1px' }}
-            >
-              Eventos Destacados
-            </h2>
-          </div>
+
           <MacroEventCard events={sliderEvents} />
         </div>
       </section>

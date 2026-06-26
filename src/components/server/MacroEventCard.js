@@ -112,19 +112,12 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
               }}
             />
 
-            {/* Badge superior izquierdo */}
-            <span
-              className="position-absolute top-0 start-0 m-3 badge rounded-pill fw-bold px-3 py-2 font-inter shadow-sm"
-              style={{
-                backgroundColor: '#f54286',
-                color: '#ffffff',
-                fontSize: '10px',
-                letterSpacing: '0.5px',
-                zIndex: 2,
-              }}
-            >
-              EVENTO DESTACADO
-            </span>
+            {/* Badge superior izquierdo (Estilo tarjeta) */}
+            <div className="position-absolute top-0 start-0 bg-black px-2 py-1" style={{ zIndex: 10 }}>
+              <span className="text-white fw-semibold font-inter" style={{ fontSize: 'clamp(14px, 4vw, 18px)', letterSpacing: '-0.54px', lineHeight: '1.2' }}>
+                Evento Destacado
+              </span>
+            </div>
 
             {/* Contenido superpuesto — alineado al fondo */}
             <div
