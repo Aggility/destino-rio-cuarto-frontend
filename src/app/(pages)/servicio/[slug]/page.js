@@ -210,13 +210,16 @@ export default async function ServicioDetailPage({ params }) {
             <h1 className="display-4 fw-bold text-gray-900 font-inter mb-2" style={{ letterSpacing: '-1px' }}>
                 {service.name}
             </h1>
-            <div className="mb-3">
+            
+            <div className="d-flex align-items-center gap-2 mb-3 flex-wrap">
+              <div className="d-inline-flex bg-primary-100 rounded-1 px-2 py-1" style={{ backgroundColor: '#e1effe' }}>
+                  <span className="font-inter fw-medium text-primary-800" style={{ color: '#1e429f', fontSize: '13px' }}>
+                      {service.category}
+                  </span>
+              </div>
+              <div style={{ marginTop: '-4px' }}>
                 <EventDistanceBadge eventLat={service.lat} eventLng={service.lng} type="service" />
-            </div>
-            <div className="d-inline-flex bg-primary-100 rounded-1 px-2 py-1 mb-3" style={{ backgroundColor: '#e1effe' }}>
-                <span className="font-inter fw-medium text-primary-800" style={{ color: '#1e429f', fontSize: '13px' }}>
-                    {service.category}
-                </span>
+              </div>
             </div>
         </div>
 
