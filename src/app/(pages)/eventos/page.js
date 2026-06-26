@@ -20,14 +20,14 @@ export const revalidate = 300;
 
 export default async function EventsPage() {
   let apiEvents    = [];
-  let apiFrameworks = [];
+  let apiFeaturedEvents = [];
 
   try {
-    const [resEvents, resFrameworks] = await Promise.all([
+    const [resEvents, resHome] = await Promise.all([
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/events?per_page=500`, {
         next: { revalidate: 300 },
       }),
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/event-frameworks?per_page=500`, {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/home`, {
         next: { revalidate: 300 },
       }),
     ]);
@@ -40,10 +40,11 @@ export default async function EventsPage() {
         .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
     }
 
-    if (resFrameworks.ok) {
-      const data = await resFrameworks.json();
-      const all  = Array.isArray(data) ? data : (data.data || []);
-      apiFrameworks = all.filter(fw => fw.status?.toLowerCase() !== 'inactive');
+    if (resHome.ok) {
+      const json = await resHome.json();
+      const homeData = json.data || {};
+      const featured = Array.isArray(homeData.featured_events) ? homeData.featured_events : [];
+      apiFeaturedEvents = featured.filter(evt => evt.status?.toLowerCase() !== 'inactive');
     }
   } catch (error) {
     console.error('Error fetching events/frameworks API:', error);
@@ -98,53 +99,34 @@ export default async function EventsPage() {
       .substring(0, 120),
   }));
 
-  // ── Slider: Eventos Marco (event-frameworks) ──────────────────────────────
-  const frameworkSlides = apiFrameworks.map(fw => {
-    const startDate = fw.start_date || fw.calendars?.[0]?.start_date;
-    const endDate   = fw.end_date   || fw.calendars?.[fw.calendars?.length - 1]?.start_date;
-    let dateStr = 'Fecha a confirmar';
-    let timeStr = '';
-    if (startDate) {
-      const dStart = parseLocalDate(startDate);
-      if (endDate && endDate !== startDate) {
-        const dEnd = parseLocalDate(endDate);
-        dateStr = `${dStart.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })} al ${dEnd.toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' })}`;
-      } else {
-        dateStr = dStart.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-      }
-      const time = fw.start_time || fw.calendars?.[0]?.start_time;
-      if (time) timeStr = `${String(time).substring(0, 5)}hs`;
-    }
-    const thumbnail = fw.cover && typeof fw.cover === 'object'
-      ? (fw.cover.large || fw.cover.original || fw.cover.medium || fw.cover.small || getThumbnail(fw.cover, fw.gallery))
-      : getThumbnail(fw.cover, fw.gallery);
-
+  // ── Slider: Eventos Destacados (desde /home) ──────────────────────────────
+  const featuredSlides = apiFeaturedEvents.map(evt => {
     return {
-      id:       fw.id,
-      title:    fw.title || fw.name,
-      date:     dateStr,
-      time:     timeStr,
-      location: fw.organization?.name || fw.location || 'Río Cuarto',
-      thumbnail,
-      href:     `/macro-evento/${fw.slug || fw.id}`,
+      id:        evt.id,
+      title:     evt.title,
+      date:      formatEventDate(evt),
+      time:      evt.calendars?.[0]?.start_time ? `${evt.calendars[0].start_time.substring(0, 5)}hs` : '',
+      location:  evt.organization?.name || evt.location || 'Río Cuarto',
+      thumbnail: getCover(evt),
+      href:      `/eventos/${evt.slug || evt.id}`,
     };
   });
 
-  // Fallback slider: si no hay frameworks, usar los primeros 5 eventos
+  // Fallback slider: si no hay destacados, usar los primeros 5 eventos
   const featuredFromEvents = apiEvents.slice(0, 5).map(evt => ({
     id:        evt.id,
     title:     evt.title,
     date:      formatEventDate(evt),
-    time:      evt.calendars?.[0]?.start_time?.substring(0, 5) + 'hs' || '',
+    time:      evt.calendars?.[0]?.start_time ? `${evt.calendars[0].start_time.substring(0, 5)}hs` : '',
     location:  evt.organization?.name || 'Río Cuarto',
     thumbnail: getCover(evt),
     href:      `/eventos/${evt.slug || evt.id}`,
   }));
 
   const sliderEvents =
-    frameworkSlides.length > 0    ? frameworkSlides :
+    featuredSlides.length > 0    ? featuredSlides :
     featuredFromEvents.length > 0  ? featuredFromEvents :
-    [{ id: 'otono-polifonico', title: '7° Festival Otoño Polifónico', date: 'Miércoles 11 al domingo 15 de marzo', time: '20:00hs', location: 'Teatro Municipal de Río Cuarto', thumbnail: '/oto-polifono.webp', href: '/macro-evento/otono-polifonico' }];
+    [{ id: 'otono-polifonico', title: '7° Festival Otoño Polifónico', date: 'Miércoles 11 al domingo 15 de marzo', time: '20:00hs', location: 'Teatro Municipal de Río Cuarto', thumbnail: '/oto-polifono.webp', href: '/eventos/otono-polifonico' }];
 
   return (
     <div className="bg-listing-page min-vh-100 position-relative">
