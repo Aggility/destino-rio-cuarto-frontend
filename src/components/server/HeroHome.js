@@ -100,10 +100,10 @@ export default function HeroHome({ initialSlug = null }) {
   } else {
     displayTitle = (
       <>
-        Encontrá Fácilmente los{' '}
+        Encontrá Fácilmente{' '}
         <span style={coloredSpanStyle(activeCategory.color)}>Servicios</span>{' '}
-        <br className="d-none d-md-block" />
-        que Necesitás
+        <br className="d-none d-md-block" />que Necesitás
+
       </>
     );
   }
