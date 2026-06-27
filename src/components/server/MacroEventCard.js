@@ -108,7 +108,7 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
               style={{
                 position: 'absolute',
                 inset: 0,
-                background: 'linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.10) 100%)',
+                background: 'linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.60) 40%, rgba(0,0,0,0.72) 60%, rgba(0,0,0,0.35) 100%)',
               }}
             />
 
@@ -119,19 +119,20 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
               </span>
             </div>
 
-            {/* Contenido superpuesto — alineado al fondo */}
+            {/* Contenido superpuesto — centrado vertical y horizontal */}
             <div
-              className="position-absolute bottom-0 start-0 end-0 p-4 p-md-5 d-flex flex-column align-items-center text-center"
-              style={{ zIndex: 2 }}
+              className="position-absolute start-0 end-0 p-4 p-md-5 d-flex flex-column align-items-center justify-content-center text-center"
+              style={{ zIndex: 2, inset: 0, paddingTop: '60px' }}
             >
               {/* Título */}
               <h3
                 className="font-inter fw-bold text-white mb-3"
                 style={{
-                  fontSize: 'clamp(32px, 6vw, 56px)',
-                  lineHeight: '1.2',
-                  letterSpacing: '-0.5px',
-                  textShadow: '0 4px 12px rgba(0,0,0,0.5)',
+                  fontSize: 'clamp(42px, 7vw, 72px)',
+                  lineHeight: '1.1',
+                  letterSpacing: '-1px',
+                  textShadow: '0 4px 20px rgba(0,0,0,0.7)',
+                  maxWidth: '800px',
                 }}
               >
                 {event.title}
