@@ -122,10 +122,10 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
             {/* Contenido superpuesto — centrado vertical y horizontal */}
             <div
               className="position-absolute start-0 end-0 p-4 p-md-5 d-flex flex-column align-items-center justify-content-center text-center"
-              style={{ zIndex: 2, inset: 0, paddingTop: '60px' }}
+              style={{ zIndex: 2, inset: 0, paddingTop: '90px' }}
             >
               {/* Título */}
-              <h3
+              <h1
                 className="font-inter fw-bold text-white mb-3"
                 style={{
                   fontSize: 'clamp(42px, 7vw, 72px)',
@@ -136,7 +136,7 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
                 }}
               >
                 {event.title}
-              </h3>
+              </h1>
 
               {/* Metadatos */}
               <div className="d-flex flex-wrap justify-content-center gap-3 mb-4">
