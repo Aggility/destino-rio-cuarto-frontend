@@ -308,26 +308,26 @@ export default async function ServicioDetailPage({ params }) {
                     <div className="row g-3 mb-4">
                         {finalRelated.map((rs, i) => (
                             <div className="col-12 col-md-6" key={i}>
-                                <div className="bg-white p-3 rounded-3 border d-flex gap-3 align-items-center h-100 hover-lift transition-all" style={{ border: '1px solid #e5e7eb', borderRadius: '12px' }}>
-                                    <div className="flex-shrink-0" style={{ width: '80px', height: '80px', position: 'relative', borderRadius: '12px', overflow: 'hidden' }}>
-                                        <img src={rs.thumbnail} alt={rs.title} className="w-100 h-100" style={{ objectFit: 'cover' }} />
-                                    </div>
-                                    <div className="d-flex flex-column gap-1 overflow-hidden w-100">
-                                        <Link href={rs.slug ? `/servicio/${rs.slug}` : `/servicio/${rs.id}`} className="text-decoration-none text-reset">
+                                <Link href={rs.slug ? `/servicio/${rs.slug}` : `/servicio/${rs.id}`} className="text-decoration-none text-reset">
+                                    <div className="bg-white p-3 rounded-3 border d-flex gap-3 align-items-center h-100 hover-lift transition-all" style={{ border: '1px solid #e5e7eb', borderRadius: '12px' }}>
+                                        <div className="flex-shrink-0" style={{ width: '80px', height: '80px', position: 'relative', borderRadius: '12px', overflow: 'hidden' }}>
+                                            <img src={rs.thumbnail} alt={rs.title} className="w-100 h-100" style={{ objectFit: 'cover' }} />
+                                        </div>
+                                        <div className="d-flex flex-column gap-1 overflow-hidden w-100">
                                             <h4 className="font-inter fw-bold text-gray-900 mb-0 text-truncate" style={{ fontSize: '16px', color: '#111928' }}>
                                                 {rs.title}
                                             </h4>
-                                        </Link>
-                                        <span className="font-inter text-muted small text-truncate" style={{ color: '#6b7280' }}>
-                                            {rs.address}
-                                        </span>
-                                        <div className="d-inline-flex rounded-pill px-2 py-0-5 mt-1" style={{ backgroundColor: '#e1effe', width: 'fit-content' }}>
-                                            <span className="font-inter fw-bold text-primary-800 text-uppercase" style={{ color: '#1e429f', fontSize: '11px', letterSpacing: '0.5px' }}>
-                                                {rs.category}
+                                            <span className="font-inter text-muted small text-truncate" style={{ color: '#6b7280' }}>
+                                                {rs.address}
                                             </span>
+                                            <div className="d-inline-flex rounded-pill px-2 py-0-5 mt-1" style={{ backgroundColor: '#e1effe', width: 'fit-content' }}>
+                                                <span className="font-inter fw-bold text-primary-800 text-uppercase" style={{ color: '#1e429f', fontSize: '11px', letterSpacing: '0.5px' }}>
+                                                    {rs.category}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                </Link>
                             </div>
                         ))}
                     </div>
