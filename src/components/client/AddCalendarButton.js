@@ -144,74 +144,128 @@ export default function AddCalendarButton({ event, themeColor = '#f54286' }) {
         <i className="bi bi-calendar-plus"></i>
       </button>
 
-      {/* Menú Desplegable */}
+      {/* Menú Modal/Popup optimizado para Mobile (Bottom sheet) y Desktop (Modal) */}
       {isOpen && (
-        <div
-          className="position-absolute end-0 mt-2 bg-white rounded-3 shadow-lg border p-2 animate-fade-in"
-          style={{
-            zIndex: 1050,
-            minWidth: '220px',
-            animation: 'fadeIn 0.2s ease',
-            border: '1px solid #e5e7eb',
-          }}
+        <div 
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-end align-items-md-center justify-content-center"
+          style={{ zIndex: 1050 }}
         >
-          <div className="d-flex flex-column gap-1">
-            {/* Google Calendar */}
-            <a
-              href={googleUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="d-flex align-items-center gap-3 px-3 py-2 rounded-2 text-decoration-none text-gray-800 hover-bg-light transition-all"
-              style={{ fontSize: '14px', color: '#374151' }}
-              onClick={() => setIsOpen(false)}
-            >
-              <i className="bi bi-google text-danger fs-5"></i>
-              <span className="font-inter fw-medium">Google Calendar</span>
-            </a>
+          {/* Backdrop oscuro */}
+          <div 
+            className="position-absolute top-0 start-0 w-100 h-100 bg-dark"
+            style={{ opacity: 0.5, animation: 'fadeIn 0.2s ease' }}
+            onClick={() => setIsOpen(false)}
+          ></div>
 
-            {/* Outlook Web */}
-            <a
-              href={outlookUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="d-flex align-items-center gap-3 px-3 py-2 rounded-2 text-decoration-none text-gray-800 hover-bg-light transition-all"
-              style={{ fontSize: '14px', color: '#374151' }}
-              onClick={() => setIsOpen(false)}
-            >
-              <i className="bi bi-envelope text-primary fs-5"></i>
-              <span className="font-inter fw-medium">Outlook Web</span>
-            </a>
+          {/* Contenedor principal del Popup */}
+          <div
+            className="position-relative bg-white w-100 shadow-lg d-flex flex-column popup-container"
+            id="calendar-modal"
+          >
+            {/* Header del Popup */}
+            <div className="d-flex justify-content-between align-items-center mb-1">
+              <h5 className="font-inter fw-bold m-0" style={{ color: '#111928', fontSize: '20px' }}>Agendar Evento</h5>
+              <button 
+                onClick={() => setIsOpen(false)} 
+                className="btn btn-light rounded-circle d-flex align-items-center justify-content-center border-0 bg-gray-100" 
+                style={{ width: '36px', height: '36px', color: '#6b7280' }}
+              >
+                <i className="bi bi-x-lg" style={{ fontSize: '18px' }}></i>
+              </button>
+            </div>
+            
+            <p className="font-inter text-muted mb-4" style={{ fontSize: '14px' }}>
+              Selecciona dónde quieres guardar este evento.
+            </p>
 
-            {/* Separador */}
-            <div className="border-top my-1" style={{ borderColor: '#f3f4f6' }}></div>
+            <div className="d-flex flex-column gap-2">
+              {/* Google Calendar */}
+              <a
+                href={googleUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="d-flex align-items-center gap-3 px-3 py-3 rounded-3 text-decoration-none border transition-all hover-border-google"
+                style={{ backgroundColor: '#fff', borderColor: '#e5e7eb' }}
+                onClick={() => setIsOpen(false)}
+              >
+                <div className="d-flex align-items-center justify-content-center rounded-2" style={{ width: '40px', height: '40px', backgroundColor: '#fef2f2' }}>
+                  <i className="bi bi-google text-danger fs-5"></i>
+                </div>
+                <div className="d-flex flex-column">
+                  <span className="font-inter fw-bold text-gray-900" style={{ fontSize: '15px' }}>Google Calendar</span>
+                  <span className="font-inter text-muted" style={{ fontSize: '13px' }}>Guardar en tu cuenta de Google</span>
+                </div>
+              </a>
 
-            {/* iCal / Apple Calendar / Descargar .ics */}
-            <button
-              onClick={downloadICS}
-              className="d-flex align-items-center gap-3 px-3 py-2 rounded-2 border-0 bg-transparent text-start w-100 text-gray-800 hover-bg-light transition-all"
-              style={{ fontSize: '14px', color: '#374151' }}
-            >
-              <i className="bi bi-calendar-event text-secondary fs-5"></i>
-              <span className="font-inter fw-medium">Descargar archivo .ics</span>
-            </button>
+              {/* Outlook Web */}
+              <a
+                href={outlookUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="d-flex align-items-center gap-3 px-3 py-3 rounded-3 text-decoration-none border transition-all hover-border-outlook"
+                style={{ backgroundColor: '#fff', borderColor: '#e5e7eb' }}
+                onClick={() => setIsOpen(false)}
+              >
+                <div className="d-flex align-items-center justify-content-center rounded-2" style={{ width: '40px', height: '40px', backgroundColor: '#eff6ff' }}>
+                  <i className="bi bi-envelope text-primary fs-5"></i>
+                </div>
+                <div className="d-flex flex-column">
+                  <span className="font-inter fw-bold text-gray-900" style={{ fontSize: '15px' }}>Outlook Web</span>
+                  <span className="font-inter text-muted" style={{ fontSize: '13px' }}>Guardar en cuenta de Microsoft</span>
+                </div>
+              </a>
+
+              {/* iCal / Apple Calendar / Descargar .ics */}
+              <button
+                onClick={downloadICS}
+                className="d-flex align-items-center gap-3 px-3 py-3 rounded-3 border bg-white text-start w-100 transition-all hover-border-ical mt-2"
+                style={{ borderColor: '#e5e7eb' }}
+              >
+                <div className="d-flex align-items-center justify-content-center rounded-2" style={{ width: '40px', height: '40px', backgroundColor: '#f3f4f6' }}>
+                  <i className="bi bi-calendar-event text-secondary fs-5"></i>
+                </div>
+                <div className="d-flex flex-column">
+                  <span className="font-inter fw-bold text-gray-900" style={{ fontSize: '15px' }}>Apple Calendar / .ics</span>
+                  <span className="font-inter text-muted" style={{ fontSize: '13px' }}>Descargar archivo para otros calendarios</span>
+                </div>
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* CSS para la animación fadeIn del dropdown */}
+      {/* Estilos para animaciones y hover */}
       <style jsx global>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(-8px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
+        .popup-container {
+          padding: 24px;
+          border-radius: 24px 24px 0 0;
+          animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+          max-width: 100%;
+        }
+        
+        @media (min-width: 768px) {
+          .popup-container {
+            border-radius: 24px;
+            max-width: 420px;
+            animation: zoomIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
           }
         }
-        .hover-bg-light:hover {
-          background-color: #f9fafb !important;
+
+        .hover-border-google:hover { border-color: #ef4444 !important; background-color: #fef2f2 !important; }
+        .hover-border-outlook:hover { border-color: #3b82f6 !important; background-color: #eff6ff !important; }
+        .hover-border-ical:hover { border-color: #6b7280 !important; background-color: #f9fafb !important; }
+
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 0.5; }
+        }
+        @keyframes slideUp {
+          from { transform: translateY(100%); }
+          to { transform: translateY(0); }
+        }
+        @keyframes zoomIn {
+          from { transform: scale(0.95); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
         }
       `}</style>
     </div>
