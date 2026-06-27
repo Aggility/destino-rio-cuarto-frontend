@@ -9,6 +9,7 @@ import EventDistanceBadge from '@/components/client/EventDistanceBadge';
 import EventImageWithFallback from '@/components/client/EventImageWithFallback';
 import { getThumbnail } from '@/utils/image';
 import ContactButtons from '@/components/client/ContactButtons';
+import EventContactButton from '@/components/client/EventContactButton';
 
 /**
  * ServicioDetailPage - Destino Río Cuarto
@@ -267,6 +268,9 @@ export default async function ServicioDetailPage({ params }) {
                         service.category.toLowerCase().includes('gastronomía') ? 'gastronomia' : 'service'
                     }
                 />
+                
+                {/* Botón de Contacto Desplegable */}
+                <EventContactButton contacts={orgData?.addresses || []} />
 
                 {/* Botones de Contacto Rápido */}
                 {(service.phone || service.whatsapp) && (
