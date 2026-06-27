@@ -44,7 +44,7 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
     const interval = setInterval(() => {
       const next = (activeIndex + 1) % slides.length;
       scrollToIndex(next);
-    }, 5000);
+    }, 3000);
     return () => clearInterval(interval);
   }, [activeIndex, isPaused, slides.length, scrollToIndex]);
 

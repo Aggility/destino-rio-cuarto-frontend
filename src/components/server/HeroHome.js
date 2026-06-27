@@ -37,17 +37,17 @@ export default function HeroHome({ initialSlug = null }) {
 
   const getBackgroundImage = (slug) => {
     switch (slug) {
-      case 'eventos': return '/Eventos_1.jpeg';
-      case 'actividades': return '/Actividades_1.jpg';
-      case 'experiencias': return '/Experiencias_2.jpg';
-      case 'servicios': return '/Servicios_3.jpg';
-      default: return '/Portada_1.jpg';
+      case 'eventos': return '/Eventos_okk.jpg';
+      case 'actividades': return '/Actividades_ok.jpg';
+      case 'experiencias': return '/Experiencias_ok.jpg';
+      case 'servicios': return '/Servicios_ok.jpg';
+      default: return '/Portada_home.jpg';
     }
   };
 
   const bgImage = activeCategory
     ? getBackgroundImage(activeCategory.slug)
-    : '/Portada_1.jpg';
+    : '/Portada_home.jpg';
 
   let displayTitle;
   const coloredSpanStyle = (color) => ({
@@ -103,7 +103,7 @@ export default function HeroHome({ initialSlug = null }) {
         Encontrá los{' '}
         <span style={coloredSpanStyle(activeCategory.color)}>Servicios</span>{' '}
         <br className="d-none d-md-block" />
-        que Necesitás en Un Solo Lugar
+        que Necesitás Fácilmente
       </>
     );
   }
