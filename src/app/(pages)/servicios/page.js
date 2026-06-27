@@ -23,7 +23,7 @@ export default async function ServiciosPage() {
     // cached and served statically via ISR. The warning "items over 2MB can not be cached"
     // is harmless and does not affect user-facing performance.
     const [resOrgs, resProp] = await Promise.all([
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/organizations?type=servicio&per_page=2000`, { next: { revalidate: 300 } }),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/organizations?type=servicio&per_page=300`, { next: { revalidate: 300 } }),
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/proposals?per_page=50`, { next: { revalidate: 300 } })
     ]);
 

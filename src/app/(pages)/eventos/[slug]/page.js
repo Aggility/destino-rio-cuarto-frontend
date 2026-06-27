@@ -12,6 +12,7 @@ import HomeSectionSlider from '@/components/client/HomeSectionSlider';
 import EventCard from '@/components/server/EventCard';
 import ShareButton from '@/components/client/ShareButton';
 import AddCalendarButton from '@/components/client/AddCalendarButton';
+import EventContactButton from '@/components/client/EventContactButton';
 
 
 /**
@@ -368,6 +369,7 @@ export default async function EventDetailPage({ params }) {
                         type="event" 
                         showContact={false}
                     />
+                    <EventContactButton contacts={eventData?.addresses || []} />
                 </div>
             </div>
           </div>
