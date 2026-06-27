@@ -1,5 +1,8 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
+
 
 /**
  * ServiceListItem - Destino Río Cuarto
@@ -28,14 +31,39 @@ export default function ServiceListItem({
 
   return (
     <div
-      className="bg-light-subtle rounded-4 p-4 border border-light-subtle shadow-sm"
-      style={{ border: '1px solid #e5e7eb', borderRadius: '12px' }}
+      className="bg-light-subtle rounded-4 p-4 border border-light-subtle shadow-sm position-relative"
+      style={{
+        border: '1px solid #e5e7eb',
+        borderRadius: '12px',
+        cursor: 'pointer',
+        transition: 'box-shadow 0.2s ease, transform 0.2s ease',
+      }}
+      onMouseEnter={e => {
+        e.currentTarget.style.boxShadow = '0 8px 24px rgba(26,86,219,0.15)';
+        e.currentTarget.style.transform = 'translateY(-2px)';
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.boxShadow = '';
+        e.currentTarget.style.transform = '';
+      }}
     >
+      {/* Link invisible que cubre toda la tarjeta */}
+      <Link
+        href={href}
+        aria-label={`Ver detalle de ${title}`}
+        style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 0,
+          borderRadius: '12px',
+        }}
+      />
+
       <div className="row g-3 align-items-center">
 
         {/* Imagen */}
         {thumbnail && thumbnail !== '/no-img.webp' && (
-          <div className="col-12 col-md-3">
+          <div className="col-12 col-md-3" style={{ position: 'relative', zIndex: 1 }}>
             <img
               src={thumbnail}
               alt={title}
@@ -61,8 +89,8 @@ export default function ServiceListItem({
             {title}
           </h3>
 
-          {/* Botones */}
-          <div className="d-flex align-items-center gap-2 mt-3">
+          {/* Botones — z-index superior para que sean clicleables */}
+          <div className="d-flex align-items-center gap-2 mt-3" style={{ position: 'relative', zIndex: 1 }}>
             <Link
               href={href}
               className="btn shadow-sm d-inline-flex align-items-center gap-2 px-3 py-2 rounded-3 border-0 transition-all text-decoration-none"

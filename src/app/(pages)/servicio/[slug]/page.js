@@ -94,7 +94,7 @@ export default async function ServicioDetailPage({ params }) {
              id: ev.id,
              title: ev.title,
              subtitle: ev.organization?.name || 'Río Cuarto',
-             badge: ev.calendars?.[0]?.start_date ? new Date(ev.calendars[0].start_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' }).toUpperCase() : 'PRÓXIMAMENTE',
+             badge: '',
              type: 'event',
              thumbnail: getThumbnail(ev.cover, ev.gallery),
              lat: ev.lat,
@@ -182,7 +182,7 @@ export default async function ServicioDetailPage({ params }) {
   ];
 
   const finalEvents = nearbyEvents.length > 0 ? nearbyEvents : [
-    { title: 'Cine Bajo las Estrellas', subtitle: 'Parque Sarmiento', badge: '15 DIC', type: 'event', thumbnail: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=300&q=80&w=300', href: '#' }
+    { title: 'Cine Bajo las Estrellas', subtitle: 'Parque Sarmiento', badge: '', type: 'event', thumbnail: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=300&q=80&w=300', href: '#' }
   ];
 
   const finalActivities = realActivities.length > 0 ? realActivities : [
@@ -238,9 +238,27 @@ export default async function ServicioDetailPage({ params }) {
                     />
                 </div>
 
-                {/* Ubicación y Contacto Component (Mini Mapa + Info + Routing) */}
-                <h2 className="h4 fw-bold font-inter text-gray-900 mb-4" style={{ fontSize: '24px' }}>Ubicación y Contacto</h2>
-                
+                {/* Más Información (sin título) */}
+                <div className="mb-5">
+                    <div
+                        className="font-inter text-gray-700 rich-text-content"
+                        style={{ fontSize: '16px', lineHeight: '1.7' }}
+                        dangerouslySetInnerHTML={{ __html: service.description }}
+                    />
+                    <style>{`
+                        .rich-text-content p { margin-bottom: 0.85rem; }
+                        .rich-text-content p:last-child { margin-bottom: 0; }
+                        .rich-text-content ul, .rich-text-content ol { padding-left: 1.4rem; margin-bottom: 0.85rem; }
+                        .rich-text-content li { margin-bottom: 0.3rem; }
+                        .rich-text-content strong, .rich-text-content b { font-weight: 700; color: #1a1a2e; }
+                        .rich-text-content em, .rich-text-content i { font-style: italic; }
+                        .rich-text-content a { color: #1a56db; text-decoration: underline; word-break: break-all; }
+                        .rich-text-content table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+                        .rich-text-content table td, .rich-text-content table th { border: 1px solid #e5e7eb; padding: 0.4rem 0.6rem; }
+                    `}</style>
+                </div>
+
+                {/* Mapa + Contacto (debajo de la descripción, sin título) */}
                 <ContactAndLocationWidget 
                     service={service} 
                     showContact={false}
@@ -281,27 +299,6 @@ export default async function ServicioDetailPage({ params }) {
                   </div>
                 )}
 
-                {/* Más Información */}
-                <div className="mb-5">
-                    <h2 className="h4 fw-bold font-inter text-gray-900 mb-3" style={{ fontSize: '24px' }}>Más Información</h2>
-                    <div
-                        className="font-inter text-gray-700 rich-text-content"
-                        style={{ fontSize: '16px', lineHeight: '1.7' }}
-                        dangerouslySetInnerHTML={{ __html: service.description }}
-                    />
-                    <style>{`
-                        .rich-text-content p { margin-bottom: 0.85rem; }
-                        .rich-text-content p:last-child { margin-bottom: 0; }
-                        .rich-text-content ul, .rich-text-content ol { padding-left: 1.4rem; margin-bottom: 0.85rem; }
-                        .rich-text-content li { margin-bottom: 0.3rem; }
-                        .rich-text-content strong, .rich-text-content b { font-weight: 700; color: #1a1a2e; }
-                        .rich-text-content em, .rich-text-content i { font-style: italic; }
-                        .rich-text-content a { color: #1a56db; text-decoration: underline; word-break: break-all; }
-                        .rich-text-content table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
-                        .rich-text-content table td, .rich-text-content table th { border: 1px solid #e5e7eb; padding: 0.4rem 0.6rem; }
-                    `}</style>
-                </div>
-
                 {/* Servicios relacionados */}
                 <div className="p-4 p-md-5 rounded-4 shadow-sm" style={{ backgroundColor: '#f0f7ff', border: '1px solid #e1effe' }}>
                     <h3 className="fw-bold font-inter mb-4" style={{ color: '#1e429f', fontSize: '22px' }}>Servicios Relacionados</h3>
@@ -339,9 +336,9 @@ export default async function ServicioDetailPage({ params }) {
 
             {/* RIGHT COLUMN: Sidebar (Recommendations) */}
             <div className="col-12 col-lg-4">
-                <div className="p-4 bg-white rounded-4 border shadow-sm position-sticky" style={{ top: '120px' }}>
+                <div className="p-4 bg-white rounded-4 border shadow-sm">
                     <h3 className="font-inter fw-bold text-gray-900 mb-4" style={{ fontSize: '24px', letterSpacing: '-0.5px' }}>
-                        También te puede interesar
+                        Nuestras Sugerencias
                     </h3>
 
                     {/* Eventos Section */}

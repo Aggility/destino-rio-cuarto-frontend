@@ -80,7 +80,7 @@ export default function SidebarListCard({
             )}
           </div>
 
-          {!isCalendar && (
+          {!isCalendar && badge && (
             <div className="d-inline-flex px-2 py-0-5 rounded-1 mt-1 w-fit-content" 
                  style={{ backgroundColor: isService ? '#e1effe' : (isActivity ? '#8a38f5' : '#f54286'), width: 'fit-content' }}>
               <span className="font-inter fw-bold shadow-sm" 
