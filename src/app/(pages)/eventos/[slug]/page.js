@@ -129,13 +129,15 @@ export default async function EventDetailPage({ params }) {
     const resEvents = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events?per_page=50`, { cache: 'no-store' });
     if (resEvents.ok) {
       const eventsData = await resEvents.json();
-      const allEvents = (eventsData.data || []).filter(e => String(e.id) !== String(event.id));
-      // Mezclar aleatoriamente con Fisher-Yates
-      for (let i = allEvents.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [allEvents[i], allEvents[j]] = [allEvents[j], allEvents[i]];
-      }
-      randomEvents = allEvents.slice(0, 10).map(e => {
+      const allEvents = (eventsData.data || [])
+        .filter(e => String(e.id) !== String(event.id) && (e.status === 'active' || e.status === 'activo'))
+        .sort((a, b) => {
+          const dateA = a.created_at ? new Date(a.created_at).getTime() : a.id;
+          const dateB = b.created_at ? new Date(b.created_at).getTime() : b.id;
+          return dateB - dateA;
+        });
+      
+      randomEvents = allEvents.slice(0, 5).map(e => {
         let thumbnail = '/no-img.webp';
         if (e.cover && typeof e.cover === 'object') {
           thumbnail = e.cover.medium || e.cover.small || e.cover.large || e.cover.original || getThumbnail(e.cover, e.gallery);
