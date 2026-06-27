@@ -13,7 +13,7 @@ import EventCard from '@/components/server/EventCard';
 import ShareButton from '@/components/client/ShareButton';
 import AddCalendarButton from '@/components/client/AddCalendarButton';
 import EventContactButton from '@/components/client/EventContactButton';
-
+import EventGallerySlider from '@/components/client/EventGallerySlider';
 
 /**
  * EventDetailPage - Destino Río Cuarto
@@ -370,6 +370,7 @@ export default async function EventDetailPage({ params }) {
                         showContact={false}
                     />
                     <EventContactButton contacts={eventData?.addresses || []} />
+                    <EventGallerySlider gallery={eventData?.gallery || []} />
                 </div>
             </div>
           </div>
