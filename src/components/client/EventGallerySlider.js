@@ -18,7 +18,7 @@ export default function EventGallerySlider({ gallery }) {
 
     return (
         <div className="mt-5 pt-4 border-top">
-            <HomeSectionSlider title="Galería de Imágenes">
+            <HomeSectionSlider title="Galería de Imágenes" autoPlay={true} loop={true}>
                 {images.map((src, idx) => (
                     <div 
                         key={idx} 
