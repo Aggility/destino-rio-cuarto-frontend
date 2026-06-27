@@ -283,6 +283,31 @@ export default async function ExperienceDetailPage({ params }) {
     ? suggestedPlaces.slice(0, 2).map(computeDist) 
     : fallbackSuggestedPlaces.map(computeDist);
 
+  const combinedServices = [...finalAccommodation, ...finalRestaurants, ...finalSuggestedPlaces].slice(0, 4).map((s, idx) => {
+    let thumbnail = '/no-img.webp';
+    if (s.cover && typeof s.cover === 'object') {
+      thumbnail = s.cover.medium || s.cover.small || s.cover.large || s.cover.original || getThumbnail(s.cover, s.gallery);
+    } else if (s.cover || s.gallery) {
+      thumbnail = getThumbnail(s.cover, s.gallery);
+    } else {
+      const mockImages = [
+        'https://images.unsplash.com/photo-1551882547-ff40eb0d1b73?auto=format&fit=crop&q=80&w=150',
+        'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=150',
+        'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=150',
+        'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=80&w=150'
+      ];
+      thumbnail = mockImages[idx % mockImages.length];
+    }
+    return {
+      id: s.id,
+      slug: s.slug,
+      title: s.name || s.title || 'Servicio',
+      address: s.addresses?.[0]?.address || s.address || 'Río Cuarto',
+      category: s.categories?.[0]?.name || (finalAccommodation.includes(s) ? 'ALOJAMIENTO' : (finalRestaurants.includes(s) ? 'GASTRONOMÍA' : 'SERVICIO')),
+      thumbnail
+    };
+  });
+
   const getOrgTheme = (org) => {
     if (!org || !org.categories) return 'blue';
     const isLodging = org.categories.some(c => {
@@ -578,86 +603,38 @@ export default async function ExperienceDetailPage({ params }) {
             <div>
 
 
-              {/* Donde Comer */}
-              <div className="p-4 rounded-4 mb-4 shadow-sm border" style={{ backgroundColor: '#f0f7ff' }}>
-                <h3 className="font-inter fw-bold text-listing-title mb-4" style={{ fontSize: '22px', color: '#1a56db' }}>Donde Comer</h3>
-                <div className="d-flex flex-column gap-3 mb-4">
-                    {finalRestaurants.map((item, idx) => {
-                        const displayId = item.slug || item.id || '';
-                        const displayLink = displayId ? `/servicio/${displayId}` : '#';
-                        const displayName = item.name || item.title || 'Restaurante';
-                        const displayAddress = item.addresses?.[0]?.address || item.address || 'Río Cuarto';
-                        const displayPhone = item.phone || 'Consultar contacto';
-
-                        return (
-                            <Link href={displayLink} key={idx} className="bg-white p-3 rounded-3 shadow-sm border position-relative text-decoration-none d-block transition-all hover-lift">
-                                 <div className="d-flex justify-content-between align-items-start mb-2">
-                                    <p className="font-inter fw-bold text-gray-900 small mb-0">{displayName}</p>
-                                    <UserDistanceBadge 
-                                        targetLat={item.lat || item.addresses?.[0]?.latitude} 
-                                        targetLng={item.lng || item.addresses?.[0]?.longitude} 
-                                        staticDistance={item.distance} 
-                                        staticLabel={`de ${experience.location}`} 
-                                        theme={getOrgTheme(item)}
-                                    />
-                                </div>
-                                <div className="d-flex align-items-start gap-2 mb-1">
-                                    <i className="bi bi-geo-alt text-muted" style={{ fontSize: '12px' }}></i>
-                                    <span className="font-inter text-muted text-decoration-underline" style={{ fontSize: '12px' }}>{displayAddress}</span>
-                                </div>
-                                <div className="d-flex align-items-center gap-2">
-                                    <i className="bi bi-telephone text-muted" style={{ fontSize: '12px' }}></i>
-                                    <span className="font-inter text-muted" style={{ fontSize: '12px' }}>{displayPhone}</span>
-                                </div>
-                                <i className="bi bi-chevron-right position-absolute bottom-0 end-0 m-3 opacity-50"></i>
-                            </Link>
-                        );
-                    })}
-                </div>
-
-                {/* Lugares sugeridos (dentro de Donde Comer) */}
-                {finalSuggestedPlaces.length > 0 && (
-                  <div className="mt-4 pt-4 border-top" style={{ borderColor: '#d0e1fd' }}>
-                    <h3 className="font-inter fw-bold text-listing-title mb-4" style={{ fontSize: '22px', color: '#1a56db' }}>Lugares sugeridos</h3>
-                    <div className="d-flex flex-column gap-3 mb-4">
-                        {finalSuggestedPlaces.map((item, idx) => {
-                            const displayId = item.slug || item.id || '';
-                            const displayLink = displayId ? `/servicio/${displayId}` : '#';
-                            const displayName = item.name || item.title || 'Lugar';
-                            const displayAddress = item.addresses?.[0]?.address || item.address || 'Río Cuarto';
-                            const displayPhone = item.phone || 'Consultar contacto';
-
-                            return (
-                                <Link href={displayLink} key={idx} className="bg-white p-3 rounded-3 shadow-sm border position-relative text-decoration-none d-block transition-all hover-lift">
-                                     <div className="d-flex justify-content-between align-items-start mb-2">
-                                        <p className="font-inter fw-bold text-gray-900 small mb-0">{displayName}</p>
-                                        <UserDistanceBadge 
-                                            targetLat={item.lat || item.addresses?.[0]?.latitude} 
-                                            targetLng={item.lng || item.addresses?.[0]?.longitude} 
-                                            staticDistance={item.distance} 
-                                            staticLabel={`de ${experience.location}`} 
-                                            theme={getOrgTheme(item)}
-                                        />
-                                    </div>
-                                    <div className="d-flex align-items-start gap-2 mb-1">
-                                        <i className="bi bi-geo-alt text-muted" style={{ fontSize: '12px' }}></i>
-                                        <span className="font-inter text-muted text-decoration-underline" style={{ fontSize: '12px' }}>{displayAddress}</span>
-                                    </div>
-                                    <div className="d-flex align-items-center gap-2">
-                                        <i className="bi bi-telephone text-muted" style={{ fontSize: '12px' }}></i>
-                                        <span className="font-inter text-muted" style={{ fontSize: '12px' }}>{displayPhone}</span>
-                                    </div>
-                                    <i className="bi bi-chevron-right position-absolute bottom-0 end-0 m-3 opacity-50"></i>
-                                </Link>
-                            );
-                        })}
-                    </div>
+              {/* Servicios Más Buscados */}
+              <div className="p-4 p-md-5 rounded-4 shadow-sm" style={{ backgroundColor: '#f0f7ff', border: '1px solid #e1effe' }}>
+                  <h3 className="fw-bold font-inter mb-4" style={{ color: '#1e429f', fontSize: '18px' }}>Servicios Más Buscados</h3>
+                  <div className="row g-3 mb-4">
+                      {combinedServices.map((rs, i) => (
+                          <div className="col-12" key={i}>
+                              <Link href={rs.slug ? `/servicio/${rs.slug}` : `/servicio/${rs.id}`} className="text-decoration-none text-reset">
+                                  <div className="bg-white p-3 rounded-3 border d-flex gap-3 align-items-center h-100 hover-lift transition-all" style={{ border: '1px solid #e5e7eb', borderRadius: '12px' }}>
+                                      <div className="flex-shrink-0" style={{ width: '80px', height: '80px', position: 'relative', borderRadius: '12px', overflow: 'hidden' }}>
+                                          <img src={rs.thumbnail} alt={rs.title} className="w-100 h-100" style={{ objectFit: 'cover' }} />
+                                      </div>
+                                      <div className="d-flex flex-column gap-1 overflow-hidden w-100">
+                                          <h4 className="font-inter fw-bold text-gray-900 mb-0 text-truncate" style={{ fontSize: '16px', color: '#111928' }}>
+                                              {rs.title}
+                                          </h4>
+                                          <span className="font-inter text-muted small text-truncate" style={{ color: '#6b7280' }}>
+                                              {rs.address}
+                                          </span>
+                                          <div className="d-inline-flex rounded-pill px-2 py-0-5 mt-1" style={{ backgroundColor: '#e1effe', width: 'fit-content' }}>
+                                              <span className="font-inter fw-bold text-primary-800 text-uppercase" style={{ color: '#1e429f', fontSize: '11px', letterSpacing: '0.5px' }}>
+                                                  {rs.category}
+                                              </span>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </Link>
+                          </div>
+                      ))}
                   </div>
-                )}
-
-                <Link href="/servicios" className="btn btn-outline-primary w-100 py-2 font-inter fw-medium rounded-2 border-1-5 text-decoration-none d-flex justify-content-center" style={{ color: '#1a56db', borderColor: '#a4cafe' }}>
-                    Ver más
-                </Link>
+                  <Link href="/servicios" className="btn btn-outline-primary bg-white shadow-sm font-inter text-primary rounded-2 px-4 shadow-premium-subtle transition-all hover-lift text-decoration-none d-flex align-items-center justify-content-center" style={{ color: '#1a56db', borderColor: '#a4cafe' }}>
+                      Ver más
+                  </Link>
               </div>
             </div>
           </div>
