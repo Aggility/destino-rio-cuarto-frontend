@@ -54,7 +54,7 @@ export default function ServiceListItem({
         style={{
           position: 'absolute',
           inset: 0,
-          zIndex: 0,
+          zIndex: 1,
           borderRadius: '12px',
         }}
       />
@@ -90,13 +90,13 @@ export default function ServiceListItem({
           </h3>
 
           {/* Botones — z-index superior para que sean clicleables */}
-          <div className="d-flex align-items-center gap-2 mt-3" style={{ position: 'relative', zIndex: 1 }}>
+          <div className="d-flex align-items-center gap-2 mt-3" style={{ position: 'relative', zIndex: 2 }}>
             <Link
               href={href}
               className="btn shadow-sm d-inline-flex align-items-center gap-2 px-3 py-2 rounded-3 border-0 transition-all text-decoration-none"
               style={{ backgroundColor: themeColor, color: '#fff' }}
             >
-              <span className="font-inter fw-semibold small">Ver más</span>
+              <span className="font-inter fw-semibold small d-none d-md-inline">Ver más</span>
               <i className="bi bi-info-circle-fill" />
             </Link>
 
@@ -108,7 +108,7 @@ export default function ServiceListItem({
                 className="btn shadow-sm d-inline-flex align-items-center gap-2 px-3 py-2 rounded-3 border-0 transition-all text-decoration-none"
                 style={{ backgroundColor: themeColor, color: '#fff' }}
               >
-                <span className="font-inter fw-semibold small">Cómo llegar</span>
+                <span className="font-inter fw-semibold small d-none d-md-inline">Cómo llegar</span>
                 <i className="bi bi-geo-alt-fill" />
               </a>
             )}

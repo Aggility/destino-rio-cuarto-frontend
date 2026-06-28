@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useDeferredValue } from 'react';
 import ServiceListItem from '@/components/server/ServiceListItem';
 import { getDistance } from '@/utils/geo';
 
@@ -16,6 +16,7 @@ export default function ServicesListClient({ initialServices, leftoverFromFirstP
   const [visibleCount, setVisibleCount] = useState(9);
   const [selectedFilter, setSelectedFilter] = useState('Todos');
   const [searchTerm, setSearchTerm] = useState('');
+  const deferredSearchTerm = useDeferredValue(searchTerm);
 
   // Ubicación del usuario
   const fetchLocation = () => {
@@ -64,13 +65,12 @@ export default function ServicesListClient({ initialServices, leftoverFromFirstP
     let result = servicesWithDistance;
 
     // Filtro por texto (Predictivo)
-    if (searchTerm.trim() !== '') {
-      const lowerTerm = searchTerm.toLowerCase();
+    if (deferredSearchTerm.trim() !== '') {
+      const lowerTerm = deferredSearchTerm.toLowerCase();
       result = result.filter(s => 
         (s.title && s.title.toLowerCase().includes(lowerTerm)) ||
         (s.category && s.category.toLowerCase().includes(lowerTerm)) ||
-        (s.address && s.address.toLowerCase().includes(lowerTerm)) ||
-        (s.description && s.description.toLowerCase().includes(lowerTerm))
+        (s.address && s.address.toLowerCase().includes(lowerTerm))
       );
     }
 
@@ -92,7 +92,7 @@ export default function ServicesListClient({ initialServices, leftoverFromFirstP
   // Cuando cambia un filtro o búsqueda, reiniciar la cantidad visible
   useEffect(() => {
     setVisibleCount(9);
-  }, [searchTerm, selectedFilter]);
+  }, [deferredSearchTerm, selectedFilter]);
 
   const loadMore = () => {
     setVisibleCount(prev => prev + 9);

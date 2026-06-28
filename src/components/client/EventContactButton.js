@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 
-export default function EventContactButton({ contacts }) {
+export default function EventContactButton({ contacts, themeColor = '#f54286', themeColorLight = '#fce8ef' }) {
     const [isOpen, setIsOpen] = useState(false);
 
     if (!contacts || contacts.length === 0) return null;
@@ -39,11 +39,17 @@ export default function EventContactButton({ contacts }) {
         // Sometimes the API uses a type/value pattern
         if (contact.type && contact.value) {
             const type = String(contact.type).toLowerCase();
+            
+            // Ignorar direcciones
+            if (type.includes('direccion') || type.includes('dirección') || type.includes('address') || type.includes('ubicación') || type.includes('ubicacion')) {
+                return;
+            }
+
             let icon = 'bi-link';
             let label = contact.type || 'Enlace';
             let href = contact.value;
 
-            if (type.includes('phone') || type.includes('tel')) {
+            if (type.includes('phone') || type.includes('tel') || type === 'teléfono') {
                 icon = 'bi-telephone';
                 label = 'Teléfono';
                 href = `tel:${contact.value}`;
@@ -51,7 +57,7 @@ export default function EventContactButton({ contacts }) {
                 icon = 'bi-whatsapp';
                 label = 'WhatsApp';
                 href = `https://wa.me/${contact.value.replace(/[^0-9]/g, '')}`;
-            } else if (type.includes('mail') || type.includes('email')) {
+            } else if (type.includes('mail') || type.includes('email') || type === 'e-mail') {
                 icon = 'bi-envelope';
                 label = 'Email';
                 href = `mailto:${contact.value}`;
@@ -63,10 +69,30 @@ export default function EventContactButton({ contacts }) {
                 icon = 'bi-facebook';
                 label = 'Facebook';
                 href = contact.value.includes('http') ? contact.value : `https://facebook.com/${contact.value}`;
-            } else if (type.includes('web')) {
+            } else if (type.includes('web') || type === 'página web') {
                 icon = 'bi-globe';
                 label = 'Sitio Web';
                 href = contact.value.includes('http') ? contact.value : `https://${contact.value}`;
+            } else if (type.includes('horario')) {
+                icon = 'bi-clock';
+                label = 'Horario';
+                href = '#';
+            } else if (type.includes('twitter') || type.includes('x')) {
+                icon = 'bi-twitter-x';
+                label = 'Twitter';
+                href = contact.value.includes('http') ? contact.value : `https://twitter.com/${contact.value}`;
+            } else if (type.includes('linkedin')) {
+                icon = 'bi-linkedin';
+                label = 'LinkedIn';
+                href = contact.value.includes('http') ? contact.value : `https://linkedin.com/in/${contact.value}`;
+            } else if (type.includes('youtube') || type.includes('yt')) {
+                icon = 'bi-youtube';
+                label = 'YouTube';
+                href = contact.value.includes('http') ? contact.value : `https://youtube.com/${contact.value}`;
+            } else if (type.includes('tiktok') || type.includes('tt')) {
+                icon = 'bi-tiktok';
+                label = 'TikTok';
+                href = contact.value.includes('http') ? contact.value : `https://tiktok.com/@${contact.value.replace('@', '')}`;
             }
 
             normalizedContacts.push({ icon, label, value: contact.value, href });
@@ -97,8 +123,8 @@ export default function EventContactButton({ contacts }) {
         <>
             <button 
                 onClick={() => setIsOpen(true)}
-                className="btn btn-primary w-100 mt-4 font-inter fw-bold py-3 shadow-sm rounded-3 d-flex justify-content-center align-items-center gap-2 hover-lift transition-all"
-                style={{ backgroundColor: '#f54286', borderColor: '#f54286', fontSize: '16px' }}
+                className="btn btn-primary mt-4 font-inter fw-bold py-3 shadow-sm rounded-3 d-flex justify-content-center align-items-center gap-2 hover-lift transition-all mx-auto"
+                style={{ backgroundColor: themeColor, borderColor: themeColor, fontSize: '16px', width: '100%', maxWidth: '350px' }}
             >
                 <i className="bi bi-person-lines-fill fs-5"></i>
                 Contacto
@@ -116,7 +142,7 @@ export default function EventContactButton({ contacts }) {
                         <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
                             <div className="modal-header bg-light border-0 px-4 pt-4 pb-3">
                                 <h5 className="modal-title font-inter fw-bold text-gray-900 d-flex align-items-center">
-                                    <i className="bi bi-person-lines-fill me-2 fs-4" style={{ color: '#f54286' }}></i>
+                                    <i className="bi bi-person-lines-fill me-2 fs-4" style={{ color: themeColor }}></i>
                                     Información de Contacto
                                 </h5>
                                 <button type="button" className="btn-close" onClick={() => setIsOpen(false)}></button>
@@ -131,7 +157,7 @@ export default function EventContactButton({ contacts }) {
                                             rel="noopener noreferrer"
                                             className="d-flex align-items-center gap-3 p-3 text-decoration-none text-dark bg-white border rounded-3 hover-lift transition-all"
                                         >
-                                            <div className="flex-shrink-0 rounded-circle d-flex align-items-center justify-content-center" style={{ width: '48px', height: '48px', backgroundColor: '#fce8ef', color: '#f54286' }}>
+                                            <div className="flex-shrink-0 rounded-circle d-flex align-items-center justify-content-center" style={{ width: '48px', height: '48px', backgroundColor: themeColorLight, color: themeColor }}>
                                                 <i className={`bi ${field.icon} fs-4`}></i>
                                             </div>
                                             <div className="d-flex flex-column overflow-hidden">

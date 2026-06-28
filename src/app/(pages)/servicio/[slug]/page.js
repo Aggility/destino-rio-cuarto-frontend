@@ -38,7 +38,13 @@ export default async function ServicioDetailPage({ params }) {
          const json = await res.json();
          const list = json.data || json;
          if (Array.isArray(list) && list.length > 0) {
-            orgData = list[0];
+            const tempOrg = list[0];
+            const detailRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/organizations/${tempOrg.id}`, { cache: 'no-store' });
+            if (detailRes.ok) {
+                orgData = (await detailRes.json()).data;
+            } else {
+                orgData = tempOrg;
+            }
          }
       }
     } catch (err) {
@@ -269,39 +275,19 @@ export default async function ServicioDetailPage({ params }) {
                     }
                 />
                 
-                {/* Botón de Contacto Desplegable */}
-                <EventContactButton contacts={orgData?.addresses || []} />
+                <div className="mb-5">
+                  {/* Botón de Contacto Desplegable */}
+                  <EventContactButton contacts={orgData?.contacts || []} themeColor="#1a56db" themeColorLight="#ebf5ff" />
 
-                {/* Botones de Contacto Rápido */}
-                {(service.phone || service.whatsapp) && (
-                  <div className="mb-4">
-                    <ContactButtons phone={service.phone} whatsapp={service.whatsapp} />
-                  </div>
-                )}
-
-                {/* Redes Sociales y Web */}
-                {(service.instagram || service.facebook || service.web) && (
-                  <div className="d-flex align-items-center flex-wrap gap-3 mb-5 mt-4 p-3 bg-light rounded-3 border">
-                    <span className="font-inter fw-bold text-gray-900 small m-0">Redes y Sitio Web:</span>
-                    <div className="d-flex align-items-center gap-2">
-                      {service.web && (
-                        <a href={service.web} target="_blank" rel="noopener noreferrer" className="btn btn-outline-primary rounded-circle d-flex align-items-center justify-content-center shadow-sm transition-all hover-lift" style={{ width: '38px', height: '38px', borderColor: '#bfdbfe' }} title="Visitar Sitio Web">
-                          <i className="bi bi-globe" style={{ fontSize: '16px' }}></i>
-                        </a>
-                      )}
-                      {service.instagram && (
-                        <a href={service.instagram} target="_blank" rel="noopener noreferrer" className="btn btn-outline-danger rounded-circle d-flex align-items-center justify-content-center shadow-sm transition-all hover-lift" style={{ width: '38px', height: '38px', borderColor: '#fecaca' }} title="Ver Instagram">
-                          <i className="bi bi-instagram" style={{ fontSize: '16px' }}></i>
-                        </a>
-                      )}
-                      {service.facebook && (
-                        <a href={service.facebook} target="_blank" rel="noopener noreferrer" className="btn btn-outline-primary rounded-circle d-flex align-items-center justify-content-center shadow-sm transition-all hover-lift" style={{ width: '38px', height: '38px', borderColor: '#bfdbfe' }} title="Ver Facebook">
-                          <i className="bi bi-facebook" style={{ fontSize: '16px' }}></i>
-                        </a>
-                      )}
+                  {/* Botones de Contacto Rápido */}
+                  {(service.phone || service.whatsapp) && (
+                    <div className="mt-4">
+                      <ContactButtons phone={service.phone} whatsapp={service.whatsapp} />
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
+
+
 
                 {/* Servicios relacionados */}
                 <div className="p-4 p-md-5 rounded-4 shadow-sm" style={{ backgroundColor: '#f0f7ff', border: '1px solid #e1effe' }}>
