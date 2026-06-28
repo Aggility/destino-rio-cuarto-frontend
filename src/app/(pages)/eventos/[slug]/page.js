@@ -75,6 +75,20 @@ export default async function EventDetailPage({ params }) {
     }
   }
 
+  // 1b. Fetch full organization details to get contacts (which are not included in event payload)
+  let orgContacts = [];
+  if (eventData?.organization?.id) {
+    try {
+      const resOrgDetails = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/organizations/${eventData.organization.id}`, { cache: 'no-store' });
+      if (resOrgDetails.ok) {
+         const fullOrgData = (await resOrgDetails.json()).data;
+         orgContacts = fullOrgData?.contacts || [];
+      }
+    } catch (err) {
+      console.error("Error fetching event organization details:", err);
+    }
+  }
+
   // 2. Fallback y formateo del evento (Mock si falla API)
   // La API devuelve start_date como "YYYY-MM-DDTHH:MM:SS.000000Z" (UTC).
   // Usar new Date() directamente desplaza un día en zonas UTC-.
@@ -371,7 +385,9 @@ export default async function EventDetailPage({ params }) {
                         type="event" 
                         showContact={false}
                     />
-                    <EventContactButton contacts={eventData?.addresses || []} />
+                    <div className="mb-5">
+                      <EventContactButton contacts={orgContacts} themeColor="#f54286" themeColorLight="#fce8ef" />
+                    </div>
                     <EventGallerySlider gallery={eventData?.gallery || []} />
                 </div>
             </div>

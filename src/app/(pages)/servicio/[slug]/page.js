@@ -278,13 +278,6 @@ export default async function ServicioDetailPage({ params }) {
                 <div className="mb-5">
                   {/* Botón de Contacto Desplegable */}
                   <EventContactButton contacts={orgData?.contacts || []} themeColor="#1a56db" themeColorLight="#ebf5ff" />
-
-                  {/* Botones de Contacto Rápido */}
-                  {(service.phone || service.whatsapp) && (
-                    <div className="mt-4">
-                      <ContactButtons phone={service.phone} whatsapp={service.whatsapp} />
-                    </div>
-                  )}
                 </div>
 
 
