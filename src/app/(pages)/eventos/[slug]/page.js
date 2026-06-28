@@ -117,7 +117,8 @@ export default async function EventDetailPage({ params }) {
     startTimeRaw: firstCal?.start_time || '21:00:00',
     endDateRaw: firstCal?.end_date ? firstCal.end_date.split('T')[0] : null,
     endTimeRaw: firstCal?.end_time || null,
-    location: eventData?.organization?.name ? `${eventData.organization.name} / ${eventData.organization.addresses?.[0]?.address?.split(',')[0] || eventData.organization.address || ''}` : 'Opus Costanera / Río Grande 688, Río Cuarto',
+    location: eventData?.organization?.name || 'Opus Costanera',
+    orgSlug: eventData?.organization?.slug || eventData?.organization?.id || '',
     coords: {
         lat: parseFloat(eventData?.organization?.addresses?.[0]?.latitude) || 
              parseFloat(eventData?.organization?.latitude) || 
@@ -359,9 +360,15 @@ export default async function EventDetailPage({ params }) {
                         <div className="d-flex flex-column gap-1">
                             <div className="d-flex align-items-center gap-2">
                                 <i className="bi bi-geo-alt text-primary"></i>
-                                <span className="text-gray-900 font-inter fw-medium text-decoration-underline" style={{ cursor: 'pointer' }}>
-                                    {event.location}
-                                </span>
+                                {event.orgSlug ? (
+                                    <Link href={`/servicio/${event.orgSlug}`} className="text-dark font-inter fw-medium text-decoration-none hover-lift transition-all">
+                                        {event.location}
+                                    </Link>
+                                ) : (
+                                    <span className="text-dark font-inter fw-medium">
+                                        {event.location}
+                                    </span>
+                                )}
                             </div>
                         </div>
                     </div>
