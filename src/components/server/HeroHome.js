@@ -65,27 +65,27 @@ export default function HeroHome({ initialSlug = null }) {
   if (!activeCategory) {
     displayTitle = (
       <>
-        Una Forma Ágil y Accesible de{' '}
+        Una forma ágil y moderna de{' '}
         <br className="d-none d-md-block" />
-        Conocer <span className="text-white">Río Cuarto</span>
+        conocer <span className="text-white">Río Cuarto</span>
       </>
     );
   } else if (activeCategory.slug === 'actividades') {
     displayTitle = (
       <>
-        Explorá las{' '}
+        Explorá todas las{' '}
         <span style={coloredSpanStyle(activeCategory.color)}>Actividades</span>{' '}
         <br className="d-none d-md-block" />
-        Pensadas para Vos
+        pensadas para vos
       </>
     );
   } else if (activeCategory.slug === 'experiencias') {
     displayTitle = (
       <>
-        Buscá Nuevas{' '}
+        Buscá nuevas{' '}
         <span style={coloredSpanStyle(activeCategory.color)}>Experiencias</span>{' '}
         <br className="d-none d-md-block" />
-        para Descubrir la Ciudad
+        para descubrir la Ciudad
       </>
     );
   } else if (activeCategory.slug === 'eventos') {
@@ -100,9 +100,9 @@ export default function HeroHome({ initialSlug = null }) {
   } else {
     displayTitle = (
       <>
-        Encontrá Fácilmente{' '}
+        Encontrá todos los{' '}
         <span style={coloredSpanStyle(activeCategory.color)}>Servicios</span>{' '}
-        <br className="d-none d-md-block" />que Necesitás
+        <br className="d-none d-md-block" />que necesitás
 
       </>
     );
