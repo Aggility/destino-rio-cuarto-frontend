@@ -45,11 +45,18 @@ export default async function Home() {
 
   // ── 2. Helpers de formato ─────────────────────────────────────────────────
 
+  /** Parsea "YYYY-MM-DDTHH:MM:SSZ" o "YYYY-MM-DD" como fecha LOCAL (evita off-by-one en UTC-) */
+  const parseLocalDate = (dateStr) => {
+    if (!dateStr) return null;
+    const [y, m, d] = dateStr.split('T')[0].split('-').map(Number);
+    return new Date(y, m - 1, d);
+  };
+
   /** Formatea la fecha de un evento a partir de su primer calendario */
   const formatEventDate = (evt) => {
     const cal = evt.calendars?.[0];
-    if (!cal) return 'Fecha a confirmar';
-    const d = new Date(cal.start_date);
+    if (!cal?.start_date) return 'Fecha a confirmar';
+    const d = parseLocalDate(cal.start_date);
     let str = d.toLocaleDateString('es-AR', {
       weekday: 'short',
       day: 'numeric',

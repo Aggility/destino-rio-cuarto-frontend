@@ -37,17 +37,17 @@ export default function HeroHome({ initialSlug = null }) {
 
   const getBackgroundImage = (slug) => {
     switch (slug) {
-      case 'eventos': return '/hero_eventos.jpg';
-      case 'actividades': return '/hero_actividades.jpg';
-      case 'experiencias': return '/hero_actividades.jpg'; // Fallback a actividades
-      case 'servicios': return '/hero_servicios.png';
-      default: return '/hero_home.png';
+      case 'eventos': return '/Eventos_okk.jpg';
+      case 'actividades': return '/Actividades_ok.jpg';
+      case 'experiencias': return '/Experiencias_ok.jpg';
+      case 'servicios': return '/Servicios_ok.jpg';
+      default: return '/Portada_home.jpg';
     }
   };
 
   const bgImage = activeCategory
     ? getBackgroundImage(activeCategory.slug)
-    : '/hero_home.png';
+    : '/Portada_home.jpg';
 
   let displayTitle;
   const coloredSpanStyle = (color) => ({
@@ -65,29 +65,45 @@ export default function HeroHome({ initialSlug = null }) {
   if (!activeCategory) {
     displayTitle = (
       <>
-        {formatTitle("Descubrí qué cosas")} <br className="d-none d-md-block" />
-        {formatTitle("podés hacer en")} <span className="text-white">Río Cuarto</span>
+        Una Forma Ágil y Accesible de{' '}
+        <br className="d-none d-md-block" />
+        Conocer <span className="text-white">Río Cuarto</span>
       </>
     );
   } else if (activeCategory.slug === 'actividades') {
     displayTitle = (
       <>
-        {formatTitle("Explorá")} <span style={coloredSpanStyle(activeCategory.color)}>{formatTitle(activeCategory.label)}</span> <br className="d-none d-md-block" />
-        {formatTitle("para vos en")} <span className="text-white">Río Cuarto</span>
+        Explorá las{' '}
+        <span style={coloredSpanStyle(activeCategory.color)}>Actividades</span>{' '}
+        <br className="d-none d-md-block" />
+        Pensadas para Vos
       </>
     );
   } else if (activeCategory.slug === 'experiencias') {
     displayTitle = (
       <>
-        {formatTitle("Descubrí")} <span style={coloredSpanStyle(activeCategory.color)}>{formatTitle(activeCategory.label)}</span> <br className="d-none d-md-block" />
-        {formatTitle("únicas en")} <span className="text-white">Río Cuarto</span>
+        Buscá Nuevas{' '}
+        <span style={coloredSpanStyle(activeCategory.color)}>Experiencias</span>{' '}
+        <br className="d-none d-md-block" />
+        para Descubrir la Ciudad
+      </>
+    );
+  } else if (activeCategory.slug === 'eventos') {
+    displayTitle = (
+      <>
+        Conocé todos los{' '}
+        <span style={coloredSpanStyle(activeCategory.color)}>Eventos</span>{' '}
+        <br className="d-none d-md-block" />
+        en un solo lugar
       </>
     );
   } else {
     displayTitle = (
       <>
-        {formatTitle("Encontra")} <span style={coloredSpanStyle(activeCategory.color)}>{formatTitle(activeCategory.label)}</span> {formatTitle("pensados")} <br className="d-none d-md-block" />
-        {formatTitle("para vos en")} <span className="text-white">Río Cuarto</span>
+        Encontrá Fácilmente{' '}
+        <span style={coloredSpanStyle(activeCategory.color)}>Servicios</span>{' '}
+        <br className="d-none d-md-block" />que Necesitás
+
       </>
     );
   }

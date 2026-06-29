@@ -17,7 +17,11 @@ export default async function ServiciosPage() {
   let activitiesForSlider = [];
 
   try {
-    // Fetch initial data from the API in parallel, with 5-minute caching
+    // Fetch data in parallel with page-level ISR (export const revalidate = 300).
+    // The organizations response (~4.4MB) exceeds Next.js's fetch data cache limit (2MB)
+    // so Next.js cannot cache the raw response, but the rendered HTML page is still
+    // cached and served statically via ISR. The warning "items over 2MB can not be cached"
+    // is harmless and does not affect user-facing performance.
     const [resOrgs, resProp] = await Promise.all([
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/organizations?type=servicio&per_page=2000`, { next: { revalidate: 300 } }),
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/proposals?per_page=50`, { next: { revalidate: 300 } })
@@ -68,7 +72,7 @@ export default async function ServiciosPage() {
           schedule: e.calendars?.[0]?.observations || '',
           lat: e.addresses?.[0]?.latitude,
           lng: e.addresses?.[0]?.longitude,
-          basePath: '/actividades'
+          basePath: 'actividades'
         };
       });
     }
@@ -85,14 +89,13 @@ export default async function ServiciosPage() {
     phone: org.phone || 'Consultar contacto',
     thumbnail: getThumbnail(org.cover, org.gallery),
     lat: org.addresses?.[0]?.latitude,
-    lng: org.addresses?.[0]?.longitude,
-    description: org.description || ''
+    lng: org.addresses?.[0]?.longitude
   }));
 
   const finalSliderActs = activitiesForSlider.length > 0 ? activitiesForSlider : [
-    { id: 1, slug: 'parque-ecologico', title: 'Parque Ecológico Urbano', date: '14:30 a 19:30 hs', location: 'Parque Ecológico Urbano', thumbnail: '/no-img.webp', category: 'NATURALEZA', typeColor: '#8a38f5', basePath: '/actividades' },
-    { id: 2, slug: 'botes-del-lago', title: 'Botes del Lago', date: '15:00 a 19:00 hs', location: 'Parque Sarmiento', thumbnail: '/no-img.webp', category: 'RECREACIÓN', typeColor: '#8a38f5', basePath: '/actividades' },
-    { id: 3, slug: 'trencito-rio-cuarto', title: 'Trencito de Rio Cuarto', date: '15:00 a 19:00 hs', location: 'Parque Sarmiento', thumbnail: '/no-img.webp', category: 'RECREACIÓN', typeColor: '#8a38f5', basePath: '/actividades' }
+    { id: 1, slug: 'parque-ecologico', title: 'Parque Ecológico Urbano', date: '14:30 a 19:30 hs', location: 'Parque Ecológico Urbano', thumbnail: '/no-img.webp', category: 'NATURALEZA', typeColor: '#8a38f5', basePath: 'actividades' },
+    { id: 2, slug: 'botes-del-lago', title: 'Botes del Lago', date: '15:00 a 19:00 hs', location: 'Parque Sarmiento', thumbnail: '/no-img.webp', category: 'RECREACIÓN', typeColor: '#8a38f5', basePath: 'actividades' },
+    { id: 3, slug: 'trencito-rio-cuarto', title: 'Trencito de Rio Cuarto', date: '15:00 a 19:00 hs', location: 'Parque Sarmiento', thumbnail: '/no-img.webp', category: 'RECREACIÓN', typeColor: '#8a38f5', basePath: 'actividades' }
   ];
 
   // Mostramos 9 inicialmente como pidió el usuario

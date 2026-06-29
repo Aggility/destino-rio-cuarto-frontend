@@ -44,7 +44,7 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
     const interval = setInterval(() => {
       const next = (activeIndex + 1) % slides.length;
       scrollToIndex(next);
-    }, 5000);
+    }, 3000);
     return () => clearInterval(interval);
   }, [activeIndex, isPaused, slides.length, scrollToIndex]);
 
@@ -76,8 +76,10 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
         }}
       >
         {slides.map((event, index) => (
-          <div
+          <Link
             key={event.id || index}
+            href={event.href || `/eventos/${event.id}`}
+            className="text-decoration-none d-block text-white"
             style={{
               flexShrink: 0,
               width: '100%',
@@ -106,44 +108,38 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
               style={{
                 position: 'absolute',
                 inset: 0,
-                background: 'linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.10) 100%)',
+                background: 'linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.60) 40%, rgba(0,0,0,0.72) 60%, rgba(0,0,0,0.35) 100%)',
               }}
             />
 
-            {/* Badge superior izquierdo */}
-            <span
-              className="position-absolute top-0 start-0 m-3 badge rounded-pill fw-bold px-3 py-2 font-inter shadow-sm"
-              style={{
-                backgroundColor: '#f54286',
-                color: '#ffffff',
-                fontSize: '10px',
-                letterSpacing: '0.5px',
-                zIndex: 2,
-              }}
-            >
-              EVENTO DESTACADO
-            </span>
+            {/* Badge superior izquierdo (Estilo tarjeta) */}
+            <div className="position-absolute top-0 start-0 bg-black px-2 py-1" style={{ zIndex: 10 }}>
+              <span className="text-white fw-semibold font-inter" style={{ fontSize: 'clamp(14px, 4vw, 18px)', letterSpacing: '-0.54px', lineHeight: '1.2' }}>
+                Evento Destacado
+              </span>
+            </div>
 
-            {/* Contenido superpuesto — alineado al fondo */}
+            {/* Contenido superpuesto — centrado vertical y horizontal */}
             <div
-              className="position-absolute bottom-0 start-0 end-0 p-4 p-md-5"
-              style={{ zIndex: 2 }}
+              className="position-absolute start-0 end-0 p-4 p-md-5 d-flex flex-column align-items-center justify-content-center text-center"
+              style={{ zIndex: 2, inset: 0, paddingTop: '90px' }}
             >
               {/* Título */}
-              <h3
+              <h1
                 className="font-inter fw-bold text-white mb-3"
                 style={{
-                  fontSize: 'clamp(22px, 4vw, 38px)',
-                  lineHeight: '1.2',
-                  letterSpacing: '-0.5px',
-                  textShadow: '0 2px 8px rgba(0,0,0,0.4)',
+                  fontSize: 'clamp(42px, 7vw, 72px)',
+                  lineHeight: '1.1',
+                  letterSpacing: '-1px',
+                  textShadow: '0 4px 20px rgba(0,0,0,0.7)',
+                  maxWidth: '800px',
                 }}
               >
                 {event.title}
-              </h3>
+              </h1>
 
               {/* Metadatos */}
-              <div className="d-flex flex-wrap gap-3 mb-4">
+              <div className="d-flex flex-wrap justify-content-center gap-3 mb-4">
                 {event.date && (
                   <div className="d-flex align-items-center gap-2">
                     <div
@@ -187,64 +183,12 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
                 )}
               </div>
 
-              {/* CTA */}
-              <Link
-                href={event.href || `/eventos/${event.id}`}
-                className="btn rounded-pill font-inter fw-bold px-4 px-md-5 py-2 py-md-3 transition-all hover-scale border-0"
-                style={{
-                  fontSize: '14px',
-                  backgroundColor: '#f54286',
-                  color: '#ffffff',
-                  letterSpacing: '0.5px',
-                  boxShadow: '0 4px 15px rgba(245,66,134,0.4)',
-                }}
-              >
-                VER MÁS DETALLES <i className="bi bi-chevron-right ms-1 fw-bold"></i>
-              </Link>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 
-      {/* ── Flechas de navegación — Solo desktop, solo si hay más de 1 slide ── */}
-      {slides.length > 1 && (
-        <div className="d-none d-md-block">
-          <button
-            onClick={() => canPrev && scrollToIndex(activeIndex - 1)}
-            className="position-absolute top-50 start-0 translate-middle-y ms-3 btn rounded-circle d-flex align-items-center justify-content-center border-0"
-            style={{
-              width: '44px', height: '44px',
-              backgroundColor: 'rgba(255,255,255,0.15)',
-              backdropFilter: 'blur(6px)',
-              color: '#fff',
-              opacity: canPrev ? 1 : 0.25,
-              cursor: canPrev ? 'pointer' : 'default',
-              zIndex: 10,
-              border: '1px solid rgba(255,255,255,0.3)',
-            }}
-            aria-label="Evento anterior"
-          >
-            <i className="bi bi-chevron-left fs-6"></i>
-          </button>
-          <button
-            onClick={() => canNext && scrollToIndex(activeIndex + 1)}
-            className="position-absolute top-50 end-0 translate-middle-y me-3 btn rounded-circle d-flex align-items-center justify-content-center border-0"
-            style={{
-              width: '44px', height: '44px',
-              backgroundColor: 'rgba(255,255,255,0.15)',
-              backdropFilter: 'blur(6px)',
-              color: '#fff',
-              opacity: canNext ? 1 : 0.25,
-              cursor: canNext ? 'pointer' : 'default',
-              zIndex: 10,
-              border: '1px solid rgba(255,255,255,0.3)',
-            }}
-            aria-label="Evento siguiente"
-          >
-            <i className="bi bi-chevron-right fs-6"></i>
-          </button>
-        </div>
-      )}
+
 
       {/* ── Dots indicadores — Solo si hay más de 1 slide ── */}
       {slides.length > 1 && (

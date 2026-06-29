@@ -5,10 +5,11 @@ import React, { useRef, useState, useEffect } from 'react';
  * HomeSectionSlider - Componente para manejar los sliders de la home
  * con flechas de navegación personalizadas (fondo negro, icono blanco).
  */
-export default function HomeSectionSlider({ title, children }) {
+export default function HomeSectionSlider({ title, children, autoPlay = false, loop = false, autoPlayInterval = 3000 }) {
   const scrollRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const [isPaused, setIsPaused] = useState(false);
 
   const updateScrollState = () => {
     if (!scrollRef.current) return;
@@ -28,6 +29,29 @@ export default function HomeSectionSlider({ title, children }) {
     };
   }, [children]);
 
+  // Autoplay logic
+  useEffect(() => {
+    if (!autoPlay || isPaused) return;
+
+    const interval = setInterval(() => {
+      if (!scrollRef.current) return;
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      
+      const scrollAmount = clientWidth * 0.8;
+      
+      // Check if we are at the end (with a 10px margin of error)
+      if (scrollLeft + clientWidth >= scrollWidth - 10) {
+        if (loop) {
+          scrollRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+        }
+      } else {
+        scrollRef.current.scrollTo({ left: scrollLeft + scrollAmount, behavior: 'smooth' });
+      }
+    }, autoPlayInterval);
+
+    return () => clearInterval(interval);
+  }, [autoPlay, isPaused, loop, autoPlayInterval]);
+
   const scroll = (direction) => {
     if (!scrollRef.current) return;
     const { scrollLeft, clientWidth } = scrollRef.current;
@@ -43,7 +67,11 @@ export default function HomeSectionSlider({ title, children }) {
   };
 
   return (
-    <div className="w-100">
+    <div 
+      className="w-100"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
       {/* Header del Slider */}
       <div className="d-flex justify-content-between align-items-center mb-3 mb-md-4">
         <div className="max-w-541px">

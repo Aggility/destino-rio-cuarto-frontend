@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useDeferredValue } from 'react';
 import ServiceListItem from '@/components/server/ServiceListItem';
 import { getDistance } from '@/utils/geo';
 
@@ -16,6 +16,7 @@ export default function ServicesListClient({ initialServices, leftoverFromFirstP
   const [visibleCount, setVisibleCount] = useState(9);
   const [selectedFilter, setSelectedFilter] = useState('Todos');
   const [searchTerm, setSearchTerm] = useState('');
+  const deferredSearchTerm = useDeferredValue(searchTerm);
 
   // Ubicación del usuario
   const fetchLocation = () => {
@@ -64,13 +65,12 @@ export default function ServicesListClient({ initialServices, leftoverFromFirstP
     let result = servicesWithDistance;
 
     // Filtro por texto (Predictivo)
-    if (searchTerm.trim() !== '') {
-      const lowerTerm = searchTerm.toLowerCase();
+    if (deferredSearchTerm.trim() !== '') {
+      const lowerTerm = deferredSearchTerm.toLowerCase();
       result = result.filter(s => 
         (s.title && s.title.toLowerCase().includes(lowerTerm)) ||
         (s.category && s.category.toLowerCase().includes(lowerTerm)) ||
-        (s.address && s.address.toLowerCase().includes(lowerTerm)) ||
-        (s.description && s.description.toLowerCase().includes(lowerTerm))
+        (s.address && s.address.toLowerCase().includes(lowerTerm))
       );
     }
 
@@ -92,7 +92,7 @@ export default function ServicesListClient({ initialServices, leftoverFromFirstP
   // Cuando cambia un filtro o búsqueda, reiniciar la cantidad visible
   useEffect(() => {
     setVisibleCount(9);
-  }, [searchTerm, selectedFilter]);
+  }, [deferredSearchTerm, selectedFilter]);
 
   const loadMore = () => {
     setVisibleCount(prev => prev + 9);
@@ -111,37 +111,78 @@ export default function ServicesListClient({ initialServices, leftoverFromFirstP
   return (
     <div className="d-flex flex-column gap-3">
       
-      {/* 1. Buscador Predictivo */}
-      <div className="bg-white rounded-2 shadow-sm border d-flex align-items-center overflow-hidden" style={{ height: '60px' }}>
-          <div className="px-3 border-end h-100 d-flex align-items-center bg-gray-50">
-              <i className="bi bi-search text-muted"></i>
+      {/* ── FILTROS (Buscador unificado) ── */}
+      <div className="bg-white rounded-4 p-3 shadow-sm mb-4" style={{ border: '1px solid #f3f4f6' }}>
+        <div className="row g-3 align-items-center">
+          {/* Buscador */}
+          <div className="col-12 col-md-7 col-xl-6">
+            <div className="input-group shadow-sm" style={{ height: '52px' }}>
+              <span className="input-group-text bg-white border-end-0 ps-3">
+                <i className="bi bi-search text-muted"></i>
+              </span>
+              <input
+                type="text"
+                className="form-control border-start-0 shadow-none font-inter"
+                placeholder="Buscar comercios, hoteles, servicios..."
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                style={{ fontSize: '15px' }}
+              />
+              {searchTerm && (
+                <button
+                  className="btn border-start-0"
+                  style={{ backgroundColor: 'white', border: '1px solid #dee2e6' }}
+                  onClick={() => setSearchTerm('')}
+                  title="Limpiar"
+                >
+                  <i className="bi bi-x-lg text-muted"></i>
+                </button>
+              )}
+            </div>
           </div>
-          <input 
-            type="text" 
-            className="form-control border-0 shadow-none font-inter h-100 flex-grow-1" 
-            placeholder="Buscar comercios, hoteles, servicios..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-      </div>
 
-      {/* 2. Selector de Categorías (Dropdown) */}
-      <div className="row g-3">
-        <div className="col-12 col-md-6">
-          <div className="d-flex flex-column gap-2">
-            <label className="font-inter fw-bold text-gray-900 mb-0" style={{ fontSize: '14px' }}>Categoría</label>
+          {/* Select desktop y mobile */}
+          <div className="col-12 col-md-3">
             <select
-              className="form-select font-inter shadow-sm"
+              className="form-select shadow-sm font-inter border"
+              style={{ height: '52px', color: selectedFilter !== 'Todos' ? '#1a56db' : undefined, cursor: 'pointer' }}
               value={selectedFilter}
-              onChange={(e) => setSelectedFilter(e.target.value)}
-              style={{ height: '48px', borderColor: '#e5e7eb', fontSize: '15px', cursor: 'pointer' }}
+              onChange={e => setSelectedFilter(e.target.value)}
             >
-              {dynamicCategories.map((filter) => (
-                <option key={filter} value={filter}>{filter}</option>
+              {dynamicCategories.map((cat, i) => (
+                <option key={i} value={cat}>{cat}</option>
               ))}
             </select>
           </div>
+
+          {/* Botón Filtrar */}
+          <div className="col-12 col-md-2">
+            <button
+              className="btn w-100 fw-bold border-0 font-inter shadow-sm text-white"
+              style={{ height: '52px', backgroundColor: '#1a56db' }}
+            >
+              FILTRAR
+            </button>
+          </div>
         </div>
+
+        {/* El selector de escritorio ahora también se muestra en mobile */}
+      </div>
+
+      {/* ── HEADER DE RESULTADOS ── */}
+      <div className="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+        <h2 className="font-inter fw-bold text-gray-900 mb-0" style={{ fontSize: 'clamp(22px, 4vw, 28px)', letterSpacing: '-0.5px' }}>
+          Todos los Servicios
+        </h2>
+
+        {(searchTerm || selectedFilter !== 'Todos') && (
+          <button
+            className="btn btn-sm btn-outline-secondary rounded-pill px-3 font-inter"
+            onClick={() => { setSearchTerm(''); setSelectedFilter('Todos'); }}
+          >
+            <i className="bi bi-x-circle me-1"></i> Limpiar filtros
+          </button>
+        )}
       </div>
 
       {/* 3. Lista de Resultados */}

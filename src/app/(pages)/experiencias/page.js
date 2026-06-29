@@ -32,8 +32,9 @@ export default async function ExperiencesPage() {
   const experiences = rawExperiences.map(p => {
     const categoryName = p.categories?.[0]?.name?.trim() || 'Experiencia';
 
-    // Lugar: Solo nombre del lugar (priorizando organization dentro de addresses)
-    const address = p.addresses?.[0]?.organization?.name || p.organization?.name || p.addresses?.[0]?.addressable?.name || p.addresses?.[0]?.address || 'Río Cuarto';
+    // Lugar: Mostrar cantidad de lugares incluidos en lugar del primer lugar
+    const addressCount = p.addresses?.length || 1;
+    const address = `Incluye ${addressCount} Lugar${addressCount !== 1 ? 'es' : ''}`;
 
     // Horario: Extraer de calendars de forma clara y corta
     const cal = p.calendars?.[0];

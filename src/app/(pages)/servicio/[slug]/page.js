@@ -9,6 +9,7 @@ import EventDistanceBadge from '@/components/client/EventDistanceBadge';
 import EventImageWithFallback from '@/components/client/EventImageWithFallback';
 import { getThumbnail } from '@/utils/image';
 import ContactButtons from '@/components/client/ContactButtons';
+import EventContactButton from '@/components/client/EventContactButton';
 
 /**
  * ServicioDetailPage - Destino Río Cuarto
@@ -37,7 +38,13 @@ export default async function ServicioDetailPage({ params }) {
          const json = await res.json();
          const list = json.data || json;
          if (Array.isArray(list) && list.length > 0) {
-            orgData = list[0];
+            const tempOrg = list[0];
+            const detailRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/organizations/${tempOrg.id}`, { cache: 'no-store' });
+            if (detailRes.ok) {
+                orgData = (await detailRes.json()).data;
+            } else {
+                orgData = tempOrg;
+            }
          }
       }
     } catch (err) {
@@ -94,7 +101,7 @@ export default async function ServicioDetailPage({ params }) {
              id: ev.id,
              title: ev.title,
              subtitle: ev.organization?.name || 'Río Cuarto',
-             badge: ev.calendars?.[0]?.start_date ? new Date(ev.calendars[0].start_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' }).toUpperCase() : 'PRÓXIMAMENTE',
+             badge: '',
              type: 'event',
              thumbnail: getThumbnail(ev.cover, ev.gallery),
              lat: ev.lat,
@@ -182,7 +189,7 @@ export default async function ServicioDetailPage({ params }) {
   ];
 
   const finalEvents = nearbyEvents.length > 0 ? nearbyEvents : [
-    { title: 'Cine Bajo las Estrellas', subtitle: 'Parque Sarmiento', badge: '15 DIC', type: 'event', thumbnail: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=300&q=80&w=300', href: '#' }
+    { title: 'Cine Bajo las Estrellas', subtitle: 'Parque Sarmiento', badge: '', type: 'event', thumbnail: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=300&q=80&w=300', href: '#' }
   ];
 
   const finalActivities = realActivities.length > 0 ? realActivities : [
@@ -210,13 +217,16 @@ export default async function ServicioDetailPage({ params }) {
             <h1 className="display-4 fw-bold text-gray-900 font-inter mb-2" style={{ letterSpacing: '-1px' }}>
                 {service.name}
             </h1>
-            <div className="mb-3">
+            
+            <div className="d-flex align-items-center gap-2 mb-3 flex-wrap">
+              <div className="d-inline-flex bg-primary-100 rounded-1 px-2 py-1" style={{ backgroundColor: '#e1effe' }}>
+                  <span className="font-inter fw-medium text-primary-800" style={{ color: '#1e429f', fontSize: '13px' }}>
+                      {service.category}
+                  </span>
+              </div>
+              <div style={{ marginTop: '-4px' }}>
                 <EventDistanceBadge eventLat={service.lat} eventLng={service.lng} type="service" />
-            </div>
-            <div className="d-inline-flex bg-primary-100 rounded-1 px-2 py-1 mb-3" style={{ backgroundColor: '#e1effe' }}>
-                <span className="font-inter fw-medium text-primary-800" style={{ color: '#1e429f', fontSize: '13px' }}>
-                    {service.category}
-                </span>
+              </div>
             </div>
         </div>
 
@@ -235,52 +245,8 @@ export default async function ServicioDetailPage({ params }) {
                     />
                 </div>
 
-                {/* Ubicación y Contacto Component (Mini Mapa + Info + Routing) */}
-                <h2 className="h4 fw-bold font-inter text-gray-900 mb-4" style={{ fontSize: '24px' }}>Ubicación y Contacto</h2>
-                
-                <ContactAndLocationWidget 
-                    service={service} 
-                    showContact={false}
-                    type={
-                        service.category.toLowerCase().includes('alojamiento') ? 'alojamiento' : 
-                        service.category.toLowerCase().includes('gastronomía') ? 'gastronomia' : 'service'
-                    }
-                />
-
-                {/* Botones de Contacto Rápido */}
-                {(service.phone || service.whatsapp) && (
-                  <div className="mb-4">
-                    <ContactButtons phone={service.phone} whatsapp={service.whatsapp} />
-                  </div>
-                )}
-
-                {/* Redes Sociales y Web */}
-                {(service.instagram || service.facebook || service.web) && (
-                  <div className="d-flex align-items-center flex-wrap gap-3 mb-5 mt-4 p-3 bg-light rounded-3 border">
-                    <span className="font-inter fw-bold text-gray-900 small m-0">Redes y Sitio Web:</span>
-                    <div className="d-flex align-items-center gap-2">
-                      {service.web && (
-                        <a href={service.web} target="_blank" rel="noopener noreferrer" className="btn btn-outline-primary rounded-circle d-flex align-items-center justify-content-center shadow-sm transition-all hover-lift" style={{ width: '38px', height: '38px', borderColor: '#bfdbfe' }} title="Visitar Sitio Web">
-                          <i className="bi bi-globe" style={{ fontSize: '16px' }}></i>
-                        </a>
-                      )}
-                      {service.instagram && (
-                        <a href={service.instagram} target="_blank" rel="noopener noreferrer" className="btn btn-outline-danger rounded-circle d-flex align-items-center justify-content-center shadow-sm transition-all hover-lift" style={{ width: '38px', height: '38px', borderColor: '#fecaca' }} title="Ver Instagram">
-                          <i className="bi bi-instagram" style={{ fontSize: '16px' }}></i>
-                        </a>
-                      )}
-                      {service.facebook && (
-                        <a href={service.facebook} target="_blank" rel="noopener noreferrer" className="btn btn-outline-primary rounded-circle d-flex align-items-center justify-content-center shadow-sm transition-all hover-lift" style={{ width: '38px', height: '38px', borderColor: '#bfdbfe' }} title="Ver Facebook">
-                          <i className="bi bi-facebook" style={{ fontSize: '16px' }}></i>
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Más Información */}
+                {/* Más Información (sin título) */}
                 <div className="mb-5">
-                    <h2 className="h4 fw-bold font-inter text-gray-900 mb-3" style={{ fontSize: '24px' }}>Más Información</h2>
                     <div
                         className="font-inter text-gray-700 rich-text-content"
                         style={{ fontSize: '16px', lineHeight: '1.7' }}
@@ -299,32 +265,49 @@ export default async function ServicioDetailPage({ params }) {
                     `}</style>
                 </div>
 
+                {/* Mapa + Contacto (debajo de la descripción, sin título) */}
+                <ContactAndLocationWidget 
+                    service={service} 
+                    showContact={false}
+                    type={
+                        service.category.toLowerCase().includes('alojamiento') ? 'alojamiento' : 
+                        service.category.toLowerCase().includes('gastronomía') ? 'gastronomia' : 'service'
+                    }
+                />
+                
+                <div className="mb-5">
+                  {/* Botón de Contacto Desplegable */}
+                  <EventContactButton contacts={orgData?.contacts || []} themeColor="#1a56db" themeColorLight="#ebf5ff" />
+                </div>
+
+
+
                 {/* Servicios relacionados */}
                 <div className="p-4 p-md-5 rounded-4 shadow-sm" style={{ backgroundColor: '#f0f7ff', border: '1px solid #e1effe' }}>
                     <h3 className="fw-bold font-inter mb-4" style={{ color: '#1e429f', fontSize: '22px' }}>Servicios Relacionados</h3>
                     <div className="row g-3 mb-4">
                         {finalRelated.map((rs, i) => (
                             <div className="col-12 col-md-6" key={i}>
-                                <div className="bg-white p-3 rounded-3 border d-flex gap-3 align-items-center h-100 hover-lift transition-all" style={{ border: '1px solid #e5e7eb', borderRadius: '12px' }}>
-                                    <div className="flex-shrink-0" style={{ width: '80px', height: '80px', position: 'relative', borderRadius: '12px', overflow: 'hidden' }}>
-                                        <img src={rs.thumbnail} alt={rs.title} className="w-100 h-100" style={{ objectFit: 'cover' }} />
-                                    </div>
-                                    <div className="d-flex flex-column gap-1 overflow-hidden w-100">
-                                        <Link href={rs.slug ? `/servicio/${rs.slug}` : `/servicio/${rs.id}`} className="text-decoration-none text-reset">
+                                <Link href={rs.slug ? `/servicio/${rs.slug}` : `/servicio/${rs.id}`} className="text-decoration-none text-reset">
+                                    <div className="bg-white p-3 rounded-3 border d-flex gap-3 align-items-center h-100 hover-lift transition-all" style={{ border: '1px solid #e5e7eb', borderRadius: '12px' }}>
+                                        <div className="flex-shrink-0" style={{ width: '80px', height: '80px', position: 'relative', borderRadius: '12px', overflow: 'hidden' }}>
+                                            <img src={rs.thumbnail} alt={rs.title} className="w-100 h-100" style={{ objectFit: 'cover' }} />
+                                        </div>
+                                        <div className="d-flex flex-column gap-1 overflow-hidden w-100">
                                             <h4 className="font-inter fw-bold text-gray-900 mb-0 text-truncate" style={{ fontSize: '16px', color: '#111928' }}>
                                                 {rs.title}
                                             </h4>
-                                        </Link>
-                                        <span className="font-inter text-muted small text-truncate" style={{ color: '#6b7280' }}>
-                                            {rs.address}
-                                        </span>
-                                        <div className="d-inline-flex rounded-pill px-2 py-0-5 mt-1" style={{ backgroundColor: '#e1effe', width: 'fit-content' }}>
-                                            <span className="font-inter fw-bold text-primary-800 text-uppercase" style={{ color: '#1e429f', fontSize: '11px', letterSpacing: '0.5px' }}>
-                                                {rs.category}
+                                            <span className="font-inter text-muted small text-truncate" style={{ color: '#6b7280' }}>
+                                                {rs.address}
                                             </span>
+                                            <div className="d-inline-flex rounded-pill px-2 py-0-5 mt-1" style={{ backgroundColor: '#e1effe', width: 'fit-content' }}>
+                                                <span className="font-inter fw-bold text-primary-800 text-uppercase" style={{ color: '#1e429f', fontSize: '11px', letterSpacing: '0.5px' }}>
+                                                    {rs.category}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                </Link>
                             </div>
                         ))}
                     </div>
@@ -336,9 +319,9 @@ export default async function ServicioDetailPage({ params }) {
 
             {/* RIGHT COLUMN: Sidebar (Recommendations) */}
             <div className="col-12 col-lg-4">
-                <div className="p-4 bg-white rounded-4 border shadow-sm position-sticky" style={{ top: '120px' }}>
+                <div className="p-4 bg-white rounded-4 border shadow-sm">
                     <h3 className="font-inter fw-bold text-gray-900 mb-4" style={{ fontSize: '24px', letterSpacing: '-0.5px' }}>
-                        También te puede interesar
+                        Nuestras Sugerencias
                     </h3>
 
                     {/* Eventos Section */}

@@ -1,103 +1,121 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
-import EventDistanceBadge from '@/components/client/EventDistanceBadge';
-import EventImageWithFallback from '@/components/client/EventImageWithFallback';
+
 
 /**
  * ServiceListItem - Destino Río Cuarto
- * Implementación Píxel Perfect basada en Figma:
- * - Desktop: ID 3640:28534
- * - Mobile: ID 3777:8035 (Service Data Block)
+ * Mismo estilo que la tarjeta "Lugar" en la página individual de experiencias.
+ * Color temático: azul (#1a56db). Sin texto resumen.
  */
-export default function ServiceListItem({ 
+export default function ServiceListItem({
   id,
   slug,
-  title = "Nombre del Servicio", 
-  category = "Categoría", 
-  address = "Dirección no especificada", 
+  title = "Nombre del Servicio",
+  category = "Servicio",
+  address = "Dirección no especificada",
   phone = "Sin teléfono",
   thumbnail = "/Thumbnail.png",
-  distance = null,
   lat = null,
-  lng = null
+  lng = null,
 }) {
+  const themeColor      = '#1a56db';
+  const themeColorLight = '#ebf5ff';
+
+  const hasCoords = lat && lng && !isNaN(parseFloat(lat)) && !isNaN(parseFloat(lng));
+  const href      = slug ? `/servicio/${slug}` : (id ? `/servicio/${id}` : '#');
+  const mapsHref  = hasCoords
+    ? `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`
+    : null;
+
   return (
-    <div className="service-list-item bg-white border border-light-subtle rounded-3 transition-all shadow-sm w-100 position-relative"
-         style={{ 
-            border: '1px solid #d1d5db',
-            borderLeft: '4px solid #1a56db',
-            padding: '12px 16px',
-            borderRadius: '8px'
-         }}>
-      
-      {/* WRAP CONTENT IN LINK */}
-      <Link href={slug ? `/servicio/${slug}` : (id ? `/servicio/${id}` : "#")} className="text-decoration-none text-reset">
-        {/* 1. HEADER ROW (Layout mixto) */}
-        <div className="d-flex align-items-start justify-content-between gap-3 w-100 mb-2">
-        
-        <div className="d-flex flex-row align-items-start gap-3 flex-grow-1 overflow-hidden">
-             {/* Thumbnail (90x65 en mobile, algo más grande en desktop vía clamp) */}
-            <div className="flex-shrink-0 card-zoom-effect rounded-2 border overflow-hidden" 
-                style={{ 
-                    width: '90px', 
-                    height: '65px',
-                    borderColor: '#d1d5db',
-                    position: 'relative'
-                }}>
-                <EventImageWithFallback 
-                    src={thumbnail} 
-                    alt={title} 
-                    sizes="90px"
-                />
-            </div>
+    <div
+      className="bg-light-subtle rounded-4 p-4 border border-light-subtle shadow-sm position-relative"
+      style={{
+        border: '1px solid #e5e7eb',
+        borderRadius: '12px',
+        cursor: 'pointer',
+        transition: 'box-shadow 0.2s ease, transform 0.2s ease',
+      }}
+      onMouseEnter={e => {
+        e.currentTarget.style.boxShadow = '0 8px 24px rgba(26,86,219,0.15)';
+        e.currentTarget.style.transform = 'translateY(-2px)';
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.boxShadow = '';
+        e.currentTarget.style.transform = '';
+      }}
+    >
+      {/* Link invisible que cubre toda la tarjeta */}
+      <Link
+        href={href}
+        aria-label={`Ver detalle de ${title}`}
+        style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 1,
+          borderRadius: '12px',
+        }}
+      />
 
-            {/* Title & Badge */}
-            <div className="d-flex flex-column gap-1 overflow-hidden">
-                <h3 className="font-inter fw-bold text-gray-900 mb-0 text-truncate-2" 
-                    style={{ fontSize: '16px', lineHeight: '1.3' }}>
-                    {title}
-                </h3>
-                <div className="d-flex flex-column gap-1">
-                   <EventDistanceBadge eventLat={lat} eventLng={lng} distance={distance} type="service" />
-                   <div className="rounded-1 px-2 py-0-5 w-fit-content" 
-                        style={{ backgroundColor: '#1a56db' }}>
-                       <span className="font-inter fw-medium" style={{ color: '#ffffff', fontSize: '12px' }}>
-                       {category}
-                       </span>
-                   </div>
-                </div>
-            </div>
-        </div>
+      <div className="row g-3 align-items-center">
 
-        {/* Desktop-only action icon (Arrow) - d-none d-md-block moved to footer area to match mobile */}
-      </div>
-
-      {/* 2. DATA LIST (Address & Phone) */}
-      <div className="d-flex flex-column gap-2 py-2 border-top border-md-0 mt-2 mt-md-0">
-        <div className="d-flex align-items-start gap-2">
-          <div className="flex-shrink-0" style={{ width: '14px' }}>
-            <i className="bi bi-geo-alt text-muted" style={{ fontSize: '14px' }}></i>
+        {/* Imagen */}
+        {thumbnail && thumbnail !== '/no-img.webp' && (
+          <div className="col-12 col-md-3" style={{ position: 'relative', zIndex: 1 }}>
+            <img
+              src={thumbnail}
+              alt={title}
+              className="img-fluid rounded-3 w-100"
+              style={{ maxHeight: '140px', objectFit: 'cover' }}
+            />
           </div>
-          <p className="font-inter text-gray-900 mb-0 text-decoration-underline text-truncate-2 small" 
-             style={{ lineHeight: '1.5' }}>
-            {address}
-          </p>
-        </div>
-        <div className="d-flex align-items-start gap-2">
-          <div className="flex-shrink-0" style={{ width: '14px' }}>
-            <i className="bi bi-telephone text-muted" style={{ fontSize: '14px' }}></i>
+        )}
+
+        {/* Contenido */}
+        <div className={thumbnail && thumbnail !== '/no-img.webp' ? 'col-12 col-md-9' : 'col-12'}>
+
+          {/* Badge "Servicio" */}
+          <span
+            className="badge font-inter fw-semibold mb-2"
+            style={{ backgroundColor: themeColorLight, color: themeColor }}
+          >
+            {category}
+          </span>
+
+          {/* Título */}
+          <h3 className="font-inter fw-bold text-gray-900 mb-2" style={{ fontSize: '20px' }}>
+            {title}
+          </h3>
+
+          {/* Botones — z-index superior para que sean clicleables */}
+          <div className="d-flex align-items-center gap-2 mt-3" style={{ position: 'relative', zIndex: 2 }}>
+            <Link
+              href={href}
+              className="btn shadow-sm d-inline-flex align-items-center gap-2 px-3 py-2 rounded-3 border-0 transition-all text-decoration-none"
+              style={{ backgroundColor: themeColor, color: '#fff' }}
+            >
+              <span className="font-inter fw-semibold small d-none d-md-inline">Ver más</span>
+              <i className="bi bi-info-circle-fill" />
+            </Link>
+
+            {mapsHref && (
+              <a
+                href={mapsHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn shadow-sm d-inline-flex align-items-center gap-2 px-3 py-2 rounded-3 border-0 transition-all text-decoration-none"
+                style={{ backgroundColor: themeColor, color: '#fff' }}
+              >
+                <span className="font-inter fw-semibold small d-none d-md-inline">Cómo llegar</span>
+                <i className="bi bi-geo-alt-fill" />
+              </a>
+            )}
           </div>
-          <p className="font-inter text-gray-900 mb-0 text-truncate small" 
-             style={{ lineHeight: '1.5' }}>
-            {phone}
-          </p>
+
         </div>
       </div>
-        {/* Arrow Icon */}
-        <div className="d-flex align-items-center justify-content-end mt-2 pt-1">
-           <i className="bi bi-chevron-right text-muted opacity-50" style={{ fontSize: '18px' }}></i>
-        </div>
-      </Link>
     </div>
   );
 }

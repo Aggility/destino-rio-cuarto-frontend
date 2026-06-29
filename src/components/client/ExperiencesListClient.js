@@ -72,8 +72,8 @@ export default function ExperiencesListClient({ initialActivities = [], categori
               </div>
             </div>
 
-            {/* Select desktop */}
-            <div className="col-md-3 d-none d-md-block">
+            {/* Select desktop y mobile */}
+            <div className="col-12 col-md-3">
               <select
                 className="form-select shadow-sm font-inter border"
                 style={{ height: '52px', color: selectedCategory !== 'Todos' ? CATEGORY_COLOR : undefined }}
@@ -86,7 +86,7 @@ export default function ExperiencesListClient({ initialActivities = [], categori
               </select>
             </div>
 
-            <div className="col-md-2 d-none d-md-block">
+            <div className="col-12 col-md-2">
               <button
                 className="btn w-100 fw-bold border-0 font-inter shadow-sm text-white"
                 style={{ height: '52px', backgroundColor: CATEGORY_COLOR }}
@@ -97,27 +97,7 @@ export default function ExperiencesListClient({ initialActivities = [], categori
             </div>
           </div>
 
-          {/* Chips — Mobile */}
-          <div className="d-flex gap-2 overflow-auto hide-scrollbar pt-3 pb-1 d-md-none">
-            {allCategories.map((cat, i) => {
-              const isActive = selectedCategory === cat;
-              return (
-                <button
-                  key={i}
-                  onClick={() => setSelectedCategory(cat)}
-                  className="btn rounded-pill px-4 py-2 btn-sm fw-medium font-inter flex-shrink-0"
-                  style={{
-                    backgroundColor: isActive ? CATEGORY_COLOR : 'white',
-                    color: isActive ? 'white' : '#6b7280',
-                    border: isActive ? `1.5px solid ${CATEGORY_COLOR}` : '1.5px solid #e5e7eb',
-                    transition: 'all 0.2s ease',
-                  }}
-                >
-                  {cat}
-                </button>
-              );
-            })}
-          </div>
+          {/* El selector de escritorio ahora también se muestra en mobile */}
 
         </div>
       </section>
