@@ -32,8 +32,8 @@ export default async function Home() {
       const json = await res.json();
       const data = json.data || {};
 
-      const sortDesc = (arr) =>
-        [...arr].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+      const sortDesc = (arr) => arr;
+      //[...arr].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
 
       featuredEvents = sortDesc(Array.isArray(data.featured_events) ? data.featured_events : []);
       suggestedExp = sortDesc(Array.isArray(data.suggested_experiences) ? data.suggested_experiences : []);
