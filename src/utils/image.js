@@ -16,10 +16,10 @@ export function getThumbnail(cover, gallery = []) {
 
     // Si es un objeto, buscar propiedades de imagen (verificando que sean strings)
     if (typeof cover === 'object') {
-      // Prioridad: large -> medium -> small -> original
-      if (typeof cover.large === 'string') return cover.large;
+      // Prioridad: medium → small → large → original (medium es el tamaño óptimo para cards)
       if (typeof cover.medium === 'string') return cover.medium;
       if (typeof cover.small === 'string') return cover.small;
+      if (typeof cover.large === 'string') return cover.large;
       if (typeof cover.original === 'string') return cover.original;
     }
   }

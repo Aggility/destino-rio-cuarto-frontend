@@ -6,6 +6,7 @@ import ActivityCard from '@/components/server/ActivityCard';
 
 import HomeSectionSlider from '@/components/client/HomeSectionSlider';
 import { getThumbnail } from '@/utils/image';
+import { formatEventDate } from '@/utils/date';
 
 /**
  * Home - Destino Río Cuarto
@@ -45,34 +46,7 @@ export default async function Home() {
 
   // ── 2. Helpers de formato ─────────────────────────────────────────────────
 
-  /** Parsea "YYYY-MM-DDTHH:MM:SSZ" o "YYYY-MM-DD" como fecha LOCAL (evita off-by-one en UTC-) */
-  const parseLocalDate = (dateStr) => {
-    if (!dateStr) return null;
-    const [y, m, d] = dateStr.split('T')[0].split('-').map(Number);
-    return new Date(y, m - 1, d);
-  };
-
-  /** Formatea la fecha de un evento a partir de su primer calendario */
-  const formatEventDate = (evt) => {
-    const cal = evt.calendars?.[0];
-    if (!cal?.start_date) return 'Fecha a confirmar';
-    const d = parseLocalDate(cal.start_date);
-    let str = d.toLocaleDateString('es-AR', {
-      weekday: 'short',
-      day: 'numeric',
-      month: 'short',
-    });
-    if (cal.start_time) str += `, ${cal.start_time.substring(0, 5)}hs`;
-    return str;
-  };
-
-  /** Extrae la mejor imagen de cover + gallery */
-  const getCover = (item) => {
-    if (item.cover && typeof item.cover === 'object') {
-      return item.cover.medium || item.cover.small || item.cover.large || getThumbnail(item.cover, item.gallery);
-    }
-    return getThumbnail(item.cover, item.gallery);
-  };
+  const getCover = (item) => getThumbnail(item.cover, item.gallery);
 
   // ── 3. Card builders ──────────────────────────────────────────────────────
 

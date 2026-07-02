@@ -8,6 +8,7 @@ import { getNearbyLocations, getDistance } from '@/utils/geo';
 import ExpandableDescription from '@/components/client/ExpandableDescription';
 import EventsSlider from '@/components/client/EventsSlider';
 import { getThumbnail } from '@/utils/image';
+import { parseLocalDate } from '@/utils/date';
 import HomeSectionSlider from '@/components/client/HomeSectionSlider';
 import EventCard from '@/components/server/EventCard';
 import ShareButton from '@/components/client/ShareButton';
@@ -90,22 +91,15 @@ export default async function EventDetailPage({ params }) {
   }
 
   // 2. Fallback y formateo del evento (Mock si falla API)
-  // La API devuelve start_date como "YYYY-MM-DDTHH:MM:SS.000000Z" (UTC).
-  // Usar new Date() directamente desplaza un día en zonas UTC-.
-  // Solución: extraer Y, M, D de la parte de fecha y H, M de start_time (separado).
-  const buildLocalEventDate = (calendarEntry) => {
-    if (!calendarEntry?.start_date) return null;
-    const [y, m, d] = calendarEntry.start_date.split('T')[0].split('-').map(Number);
-    let hr = 0, min = 0;
-    if (calendarEntry.start_time) {
-      const parts = calendarEntry.start_time.split(':').map(Number);
-      hr = parts[0] ?? 0;
-      min = parts[1] ?? 0;
-    }
-    return new Date(y, m - 1, d, hr, min); // medianoche local, sin desfase UTC
-  };
   const firstCal = eventData?.calendars?.[0];
-  const localEventDate = buildLocalEventDate(firstCal);
+  const localEventDate = firstCal?.start_date ? (() => {
+    const d = parseLocalDate(firstCal.start_date);
+    if (firstCal.start_time) {
+      const [hr, min] = firstCal.start_time.split(':').map(Number);
+      d.setHours(hr, min);
+    }
+    return d;
+  })() : null;
 
   const event = {
     id: eventData?.id || slug || '2',
@@ -153,19 +147,14 @@ export default async function EventDetailPage({ params }) {
         });
       
       randomEvents = allEvents.slice(0, 5).map(e => {
-        let thumbnail = '/no-img.webp';
-        if (e.cover && typeof e.cover === 'object') {
-          thumbnail = e.cover.medium || e.cover.small || e.cover.large || e.cover.original || getThumbnail(e.cover, e.gallery);
-        } else {
-          thumbnail = getThumbnail(e.cover, e.gallery);
-        }
+        const thumbnail = getThumbnail(e.cover, e.gallery);
 
         return {
           id: e.id,
           slug: e.slug,
           title: e.title || 'Evento',
           date: e.calendars?.[0]?.start_date
-            ? (() => { const [y,m,d] = e.calendars[0].start_date.split('T')[0].split('-').map(Number); return new Date(y,m-1,d).toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' }); })()
+            ? parseLocalDate(e.calendars[0].start_date).toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' })
             : '',
           location: e.organization?.name || e.organization?.addresses?.[0]?.address || 'Río Cuarto',
           thumbnail,
@@ -238,12 +227,8 @@ export default async function EventDetailPage({ params }) {
   const finalRestaurants = restaurants.length > 0 ? restaurants.slice(0, 2).map(computeDist) : fallbackRestaurants.map(computeDist);
 
   const combinedServices = [...finalAccommodation, ...finalRestaurants].map((s, idx) => {
-    let thumbnail = '/no-img.webp';
-    if (s.cover && typeof s.cover === 'object') {
-      thumbnail = s.cover.medium || s.cover.small || s.cover.large || s.cover.original || getThumbnail(s.cover, s.gallery);
-    } else if (s.cover || s.gallery) {
-      thumbnail = getThumbnail(s.cover, s.gallery);
-    } else {
+    let thumbnail = getThumbnail(s.cover, s.gallery);
+    if (thumbnail === '/no-img.webp') {
       const mockImages = [
         'https://images.unsplash.com/photo-1551882547-ff40eb0d1b73?auto=format&fit=crop&q=80&w=150',
         'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=150',
