@@ -48,13 +48,7 @@ export default async function ActivitiesPage() {
       }
     }
 
-    // Prioridad de imagen: medium -> small -> large -> fallback
-    let thumbnail = '/no-img.webp';
-    if (p.cover && typeof p.cover === 'object') {
-      thumbnail = p.cover.medium || p.cover.small || p.cover.large || p.cover.original || getThumbnail(p.cover, p.gallery);
-    } else {
-      thumbnail = getThumbnail(p.cover, p.gallery);
-    }
+    const thumbnail = getThumbnail(p.cover, p.gallery);
 
     return {
       id: p.id,
