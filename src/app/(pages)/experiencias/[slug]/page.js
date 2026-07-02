@@ -182,12 +182,7 @@ export default async function ExperienceDetailPage({ params }) {
           }
         }
 
-        let thumb = '/no-img.webp';
-        if (e.cover && typeof e.cover === 'object') {
-          thumb = e.cover.medium || e.cover.small || e.cover.large || e.cover.original || getThumbnail(e.cover, e.gallery);
-        } else {
-          thumb = getThumbnail(e.cover, e.gallery);
-        }
+        const thumb = getThumbnail(e.cover, e.gallery);
 
         return {
           id: e.id,
@@ -284,12 +279,8 @@ export default async function ExperienceDetailPage({ params }) {
     : fallbackSuggestedPlaces.map(computeDist);
 
   const combinedServices = [...finalAccommodation, ...finalRestaurants, ...finalSuggestedPlaces].slice(0, 4).map((s, idx) => {
-    let thumbnail = '/no-img.webp';
-    if (s.cover && typeof s.cover === 'object') {
-      thumbnail = s.cover.medium || s.cover.small || s.cover.large || s.cover.original || getThumbnail(s.cover, s.gallery);
-    } else if (s.cover || s.gallery) {
-      thumbnail = getThumbnail(s.cover, s.gallery);
-    } else {
+    let thumbnail = getThumbnail(s.cover, s.gallery);
+    if (thumbnail === '/no-img.webp') {
       const mockImages = [
         'https://images.unsplash.com/photo-1551882547-ff40eb0d1b73?auto=format&fit=crop&q=80&w=150',
         'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=150',

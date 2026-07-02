@@ -5,6 +5,7 @@ import ChatbotIcon from '@/components/server/ChatbotIcon';
 import SidebarListCard from '@/components/server/SidebarListCard';
 import GoogleMapViewer from '@/components/client/GoogleMapViewer';
 import { getThumbnail } from '@/utils/image';
+import { parseLocalDate } from '@/utils/date';
 
 /**
  * MacroEventoPage - Detalle de Gran Evento / Festival / Experiencia
@@ -29,13 +30,12 @@ export default async function MacroEventoPage({ params }) {
 
   if (!frameworkData) {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/event-frameworks?slug=${slug}`, { cache: 'no-store' });
+      // La API no soporta ?slug= como filtro, traemos el listado completo y filtramos localmente
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/event-frameworks?per_page=200`, { cache: 'no-store' });
       if (res.ok) {
         const json = await res.json();
-        const list = json.data || json;
-        if (Array.isArray(list) && list.length > 0) {
-          frameworkData = list[0];
-        }
+        const list = Array.isArray(json) ? json : (json.data || []);
+        frameworkData = list.find(f => f.slug === slug) || null;
       }
     } catch (err) {
       console.error('Error fetching event-framework by slug:', err);
@@ -57,8 +57,14 @@ export default async function MacroEventoPage({ params }) {
   const festival = {
     id: frameworkData.id,
     title: frameworkData.title || frameworkData.name || "Sin título",
-    dateRange: frameworkData.calendars?.length > 0 
-      ? `Del ${new Date(frameworkData.start_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' })} al ${new Date(frameworkData.end_date).toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' })}`
+    dateRange: (frameworkData.start_date && frameworkData.end_date)
+      ? (() => {
+          const s = parseLocalDate(frameworkData.start_date);
+          const e = parseLocalDate(frameworkData.end_date);
+          return s && e
+            ? `Del ${s.toLocaleDateString('es-AR', { day: 'numeric', month: 'long' })} al ${e.toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' })}`
+            : 'Fecha a confirmar';
+        })()
       : "Fecha a confirmar",
     description: frameworkData.description?.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ') || "Sin descripción disponible.",
     thumbnail: getThumbnail(frameworkData.cover, frameworkData.gallery),
@@ -70,17 +76,17 @@ export default async function MacroEventoPage({ params }) {
 
   // Agenda dinámica basada en los calendarios del framework
   const agenda = (frameworkData.calendars || []).map((cal, idx) => {
-    const d = new Date(cal.start_date);
+    const d = parseLocalDate(cal.start_date) || new Date();
     return {
       day: d.toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric' }),
       fullDate: d.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' }),
       events: [
-        { 
-          id: `${id}-event-${idx}`, 
-          title: cal.observations || festival.title, 
-          time: cal.start_time?.substring(0, 5) + " hs", 
-          location: festival.location, 
-          thumbnail: festival.thumbnail 
+        {
+          id: `${frameworkData.id}-event-${idx}`,
+          title: cal.observations || festival.title,
+          time: cal.start_time ? cal.start_time.substring(0, 5) + ' hs' : '',
+          location: festival.location,
+          thumbnail: festival.thumbnail,
         }
       ]
     };
