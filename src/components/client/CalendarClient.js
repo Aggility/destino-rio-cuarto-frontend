@@ -398,21 +398,50 @@ export default function CalendarClient() {
 
   // Fetch de la API: eventos + propuestas
   useEffect(() => {
+    /**
+     * Obtiene TODOS los registros de un endpoint paginado de Laravel.
+     * Itera sobre last_page para traer todas las páginas si hay más de una.
+     */
+    const fetchAllPages = async (url) => {
+      const PER_PAGE = 200; // máximo por página para minimizar requests
+      const firstRes = await fetch(`${url}?per_page=${PER_PAGE}&page=1`, { cache: 'no-store' });
+      if (!firstRes.ok) return [];
+
+      const firstJson = await firstRes.json();
+      const items = Array.isArray(firstJson) ? firstJson : (firstJson.data || []);
+
+      // Detectar estructura de paginación (Laravel: last_page en raíz o en meta)
+      const lastPage = firstJson.last_page || firstJson.meta?.last_page || 1;
+
+      if (lastPage <= 1) return items;
+
+      // Obtener las páginas restantes en paralelo
+      const remainingPages = Array.from({ length: lastPage - 1 }, (_, i) => i + 2);
+      const restResults = await Promise.all(
+        remainingPages.map(page =>
+          fetch(`${url}?per_page=${PER_PAGE}&page=${page}`, { cache: 'no-store' })
+            .then(r => r.ok ? r.json() : { data: [] })
+            .then(json => Array.isArray(json) ? json : (json.data || []))
+        )
+      );
+
+      return [...items, ...restResults.flat()];
+    };
+
     const load = async () => {
       try {
         setIsLoading(true);
         setError(null);
 
         const BASE = 'https://destbackdev.aggility.io/api/v1';
-        const [evRes, prRes] = await Promise.all([
-          fetch(`${BASE}/events?per_page=100`, { cache: 'no-store' }),
-          fetch(`${BASE}/proposals?per_page=100`, { cache: 'no-store' }),
+        const [evItems, prItems] = await Promise.all([
+          fetchAllPages(`${BASE}/events`),
+          fetchAllPages(`${BASE}/proposals`),
         ]);
 
-        const [evJson, prJson] = await Promise.all([
-          evRes.ok ? evRes.json() : { data: [] },
-          prRes.ok ? prRes.json() : { data: [] },
-        ]);
+        // Adaptar para mantener la estructura esperada por el resto del código
+        const evJson = { data: evItems };
+        const prJson = { data: prItems };
 
         const flatCalendars = [];
         const evLoc = {};
