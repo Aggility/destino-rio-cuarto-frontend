@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import EventCard from '@/components/server/EventCard';
 import { formatEventDate } from '@/utils/date';
 import { getThumbnail } from '@/utils/image';
@@ -18,7 +18,7 @@ function formatEvent(evt) {
     location:    evt.organization?.name || 'A confirmar',
     description: rawDesc.length > 120 ? rawDesc.substring(0, 120) + '...' : rawDesc,
     thumbnail:   getThumbnail(evt.cover, evt.gallery),
-    category:    evt.categories?.[0]?.name?.toUpperCase() || 'EVENTO',
+    category:    evt.categories?.[0]?.name?.trim() || 'Evento',
     typeColor:   '#f54286',
     lat:         evt.organization?.addresses?.[0]?.latitude,
     lng:         evt.organization?.addresses?.[0]?.longitude,
@@ -35,9 +35,22 @@ export default function EventsListClient({ initialEvents, initialHasMore = false
   const [selectedDate, setSelectedDate]         = useState('Todos');
   const [selectedCategory, setSelectedCategory] = useState('Todos');
 
-  // Acumula las categorías vistas para que el selector no se vacíe al filtrar
-  const seenCategories = useRef(new Set(initialEvents.map(e => e.category)));
-  const categories = ['Todos', ...Array.from(seenCategories.current)];
+  const [categories, setCategories] = useState(() => {
+    const seen = new Set(initialEvents.map(e => e.category).filter(Boolean));
+    return ['Todos', ...[...seen].sort((a, b) => a.localeCompare(b, 'es'))];
+  });
+
+  // Carga las categorías reales del dataset completo al montar
+  useEffect(() => {
+    fetch('/api/events?per_page=1')
+      .then(r => r.json())
+      .then(data => {
+        if (data.categories?.length) {
+          setCategories(['Todos', ...data.categories]);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const fetchPage = useCallback(async ({ search, category, date, pageNum, append }) => {
     setIsLoading(true);
@@ -52,8 +65,6 @@ export default function EventsListClient({ initialEvents, initialHasMore = false
 
       const data      = await res.json();
       const newEvents = (data.data || []).map(formatEvent);
-
-      newEvents.forEach(e => seenCategories.current.add(e.category));
 
       setEvents(prev => append ? [...prev, ...newEvents] : newEvents);
       setHasMore(data.hasMore ?? false);
@@ -92,69 +103,97 @@ export default function EventsListClient({ initialEvents, initialHasMore = false
     fetchPage({ search: searchTerm, category: selectedCategory, date: selectedDate, pageNum: page + 1, append: true });
   };
 
+  const hasActiveFilters = searchTerm !== '' || selectedDate !== 'Todos' || selectedCategory !== 'Todos';
+
+  const clearFilters = () => {
+    setSearchTerm('');
+    setSelectedDate('Todos');
+    setSelectedCategory('Todos');
+    fetchPage({ search: '', category: 'Todos', date: 'Todos', pageNum: 1, append: false });
+  };
+
+  const activeStyle  = { borderColor: '#f54286', borderWidth: '1.5px' };
+  const defaultStyle = { borderColor: '#e5e7eb' };
+
   return (
     <>
       {/* FILTERS SECTION */}
-      <section className="bg-white border-bottom pt-3 pt-md-4 pb-3 shadow-sm sticky-top-filters">
+      <section className="bg-white border-bottom py-3 shadow-sm sticky-top-filters">
         <div className="container-xxl px-lg-5">
-          <div className="d-flex flex-column gap-3">
+          <div className="row g-2 align-items-center">
 
-            {/* Buscador */}
-            <form onSubmit={(e) => e.preventDefault()} className="bg-white rounded-3 border d-flex align-items-center overflow-hidden"
-                  style={{ height: '56px', border: '1px solid #e5e7eb' }}>
-              <div className="px-3 border-end h-100 d-flex align-items-center bg-gray-50">
-                <i className="bi bi-search text-muted"></i>
-              </div>
-              <input
-                type="text"
-                className="form-control border-0 shadow-none font-inter h-100 flex-grow-1"
-                placeholder="Buscar evento, artista..."
-                style={{ fontSize: '15px' }}
-                value={searchTerm}
-                onChange={handleSearchChange}
-              />
-              {isLoading && (
-                <div className="px-3 h-100 d-flex align-items-center">
-                  <span className="spinner-border spinner-border-sm text-muted" role="status" aria-hidden="true" />
+            {/* Buscador — fila completa en mobile, crece en desktop */}
+            <div className="col-12 col-lg">
+              <div
+                className="d-flex align-items-center rounded-3 overflow-hidden bg-white"
+                style={{ height: '46px', border: `1.5px solid ${searchTerm ? '#f54286' : '#e5e7eb'}` }}
+              >
+                <div className="px-3 border-end h-100 d-flex align-items-center">
+                  {isLoading
+                    ? <span className="spinner-border spinner-border-sm text-muted" role="status" aria-hidden="true" />
+                    : <i className="bi bi-search text-muted" />
+                  }
                 </div>
-              )}
-            </form>
+                <input
+                  type="text"
+                  className="form-control border-0 shadow-none font-inter h-100"
+                  placeholder="Buscar evento, artista..."
+                  style={{ fontSize: '15px' }}
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                />
+              </div>
+            </div>
 
-            <div className="row g-3 mt-1">
-              {/* Fecha */}
-              <div className="col-12 col-md-6">
-                <div className="d-flex flex-column gap-2">
-                  <label className="font-inter fw-bold text-gray-900 mb-0" style={{ fontSize: '14px' }}>¿Cuándo?</label>
-                  <select
-                    className="form-select font-inter shadow-sm"
-                    value={selectedDate}
-                    onChange={handleDateChange}
-                    style={{ height: '48px', borderColor: '#e5e7eb', fontSize: '15px', cursor: 'pointer' }}
-                  >
-                    <option value="Todos">Todas las fechas</option>
-                    <option value="HOY">Hoy</option>
-                    <option value="Esta semana">Esta semana</option>
-                    <option value="Este mes">Este mes</option>
-                  </select>
-                </div>
-              </div>
+            {/* Fecha — mitad en mobile, ancho automático en desktop */}
+            <div className="col-6 col-lg-auto">
+              <select
+                className="form-select font-inter w-100"
+                value={selectedDate}
+                onChange={handleDateChange}
+                style={{ height: '46px', fontSize: '14px', cursor: 'pointer', ...(selectedDate !== 'Todos' ? activeStyle : defaultStyle) }}
+              >
+                <option value="Todos">Todas las fechas</option>
+                <option value="HOY">Hoy</option>
+                <option value="Esta semana">Esta semana</option>
+                <option value="Este mes">Este mes</option>
+              </select>
+            </div>
 
-              {/* Categoría */}
-              <div className="col-12 col-md-6">
-                <div className="d-flex flex-column gap-2">
-                  <label className="font-inter fw-bold text-gray-900 mb-0" style={{ fontSize: '14px' }}>Categoría</label>
-                  <select
-                    className="form-select font-inter shadow-sm"
-                    value={selectedCategory}
-                    onChange={handleCategoryChange}
-                    style={{ height: '48px', borderColor: '#e5e7eb', fontSize: '15px', cursor: 'pointer' }}
-                  >
-                    {categories.map((cat) => (
-                      <option key={cat} value={cat}>{cat === 'Todos' ? 'Todas las categorías' : cat}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+            {/* Categoría — mitad en mobile, ancho automático en desktop */}
+            <div className="col-6 col-lg-auto">
+              <select
+                className="form-select font-inter w-100"
+                value={selectedCategory}
+                onChange={handleCategoryChange}
+                style={{ height: '46px', fontSize: '14px', cursor: 'pointer', ...(selectedCategory !== 'Todos' ? activeStyle : defaultStyle) }}
+              >
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>{cat === 'Todos' ? 'Todas las categorías' : cat}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Botón limpiar — fila completa en mobile, ancho automático en desktop */}
+            <div className="col-12 col-lg-auto">
+              <button
+                onClick={clearFilters}
+                disabled={!hasActiveFilters}
+                className="btn d-flex align-items-center justify-content-center gap-2 fw-semibold font-inter w-100"
+                style={{
+                  height: '46px',
+                  border: `1.5px solid ${hasActiveFilters ? '#f54286' : '#d1d5db'}`,
+                  color: hasActiveFilters ? '#f54286' : '#9ca3af',
+                  backgroundColor: hasActiveFilters ? '#fff5f9' : '#f9fafb',
+                  borderRadius: '8px',
+                  whiteSpace: 'nowrap',
+                  fontSize: '14px',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <i className="bi bi-x-circle-fill" />
+                Limpiar filtros
+              </button>
             </div>
 
           </div>
@@ -174,6 +213,12 @@ export default function EventsListClient({ initialEvents, initialHasMore = false
               <i className="bi bi-calendar-x fs-1 mb-3 d-block"></i>
               <h4>No hay eventos con esos filtros</h4>
               <p>Prueba buscando otras palabras o categorías.</p>
+              {hasActiveFilters && (
+                <button onClick={clearFilters} className="btn btn-outline-secondary mt-2 font-inter">
+                  <i className="bi bi-x-circle me-2" />
+                  Limpiar filtros
+                </button>
+              )}
             </div>
           ) : (
             <div className="listing-grid pb-5">

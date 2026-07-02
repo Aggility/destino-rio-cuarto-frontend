@@ -29,9 +29,16 @@ export async function GET(request) {
       return new Date(y, m - 1, d).getTime();
     };
 
-    let filtered = items
+    const active = items
       .filter(e => e.status?.toLowerCase() !== 'inactive')
       .sort((a, b) => getStartTime(a) - getStartTime(b));
+
+    // Categorías únicas del dataset completo (sin filtros) para el selector
+    const categories = [...new Set(
+      active.map(e => e.categories?.[0]?.name?.trim()).filter(Boolean)
+    )].sort((a, b) => a.localeCompare(b, 'es'));
+
+    let filtered = active;
 
     if (search) {
       filtered = filtered.filter(e =>
@@ -42,7 +49,7 @@ export async function GET(request) {
 
     if (category && category !== 'Todos') {
       filtered = filtered.filter(e =>
-        e.categories?.[0]?.name?.toUpperCase() === category
+        e.categories?.[0]?.name?.trim().toLowerCase() === category.toLowerCase()
       );
     }
 
@@ -65,7 +72,7 @@ export async function GET(request) {
     const paginated = filtered.slice(start, start + perPage);
     const hasMore   = start + perPage < filtered.length;
 
-    return NextResponse.json({ data: paginated, hasMore });
+    return NextResponse.json({ data: paginated, hasMore, categories });
   } catch (error) {
     console.error("Proxy fetch error:", error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
