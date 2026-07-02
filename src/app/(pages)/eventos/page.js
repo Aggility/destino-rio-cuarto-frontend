@@ -6,6 +6,7 @@ import Link from 'next/link';
 import MacroEventCard from '@/components/server/MacroEventCard';
 import EventsListClient from '@/components/client/EventsListClient';
 import { getThumbnail } from '@/utils/image';
+import { formatEventDate } from '@/utils/date';
 
 /**
  * EventsPage - Destino Río Cuarto
@@ -19,12 +20,13 @@ import { getThumbnail } from '@/utils/image';
 export const revalidate = 300;
 
 export default async function EventsPage() {
-  let apiEvents    = [];
+  let apiEvents        = [];
   let apiFeaturedEvents = [];
+  let initialHasMore   = false;
 
   try {
     const [resEvents, resHome] = await Promise.all([
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/events?per_page=500`, {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/events?per_page=12`, {
         next: { revalidate: 300 },
       }),
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/home`, {
@@ -35,9 +37,20 @@ export default async function EventsPage() {
     if (resEvents.ok) {
       const data = await resEvents.json();
       const all  = Array.isArray(data) ? data : (data.data || []);
+      const getStartTime = (e) => {
+        const raw = e.calendars?.[0]?.start_date;
+        if (!raw) return Infinity;
+        const [y, m, d] = raw.split('T')[0].split('-').map(Number);
+        return new Date(y, m - 1, d).getTime();
+      };
+
       apiEvents = all
         .filter(evt => evt.status?.toLowerCase() !== 'inactive')
-        .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+        .sort((a, b) => getStartTime(a) - getStartTime(b));
+
+      // Hay más si la API reporta más páginas, o si devolvió el máximo que pedimos
+      const totalPages = data.pagination?.total_pages ?? data.meta?.last_page ?? 1;
+      initialHasMore = totalPages > 1 || all.length >= 12;
     }
 
     if (resHome.ok) {
@@ -50,35 +63,8 @@ export default async function EventsPage() {
     console.error('Error fetching events/frameworks API:', error);
   }
 
-  // ── Parseo de fecha LOCAL (evita timezone shift UTC → UTC-3) ─────────────
-  // La API devuelve start_date como "YYYY-MM-DDTHH:MM:SS.000000Z" (UTC)
-  // o "YYYY-MM-DD". new Date(string) en UTC resta 3hs → muestra día anterior.
-  const parseLocalDate = (dateStr) => {
-    if (!dateStr) return null;
-    const [y, m, d] = dateStr.split('T')[0].split('-').map(Number);
-    return new Date(y, m - 1, d); // medianoche local
-  };
 
-  // ── Formato de fecha de evento ────────────────────────────────────────────
-  const formatEventDate = (evt) => {
-    const cal = evt.calendars?.[0];
-    if (!cal?.start_date) return 'Fecha a confirmar';
-    const d = parseLocalDate(cal.start_date);
-    let str = d.toLocaleDateString('es-AR', {
-      weekday: 'short',
-      day: 'numeric',
-      month: 'short',
-    });
-    if (cal.start_time) str += `, ${cal.start_time.substring(0, 5)}hs`;
-    return str;
-  };
-
-  const getCover = (evt) => {
-    if (evt.cover && typeof evt.cover === 'object') {
-      return evt.cover.medium || evt.cover.small || evt.cover.large || getThumbnail(evt.cover, evt.gallery);
-    }
-    return getThumbnail(evt.cover, evt.gallery);
-  };
+  const getCover = (evt) => getThumbnail(evt.cover, evt.gallery);
 
   const formattedEvents = apiEvents.map((evt) => ({
     id:        evt.id,
@@ -143,7 +129,7 @@ export default async function EventsPage() {
       </section>
 
       {/* Listado con filtros — recibe los eventos ya en el orden de la API */}
-      <EventsListClient initialEvents={formattedEvents} />
+      <EventsListClient initialEvents={formattedEvents} initialHasMore={initialHasMore} />
 
       <ChatbotIcon />
     </div>

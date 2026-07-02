@@ -1,161 +1,134 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import EventCard from '@/components/server/EventCard';
+import { formatEventDate } from '@/utils/date';
+import { getThumbnail } from '@/utils/image';
+import { useDebouncedCallback } from 'use-debounce';
 
-export default function EventsListClient({ initialEvents }) {
-  const [events, setEvents] = useState(initialEvents);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
+function formatEvent(evt) {
+  const rawDesc = (evt.description || '')
+    .replace(/<[^>]*>?/gm, '')
+    .replace(/&nbsp;/g, ' ');
+  return {
+    id:          evt.id,
+    slug:        evt.slug,
+    title:       evt.title,
+    date:        formatEventDate(evt),
+    location:    evt.organization?.name || 'A confirmar',
+    description: rawDesc.length > 120 ? rawDesc.substring(0, 120) + '...' : rawDesc,
+    thumbnail:   getThumbnail(evt.cover, evt.gallery),
+    category:    evt.categories?.[0]?.name?.toUpperCase() || 'EVENTO',
+    typeColor:   '#f54286',
+    lat:         evt.organization?.addresses?.[0]?.latitude,
+    lng:         evt.organization?.addresses?.[0]?.longitude,
+    rawDate:     evt.calendars?.[0]?.start_date,
+  };
+}
+
+export default function EventsListClient({ initialEvents, initialHasMore = false }) {
+  const [events, setEvents]         = useState(initialEvents);
+  const [page, setPage]             = useState(1);
+  const [isLoading, setIsLoading]   = useState(false);
+  const [hasMore, setHasMore]       = useState(initialHasMore);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedDateFilter, setSelectedDateFilter] = useState('Todos');
+  const [selectedDate, setSelectedDate]         = useState('Todos');
   const [selectedCategory, setSelectedCategory] = useState('Todos');
 
-  // Helper para formatear eventos — misma lógica que featured_events en home
-  const formatEvent = (evt) => {
-    const cal = evt.calendars?.[0];
-    let dateStr = 'Fecha a confirmar';
-    if (cal) {
-      const d = new Date(cal.start_date);
-      dateStr = d.toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' });
-      if (cal.start_time) dateStr += `, ${cal.start_time.substring(0, 5)}hs`;
-    }
+  // Acumula las categorías vistas para que el selector no se vacíe al filtrar
+  const seenCategories = useRef(new Set(initialEvents.map(e => e.category)));
+  const categories = ['Todos', ...Array.from(seenCategories.current)];
 
-    // Prioridad thumbnail: medium → small → large (igual que home)
-    let thumbnail = '/no-img.webp';
-    if (evt.cover && typeof evt.cover === 'object') {
-      thumbnail = evt.cover.medium || evt.cover.small || evt.cover.large || '/no-img.webp';
-    } else if (evt.gallery?.[0]) {
-      thumbnail = evt.gallery[0].medium || evt.gallery[0].small || '/no-img.webp';
-    }
-
-    const rawDesc = (evt.description || '')
-      .replace(/<[^>]*>?/gm, '')
-      .replace(/&nbsp;/g, ' ');
-
-    return {
-      id:          evt.id,
-      slug:        evt.slug,
-      title:       evt.title,
-      date:        dateStr,
-      location:    evt.organization?.name || 'A confirmar',
-      description: rawDesc.length > 120 ? rawDesc.substring(0, 120) + '...' : rawDesc,
-      thumbnail,
-      category:    evt.categories?.[0]?.name?.toUpperCase() || 'EVENTO',
-      typeColor:   '#f54286',
-      lat:         evt.organization?.addresses?.[0]?.latitude,
-      lng:         evt.organization?.addresses?.[0]?.longitude,
-      rawDate:     cal?.start_date,
-    };
-  };
-
-  const loadMoreEvents = async () => {
-    if (isLoading || !hasMore) return;
+  const fetchPage = useCallback(async ({ search, category, date, pageNum, append }) => {
     setIsLoading(true);
-    const nextPage = currentPage + 1;
-    
     try {
-      const res = await fetch(`/api/events?page=${nextPage}`);
-      if (res.ok) {
-        const data = await res.json();
-        const newApiEvents = Array.isArray(data) ? data : (data.data || []);
-        
-        if (newApiEvents.length === 0) {
-          setHasMore(false);
-        } else {
-          const formatted = newApiEvents.map((evt) => formatEvent(evt));
-          setEvents(prev => [...prev, ...formatted]);
-          setCurrentPage(nextPage);
-          // Si vinieron menos de 10, probablemente no hay más
-          if (newApiEvents.length < 10) setHasMore(false);
-        }
-      }
-    } catch (error) {
-      console.error("Error loading more events:", error);
+      const params = new URLSearchParams({ page: pageNum, per_page: 12 });
+      if (search)                        params.set('search', search);
+      if (category && category !== 'Todos') params.set('category', category);
+      if (date && date !== 'Todos')      params.set('date', date);
+
+      const res = await fetch(`/api/events?${params}`);
+      if (!res.ok) return;
+
+      const data      = await res.json();
+      const newEvents = (data.data || []).map(formatEvent);
+
+      newEvents.forEach(e => seenCategories.current.add(e.category));
+
+      setEvents(prev => append ? [...prev, ...newEvents] : newEvents);
+      setHasMore(data.hasMore ?? false);
+      setPage(pageNum);
+    } catch (err) {
+      console.error('Error fetching events:', err);
     } finally {
       setIsLoading(false);
     }
+  }, []);
+
+  // Búsqueda con debounce de 400ms
+  const debouncedFetch = useDebouncedCallback((search) => {
+    fetchPage({ search, category: selectedCategory, date: selectedDate, pageNum: 1, append: false });
+  }, 400);
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    debouncedFetch(e.target.value);
   };
 
-  // Derive unique categories from event data
-  const categories = ['Todos', ...Array.from(new Set(events.map(evt => evt.category)))];
+  const handleCategoryChange = (e) => {
+    const cat = e.target.value;
+    setSelectedCategory(cat);
+    fetchPage({ search: searchTerm, category: cat, date: selectedDate, pageNum: 1, append: false });
+  };
 
-  // Derive filtered events
-  const filteredEvents = events.filter((evt) => {
-    // text search
-    const matchesSearch = evt.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          (evt.description && evt.description.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    // category filter
-    const matchesCategory = selectedCategory === 'Todos' || evt.category === selectedCategory;
+  const handleDateChange = (e) => {
+    const date = e.target.value;
+    setSelectedDate(date);
+    fetchPage({ search: searchTerm, category: selectedCategory, date, pageNum: 1, append: false });
+  };
 
-    // date filter
-    let matchesDate = true;
-    if (selectedDateFilter !== 'Todos' && evt.rawDate) {
-      const eventDate = new Date(evt.rawDate);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      const eventNormalized = new Date(evt.rawDate);
-      eventNormalized.setHours(0, 0, 0, 0);
-
-      if (selectedDateFilter === 'HOY') {
-        matchesDate = eventNormalized.getTime() === today.getTime();
-      } else if (selectedDateFilter === 'Esta semana') {
-        const nextWeek = new Date(today);
-        nextWeek.setDate(today.getDate() + 7);
-        matchesDate = eventNormalized >= today && eventNormalized <= nextWeek;
-      } else if (selectedDateFilter === 'Este mes') {
-        matchesDate = eventNormalized.getMonth() === today.getMonth() && eventNormalized.getFullYear() === today.getFullYear();
-      }
-    }
-
-    return matchesSearch && matchesCategory && matchesDate;
-  });
-
-  const localThumbnail = "/no-img.webp";
+  const loadMore = () => {
+    if (isLoading || !hasMore) return;
+    fetchPage({ search: searchTerm, category: selectedCategory, date: selectedDate, pageNum: page + 1, append: true });
+  };
 
   return (
     <>
-      {/* FILTERS SECTION — Diseño Unificado y Optimizado Mobile */}
+      {/* FILTERS SECTION */}
       <section className="bg-white border-bottom pt-3 pt-md-4 pb-3 shadow-sm sticky-top-filters">
         <div className="container-xxl px-lg-5">
           <div className="d-flex flex-column gap-3">
-            
-            {/* 1. Buscador con Adaptación Mobile */}
-            <form onSubmit={(e) => e.preventDefault()} className="bg-white rounded-3 border d-flex align-items-center overflow-hidden" 
+
+            {/* Buscador */}
+            <form onSubmit={(e) => e.preventDefault()} className="bg-white rounded-3 border d-flex align-items-center overflow-hidden"
                   style={{ height: '56px', border: '1px solid #e5e7eb' }}>
-                <div className="px-3 border-end h-100 d-flex align-items-center bg-gray-50">
-                    <i className="bi bi-search text-muted"></i>
+              <div className="px-3 border-end h-100 d-flex align-items-center bg-gray-50">
+                <i className="bi bi-search text-muted"></i>
+              </div>
+              <input
+                type="text"
+                className="form-control border-0 shadow-none font-inter h-100 flex-grow-1"
+                placeholder="Buscar evento, artista..."
+                style={{ fontSize: '15px' }}
+                value={searchTerm}
+                onChange={handleSearchChange}
+              />
+              {isLoading && (
+                <div className="px-3 h-100 d-flex align-items-center">
+                  <span className="spinner-border spinner-border-sm text-muted" role="status" aria-hidden="true" />
                 </div>
-                <input 
-                  type="text" 
-                  className="form-control border-0 shadow-none font-inter h-100 flex-grow-1" 
-                  placeholder="Buscar evento, artista..."
-                  style={{ fontSize: '15px' }}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <button 
-                  type="submit"
-                  className="btn h-100 px-3 px-md-4 fw-bold border-0 rounded-0 text-white" 
-                  style={{ backgroundColor: '#f54286', fontSize: '14px' }}
-                >
-                    <span className="d-none d-md-inline">BUSCAR</span>
-                    <i className="bi bi-arrow-right d-md-none"></i>
-                </button>
+              )}
             </form>
 
             <div className="row g-3 mt-1">
-              {/* 2. Selector de Fechas (Select) */}
+              {/* Fecha */}
               <div className="col-12 col-md-6">
                 <div className="d-flex flex-column gap-2">
                   <label className="font-inter fw-bold text-gray-900 mb-0" style={{ fontSize: '14px' }}>¿Cuándo?</label>
                   <select
                     className="form-select font-inter shadow-sm"
-                    value={selectedDateFilter}
-                    onChange={(e) => setSelectedDateFilter(e.target.value)}
+                    value={selectedDate}
+                    onChange={handleDateChange}
                     style={{ height: '48px', borderColor: '#e5e7eb', fontSize: '15px', cursor: 'pointer' }}
                   >
                     <option value="Todos">Todas las fechas</option>
@@ -166,14 +139,14 @@ export default function EventsListClient({ initialEvents }) {
                 </div>
               </div>
 
-              {/* 3. Selector de Categorías (Select) */}
+              {/* Categoría */}
               <div className="col-12 col-md-6">
                 <div className="d-flex flex-column gap-2">
                   <label className="font-inter fw-bold text-gray-900 mb-0" style={{ fontSize: '14px' }}>Categoría</label>
                   <select
                     className="form-select font-inter shadow-sm"
                     value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    onChange={handleCategoryChange}
                     style={{ height: '48px', borderColor: '#e5e7eb', fontSize: '15px', cursor: 'pointer' }}
                   >
                     {categories.map((cat) => (
@@ -188,39 +161,32 @@ export default function EventsListClient({ initialEvents }) {
         </div>
       </section>
 
-
-
-
       {/* LISTING GRID SECTION */}
       <section className="py-5 bg-listing-page">
         <div className="container-xxl px-lg-5">
-          <h2 className="font-inter fw-bold text-gray-900 mb-4" 
-              style={{ 
-                fontSize: 'clamp(28px, 7vw, 36px)', 
-                letterSpacing: '-1px',
-                lineHeight: '1.1'
-              }}>
-              Descubrí más Eventos
+          <h2 className="font-inter fw-bold text-gray-900 mb-4"
+              style={{ fontSize: 'clamp(28px, 7vw, 36px)', letterSpacing: '-1px', lineHeight: '1.1' }}>
+            Descubrí más Eventos
           </h2>
-          
-          {filteredEvents.length === 0 ? (
+
+          {events.length === 0 && !isLoading ? (
             <div className="text-center py-5 text-muted">
-               <i className="bi bi-calendar-x fs-1 mb-3 d-block"></i>
-               <h4>No hay eventos con esos filtros</h4>
-               <p>Prueba buscando otras palabras o categorías.</p>
+              <i className="bi bi-calendar-x fs-1 mb-3 d-block"></i>
+              <h4>No hay eventos con esos filtros</h4>
+              <p>Prueba buscando otras palabras o categorías.</p>
             </div>
           ) : (
             <div className="listing-grid pb-5">
-              {filteredEvents.map((event, idx) => (
-                <EventCard 
-                  key={idx}
+              {events.map((event) => (
+                <EventCard
+                  key={event.id}
                   id={event.id}
                   slug={event.slug}
                   title={event.title}
                   date={event.date}
                   location={event.location}
                   description={event.description}
-                  thumbnail={event.thumbnail || localThumbnail}
+                  thumbnail={event.thumbnail}
                   category={event.category}
                   typeColor={event.typeColor}
                   lat={event.lat}
@@ -231,17 +197,17 @@ export default function EventsListClient({ initialEvents }) {
           )}
 
           {/* LOAD MORE */}
-          {hasMore && filteredEvents.length > 0 && (
+          {hasMore && events.length > 0 && (
             <div className="text-center mt-2">
-              <button 
-                onClick={loadMoreEvents}
+              <button
+                onClick={loadMore}
                 disabled={isLoading}
-                className="btn btn-load-more-pink shadow-premium" 
+                className="btn btn-load-more-pink shadow-premium"
               >
-                {isLoading ? (
-                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                ) : null}
-                {isLoading ? 'CARGANDO...' : 'CARGAR MÁS EVENTOS'}
+                {isLoading
+                  ? <><span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />CARGANDO...</>
+                  : 'CARGAR MÁS EVENTOS'
+                }
               </button>
             </div>
           )}
