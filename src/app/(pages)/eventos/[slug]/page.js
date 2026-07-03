@@ -20,17 +20,20 @@ import EventGallerySlider from '@/components/client/EventGallerySlider';
  * EventDetailPage - Destino Río Cuarto
  * Implementa la vista detallada de un evento con sugerencias basadas en cercanía (Haversine).
  */
-export default async function EventDetailPage({ params }) {
+export default async function EventDetailPage({ params, searchParams }) {
   const { slug } = await params;
+  const { id: queryId } = await searchParams;
   
   // 1. Obtener datos del evento desde la API
   let eventData = null;
   const isNumeric = /^\d+$/.test(slug);
 
-  // Si el slug es un ID numérico, buscar directamente por ID
-  if (isNumeric) {
+  // Si pasaron el ID por querystring, o el slug es numérico, buscar por ID
+  const fetchId = queryId || (isNumeric ? slug : null);
+
+  if (fetchId) {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${slug}`, { cache: 'no-store' });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${fetchId}`, { cache: 'no-store' });
       if (res.ok) {
          eventData = (await res.json()).data;
       }
@@ -39,7 +42,7 @@ export default async function EventDetailPage({ params }) {
     }
   }
 
-  // Si no se encontró por ID (o el slug no es numérico), buscar paginando
+  // Si no se encontró por ID (o no había ID numérico), buscar paginando
   // NOTA: La API ignora el parámetro ?slug= y devuelve todos los eventos paginados,
   // por eso hay que filtrar localmente buscando el evento cuyo slug coincide exactamente.
   if (!eventData) {
