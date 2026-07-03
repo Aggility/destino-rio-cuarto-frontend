@@ -433,7 +433,7 @@ export default function CalendarClient() {
         setIsLoading(true);
         setError(null);
 
-        const BASE = 'https://destbackdev.aggility.io/api/v1';
+        const BASE = process.env.NEXT_PUBLIC_API_URL || 'https://destbackdev.aggility.io/api/v1';
         const [evItems, prItems] = await Promise.all([
           fetchAllPages(`${BASE}/events`),
           fetchAllPages(`${BASE}/proposals`),
