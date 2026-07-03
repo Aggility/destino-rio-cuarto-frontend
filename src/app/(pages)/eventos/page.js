@@ -5,6 +5,7 @@ import HeroHome from '@/components/server/HeroHome';
 import Link from 'next/link';
 import MacroEventCard from '@/components/server/MacroEventCard';
 import EventsListClient from '@/components/client/EventsListClient';
+import HomeSectionSlider from '@/components/client/HomeSectionSlider';
 import { getThumbnail } from '@/utils/image';
 import { formatEventDate } from '@/utils/date';
 import { parseLocalDate } from '@/utils/date';
@@ -23,14 +24,18 @@ export const revalidate = 300;
 export default async function EventsPage() {
   let apiEvents         = [];
   let apiFrameworks     = [];
+  let apiFeaturedEvents = [];
   let initialHasMore    = false;
 
   try {
-    const [resEvents, resFrameworks] = await Promise.all([
+    const [resEvents, resFrameworks, resHome] = await Promise.all([
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/events?per_page=12`, {
         next: { revalidate: 300 },
       }),
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/event-frameworks?per_page=200`, {
+        next: { revalidate: 300 },
+      }),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/home`, {
         next: { revalidate: 300 },
       }),
     ]);
@@ -62,6 +67,13 @@ export default async function EventsPage() {
         const s = f.status;
         return s === 'active' || s === 1 || s === '1';
       });
+    }
+
+    if (resHome.ok) {
+      const json = await resHome.json();
+      const homeData = json.data || {};
+      const featured = Array.isArray(homeData.featured_events) ? homeData.featured_events : [];
+      apiFeaturedEvents = featured.filter(evt => evt.status?.toLowerCase() !== 'inactive');
     }
   } catch (error) {
     console.error('Error fetching events/frameworks API:', error);
@@ -119,6 +131,18 @@ export default async function EventsPage() {
                    .trim() || null,
   }));
 
+  const CardWrapper = ({ children, wide = true }) => (
+    <div
+      className="flex-shrink-0"
+      style={{
+        width: wide ? 'clamp(280px, 80vw, 320px)' : 'clamp(200px, 50vw, 240px)',
+        scrollSnapAlign: 'start',
+      }}
+    >
+      {children}
+    </div>
+  );
+
   return (
     <div className="bg-listing-page min-vh-100 position-relative">
 
@@ -132,6 +156,30 @@ export default async function EventsPage() {
           <MacroEventCard events={sliderEvents} />
         </div>
       </section>
+
+      {/* Slider de eventos destacados (igual a la home) */}
+      {apiFeaturedEvents.length > 0 && (
+        <section className="container-xxl py-4 py-md-5 px-lg-5">
+          <div className="w-100 animate-fade-in">
+            <HomeSectionSlider title="Eventos Destacados">
+              {apiFeaturedEvents.map((evt) => (
+                <CardWrapper key={evt.id}>
+                  <EventCard
+                    id={evt.id}
+                    slug={evt.slug}
+                    title={evt.title}
+                    date={formatEventDate(evt)}
+                    location={evt.organization?.name || 'A confirmar'}
+                    category={evt.categories?.[0]?.name?.toUpperCase() || 'EVENTO'}
+                    typeColor="#f54286"
+                    thumbnail={getCover(evt)}
+                  />
+                </CardWrapper>
+              ))}
+            </HomeSectionSlider>
+          </div>
+        </section>
+      )}
 
       {/* Listado con filtros — recibe los eventos ya en el orden de la API */}
       <EventsListClient initialEvents={formattedEvents} initialHasMore={initialHasMore} />
