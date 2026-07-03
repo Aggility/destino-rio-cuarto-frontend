@@ -7,6 +7,7 @@ import MacroEventCard from '@/components/server/MacroEventCard';
 import EventsListClient from '@/components/client/EventsListClient';
 import { getThumbnail } from '@/utils/image';
 import { formatEventDate } from '@/utils/date';
+import { parseLocalDate } from '@/utils/date';
 
 /**
  * EventsPage - Destino Río Cuarto
@@ -20,16 +21,16 @@ import { formatEventDate } from '@/utils/date';
 export const revalidate = 300;
 
 export default async function EventsPage() {
-  let apiEvents        = [];
-  let apiFeaturedEvents = [];
-  let initialHasMore   = false;
+  let apiEvents         = [];
+  let apiFrameworks     = [];
+  let initialHasMore    = false;
 
   try {
-    const [resEvents, resHome] = await Promise.all([
+    const [resEvents, resFrameworks] = await Promise.all([
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/events?per_page=12`, {
         next: { revalidate: 300 },
       }),
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/home`, {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/event-frameworks?per_page=200`, {
         next: { revalidate: 300 },
       }),
     ]);
@@ -53,11 +54,14 @@ export default async function EventsPage() {
       initialHasMore = totalPages > 1 || all.length >= 12;
     }
 
-    if (resHome.ok) {
-      const json = await resHome.json();
-      const homeData = json.data || {};
-      const featured = Array.isArray(homeData.featured_events) ? homeData.featured_events : [];
-      apiFeaturedEvents = featured.filter(evt => evt.status?.toLowerCase() !== 'inactive');
+    if (resFrameworks.ok) {
+      const data = await resFrameworks.json();
+      const all  = Array.isArray(data) ? data : (data.data || []);
+      // Filtrar solo los activos (status === 'active' o status === 1)
+      apiFrameworks = all.filter(f => {
+        const s = f.status;
+        return s === 'active' || s === 1 || s === '1';
+      });
     }
   } catch (error) {
     console.error('Error fetching events/frameworks API:', error);
@@ -85,34 +89,35 @@ export default async function EventsPage() {
       .substring(0, 120),
   }));
 
-  // ── Slider: Eventos Destacados (desde /home) ──────────────────────────────
-  const featuredSlides = apiFeaturedEvents.map(evt => {
-    return {
-      id:        evt.id,
-      title:     evt.title,
-      date:      formatEventDate(evt),
-      time:      evt.calendars?.[0]?.start_time ? `${evt.calendars[0].start_time.substring(0, 5)}hs` : '',
-      location:  evt.organization?.name || evt.location || 'Río Cuarto',
-      thumbnail: getCover(evt),
-      href:      `/eventos/${evt.slug || evt.id}`,
-    };
-  });
+  // ── Slider: Eventos Marco activos (desde /event-frameworks) ─────────────────
+  const getFrameworkDateRange = (f) => {
+    if (f.start_date && f.end_date) {
+      const start = parseLocalDate(f.start_date);
+      const end   = parseLocalDate(f.end_date);
+      if (start && end) {
+        return `${start.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })} – ${end.toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+      }
+    }
+    if (f.calendars?.length > 0) {
+      const first = parseLocalDate(f.calendars[0].start_date);
+      if (first) return first.toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+    return 'Fecha a confirmar';
+  };
 
-  // Fallback slider: si no hay destacados, usar los primeros 5 eventos
-  const featuredFromEvents = apiEvents.slice(0, 5).map(evt => ({
-    id:        evt.id,
-    title:     evt.title,
-    date:      formatEventDate(evt),
-    time:      evt.calendars?.[0]?.start_time ? `${evt.calendars[0].start_time.substring(0, 5)}hs` : '',
-    location:  evt.organization?.name || 'Río Cuarto',
-    thumbnail: getCover(evt),
-    href:      `/eventos/${evt.slug || evt.id}`,
+  const sliderEvents = apiFrameworks.map(f => ({
+    id:          f.id,
+    title:       f.title || f.name || 'Sin título',
+    date:        getFrameworkDateRange(f),
+    eventsCount: Array.isArray(f.events) ? f.events.length : (f.events_count ?? f.calendars?.length ?? 0),
+    location:    f.organization?.name || 'Río Cuarto',
+    thumbnail:   getThumbnail(f.cover, f.gallery),
+    href:        `/macro-evento/${f.slug || f.id}`,
+    excerpt:     (f.excerpt || f.short_description || '')
+                   .replace(/<[^>]*>?/gm, '')
+                   .replace(/&nbsp;/g, ' ')
+                   .trim() || null,
   }));
-
-  const sliderEvents =
-    featuredSlides.length > 0    ? featuredSlides :
-    featuredFromEvents.length > 0  ? featuredFromEvents :
-    [{ id: 'otono-polifonico', title: '7° Festival Otoño Polifónico', date: 'Miércoles 11 al domingo 15 de marzo', time: '20:00hs', location: 'Teatro Municipal de Río Cuarto', thumbnail: '/oto-polifono.webp', href: '/eventos/otono-polifonico' }];
 
   return (
     <div className="bg-listing-page min-vh-100 position-relative">

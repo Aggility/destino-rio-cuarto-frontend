@@ -112,12 +112,7 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
               }}
             />
 
-            {/* Badge superior izquierdo (Estilo tarjeta) */}
-            <div className="position-absolute top-0 start-0 bg-black px-2 py-1" style={{ zIndex: 10 }}>
-              <span className="text-white fw-semibold font-inter" style={{ fontSize: 'clamp(14px, 4vw, 18px)', letterSpacing: '-0.54px', lineHeight: '1.2' }}>
-                Evento Destacado
-              </span>
-            </div>
+
 
             {/* Contenido superpuesto — centrado vertical y horizontal */}
             <div
@@ -138,50 +133,21 @@ export default function MacroEventCard({ events = [], title, date, time, locatio
                 {event.title}
               </h1>
 
-              {/* Metadatos */}
-              <div className="d-flex flex-wrap justify-content-center gap-3 mb-4">
-                {event.date && (
-                  <div className="d-flex align-items-center gap-2">
-                    <div
-                      className="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
-                      style={{ width: '28px', height: '28px', backgroundColor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(4px)' }}
-                    >
-                      <i className="bi bi-calendar-event text-white" style={{ fontSize: '12px' }}></i>
-                    </div>
-                    <span className="font-inter fw-medium text-white" style={{ fontSize: 'clamp(13px, 3vw, 15px)' }}>
-                      {event.date}
-                    </span>
-                  </div>
-                )}
-
-                {event.location && (
-                  <div className="d-flex align-items-center gap-2">
-                    <div
-                      className="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
-                      style={{ width: '28px', height: '28px', backgroundColor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(4px)' }}
-                    >
-                      <i className="bi bi-geo-alt text-white" style={{ fontSize: '12px' }}></i>
-                    </div>
-                    <span className="font-inter fw-medium text-white" style={{ fontSize: 'clamp(13px, 3vw, 15px)' }}>
-                      {event.location}
-                    </span>
-                  </div>
-                )}
-
-                {event.time && (
-                  <div className="d-flex align-items-center gap-2">
-                    <div
-                      className="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
-                      style={{ width: '28px', height: '28px', backgroundColor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(4px)' }}
-                    >
-                      <i className="bi bi-clock text-white" style={{ fontSize: '12px' }}></i>
-                    </div>
-                    <span className="font-inter fw-medium text-white" style={{ fontSize: 'clamp(13px, 3vw, 15px)' }}>
-                      {event.time}
-                    </span>
-                  </div>
-                )}
-              </div>
+              {/* Excerpt */}
+              {event.excerpt && (
+                <p
+                  className="font-inter text-white mb-4"
+                  style={{
+                    fontSize: 'clamp(14px, 2.5vw, 17px)',
+                    lineHeight: '1.6',
+                    opacity: 0.88,
+                    maxWidth: '620px',
+                    textShadow: '0 1px 6px rgba(0,0,0,0.5)',
+                  }}
+                >
+                  {event.excerpt}
+                </p>
+              )}
 
             </div>
           </Link>
