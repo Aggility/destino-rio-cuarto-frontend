@@ -108,30 +108,52 @@ export default async function MacroEventoPage({ params }) {
   return (
     <div className="bg-white min-vh-100 pb-5">
       
-      {/* 1. HERO FESTIVAL */}
-      <section className="text-white py-5 text-center" style={{ backgroundColor: '#f54286', paddingBottom: '80px !important' }}>
-        <div className="container py-4">
-            <h1 className="display-4 fw-bold mb-3" style={{ letterSpacing: '-1.5px' }}>{festival.title}</h1>
-        </div>
-      </section>
+      {/* 1. HERO FESTIVAL (PORTADA) */}
+      <section className="position-relative overflow-hidden" style={{ minHeight: '450px', backgroundColor: '#1a1a1a' }}>
+        <img 
+            src={festival.thumbnail || '/no-img.webp'} 
+            alt={festival.title} 
+            style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                objectPosition: 'center',
+                display: 'block',
+            }}
+        />
+        
+        {/* Overlay degradado */}
+        <div
+            style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.60) 40%, rgba(0,0,0,0.72) 60%, rgba(0,0,0,0.35) 100%)',
+            }}
+        />
 
-      {/* 2. DATE BAR & MAIN IMAGE */}
-      <section className="position-relative" style={{ marginTop: '-40px' }}>
-        <div className="container-fluid px-0">
-            {festival.dateRange !== "Fecha a confirmar" && (
-              <div className="bg-dark text-white text-center py-2 fw-bold w-100 mx-auto" style={{ maxWidth: '900px', borderTopLeftRadius: '8px', borderTopRightRadius: '8px' }}>
-                  {festival.dateRange}
-              </div>
-            )}
+        {/* Contenido centrado */}
+        <div className="position-absolute start-0 end-0 p-4 p-md-5 d-flex flex-column align-items-center justify-content-center text-center" style={{ zIndex: 2, inset: 0 }}>
+            <h1
+                className="font-inter fw-bold text-white mb-3 mt-4 mt-md-0"
+                style={{
+                  fontSize: 'clamp(42px, 7vw, 72px)',
+                  lineHeight: '1.1',
+                  letterSpacing: '-1px',
+                  textShadow: '0 4px 20px rgba(0,0,0,0.7)',
+                  maxWidth: '900px',
+                }}
+            >
+                {festival.title}
+            </h1>
             
-            <div className="position-relative overflow-hidden shadow-lg mx-auto" style={{ maxWidth: '900px', height: '450px', borderRadius: '8px', backgroundColor: '#f8f9fa' }}>
-                <img 
-                    src={festival.thumbnail} 
-                    alt={festival.title} 
-                    className="w-100 h-100 object-cover"
-                    style={{ objectFit: 'cover' }}
-                />
-            </div>
+            {festival.dateRange !== "Fecha a confirmar" && (
+                <div className="badge rounded-pill mt-3" style={{ backgroundColor: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', color: 'white', padding: '10px 24px', fontSize: '15px', fontWeight: '500', textShadow: '0 2px 4px rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.2)' }}>
+                    <i className="bi bi-calendar3 me-2"></i>
+                    {festival.dateRange}
+                </div>
+            )}
         </div>
       </section>
 
