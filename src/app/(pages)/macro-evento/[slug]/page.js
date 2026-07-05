@@ -35,7 +35,17 @@ export default async function MacroEventoPage({ params }) {
       if (res.ok) {
         const json = await res.json();
         const list = Array.isArray(json) ? json : (json.data || []);
-        frameworkData = list.find(f => f.slug === slug) || null;
+        const found = list.find(f => f.slug === slug);
+        if (found) {
+          // Obtener el objeto completo por su ID para traer la relación "events"
+          const resIndividual = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/event-frameworks/${found.id}`, { cache: 'no-store' });
+          if (resIndividual.ok) {
+            const jsonIndividual = await resIndividual.json();
+            frameworkData = jsonIndividual.data || jsonIndividual;
+          } else {
+            frameworkData = found;
+          }
+        }
       }
     } catch (err) {
       console.error('Error fetching event-framework by slug:', err);
@@ -67,6 +77,9 @@ export default async function MacroEventoPage({ params }) {
         })()
       : "Fecha a confirmar",
     description: frameworkData.description?.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ') || "Sin descripción disponible.",
+    descriptionHtml: frameworkData.description || "<p>Sin descripción disponible.</p>",
+    excerpt: frameworkData.excerpt || frameworkData.short_description || "",
+    events: frameworkData.events || [],
     thumbnail: getThumbnail(frameworkData.cover, frameworkData.gallery),
     location: frameworkData.organization?.name || frameworkData.location || "Río Cuarto",
     address: frameworkData.organization?.addresses?.[0]?.address || "Río Cuarto, Córdoba",
@@ -95,34 +108,52 @@ export default async function MacroEventoPage({ params }) {
   return (
     <div className="bg-white min-vh-100 pb-5">
       
-      {/* 1. HERO FESTIVAL */}
-      <section className="text-white py-5 text-center" style={{ backgroundColor: '#ff5a1f', paddingBottom: '80px !important' }}>
-        <div className="container py-4">
-            <h1 className="display-4 fw-bold mb-3" style={{ letterSpacing: '-1.5px' }}>{festival.title}</h1>
-            <p className="lead px-md-5 mb-4 mx-auto" style={{ maxWidth: '700px', fontSize: '18px', opacity: '0.9' }}>
-                {festival.description.substring(0, 150)}...
-            </p>
-            <div className="d-inline-block bg-white fw-bold px-3 py-1 rounded-2 shadow-sm small mb-2" style={{ color: '#ff5a1f' }}>
-                {agenda.length} FECHAS
-            </div>
-        </div>
-      </section>
+      {/* 1. HERO FESTIVAL (PORTADA) */}
+      <section className="position-relative overflow-hidden" style={{ minHeight: '450px', backgroundColor: '#1a1a1a' }}>
+        <img 
+            src={festival.thumbnail || '/no-img.webp'} 
+            alt={festival.title} 
+            style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                objectPosition: 'center',
+                display: 'block',
+            }}
+        />
+        
+        {/* Overlay degradado */}
+        <div
+            style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.60) 40%, rgba(0,0,0,0.72) 60%, rgba(0,0,0,0.35) 100%)',
+            }}
+        />
 
-      {/* 2. DATE BAR & MAIN IMAGE */}
-      <section className="position-relative" style={{ marginTop: '-40px' }}>
-        <div className="container-fluid px-0">
-            <div className="bg-dark text-white text-center py-2 fw-bold w-100 mx-auto" style={{ maxWidth: '900px', borderTopLeftRadius: '8px', borderTopRightRadius: '8px' }}>
-                {festival.dateRange}
-            </div>
+        {/* Contenido centrado */}
+        <div className="position-absolute start-0 end-0 p-4 p-md-5 d-flex flex-column align-items-center justify-content-center text-center" style={{ zIndex: 2, inset: 0 }}>
+            <h1
+                className="font-inter fw-bold text-white mb-3 mt-4 mt-md-0"
+                style={{
+                  fontSize: 'clamp(42px, 7vw, 72px)',
+                  lineHeight: '1.1',
+                  letterSpacing: '-1px',
+                  textShadow: '0 4px 20px rgba(0,0,0,0.7)',
+                  maxWidth: '900px',
+                }}
+            >
+                {festival.title}
+            </h1>
             
-            <div className="position-relative overflow-hidden shadow-lg mx-auto" style={{ maxWidth: '900px', height: '450px', borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px', backgroundColor: '#f8f9fa' }}>
-                <img 
-                    src={festival.thumbnail} 
-                    alt={festival.title} 
-                    className="w-100 h-100 object-cover"
-                    style={{ objectFit: 'cover' }}
-                />
-            </div>
+            {festival.dateRange !== "Fecha a confirmar" && (
+                <div className="badge rounded-pill mt-3" style={{ backgroundColor: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', color: 'white', padding: '10px 24px', fontSize: '15px', fontWeight: '500', textShadow: '0 2px 4px rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.2)' }}>
+                    <i className="bi bi-calendar3 me-2"></i>
+                    {festival.dateRange}
+                </div>
+            )}
         </div>
       </section>
 
@@ -134,14 +165,93 @@ export default async function MacroEventoPage({ params }) {
                 <div className="d-flex flex-column flex-md-row justify-content-between align-items-start gap-4">
                     <div className="flex-grow-1">
                         <h2 className="h4 fw-bold text-gray-900 mb-3">Información General</h2>
-                        <p className="font-inter text-gray-600 mb-4 fs-5" style={{ lineHeight: '1.6' }}>
-                           {festival.description}
-                        </p>
+                        
+                        {festival.excerpt && (
+                           <p className="font-inter text-gray-700 fw-medium mb-3 fs-5" style={{ lineHeight: '1.5' }}>
+                              {festival.excerpt}
+                           </p>
+                        )}
+                        
+                        <div 
+                           className="font-inter text-gray-600 mb-4 fs-5" 
+                           style={{ lineHeight: '1.6' }}
+                           dangerouslySetInnerHTML={{ __html: festival.descriptionHtml }}
+                        />
                         
                         <div className="d-flex align-items-center gap-2 text-muted">
                            <i className="bi bi-geo-alt-fill text-primary"></i>
                            <span className="small">{festival.location} - {festival.address}</span>
                         </div>
+
+                        {/* EVENTOS DISPONIBLES */}
+                        {festival.events.length > 0 && (
+                          <div className="mt-5 pt-4 border-top">
+                            <h2 className="font-inter fw-bold text-gray-900 mb-4" style={{ fontSize: '24px' }}>
+                              Eventos Disponibles
+                            </h2>
+                            <div className="d-flex flex-column gap-4">
+                              {festival.events.map((evt) => {
+                                const lat = parseFloat(evt.organization?.addresses?.[0]?.latitude);
+                                const lng = parseFloat(evt.organization?.addresses?.[0]?.longitude);
+                                const hasCoords = !isNaN(lat) && !isNaN(lng);
+                                const thumb = getThumbnail(evt.cover, evt.gallery);
+
+                                return (
+                                  <div key={evt.id} className="bg-light-subtle rounded-4 p-4 border border-light-subtle shadow-sm position-relative" style={{ border: '1px solid #e5e7eb', borderRadius: '12px' }}>
+                                    <div className="row g-3 align-items-center">
+                                      {thumb && (
+                                        <div className="col-12 col-md-3">
+                                          <img
+                                            src={thumb}
+                                            alt={evt.title || evt.name}
+                                            className="img-fluid rounded-3 w-100"
+                                            style={{ maxHeight: '140px', objectFit: 'cover' }}
+                                          />
+                                        </div>
+                                      )}
+                                      <div className={thumb ? "col-12 col-md-9" : "col-12"}>
+                                        <span className="badge font-inter fw-semibold mb-2" style={{ backgroundColor: '#fed7e2', color: '#f54286' }}>Evento</span>
+                                        <h3 className="font-inter fw-bold text-gray-900 mb-2" style={{ fontSize: '20px' }}>
+                                          {evt.title || evt.name}
+                                        </h3>
+                                        <p 
+                                          className="text-muted small mb-0 font-inter"
+                                          style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+                                        >
+                                          {evt.excerpt || evt.short_description || evt.description?.replace(/<[^>]*>?/gm, '')}
+                                        </p>
+                                        <div className="d-flex align-items-center gap-2 mt-3">
+                                          {(evt.slug || evt.id) && (
+                                            <Link 
+                                              href={evt.slug ? `/eventos/${evt.slug}?id=${evt.id}` : `/eventos/${evt.id}`}
+                                              className="btn shadow-premium d-inline-flex align-items-center gap-2 px-3 py-2 rounded-3 border-0 transition-all hover-lift text-decoration-none stretched-link"
+                                              style={{ backgroundColor: '#f54286', color: '#fff' }}
+                                            >
+                                              <span className="font-inter fw-semibold small d-none d-md-inline">Ver más</span>
+                                              <i className="bi bi-info-circle-fill"></i>
+                                            </Link>
+                                          )}
+                                          {hasCoords && (
+                                            <a 
+                                              href={`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`}
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              className="btn shadow-premium d-inline-flex align-items-center gap-2 px-3 py-2 rounded-3 border-0 transition-all hover-lift text-decoration-none position-relative z-1"
+                                              style={{ backgroundColor: '#f54286', color: '#fff' }}
+                                            >
+                                              <span className="font-inter fw-semibold small d-none d-md-inline">Cómo llegar</span>
+                                              <i className="bi bi-geo-alt-fill"></i>
+                                            </a>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
                     </div>
                 </div>
             </div>
