@@ -222,9 +222,9 @@ export default function EventsListClient({ initialEvents, initialHasMore = false
             </div>
           ) : (
             <div className="listing-grid pb-5">
-              {events.map((event) => (
+              {events.map((event, index) => (
                 <EventCard
-                  key={event.id}
+                  key={`${event.id}-${index}`}
                   id={event.id}
                   slug={event.slug}
                   title={event.title}
