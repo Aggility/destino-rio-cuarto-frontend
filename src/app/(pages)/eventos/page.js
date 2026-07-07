@@ -22,14 +22,13 @@ import { parseLocalDate } from '@/utils/date';
 export const revalidate = 300;
 
 export default async function EventsPage() {
-  let apiEvents         = [];
-  let apiFrameworks     = [];
+  let apiEvents = [];
+  let apiFrameworks = [];
   let apiFeaturedEvents = [];
-  let initialHasMore    = false;
 
   try {
     const [resEvents, resFrameworks, resHome] = await Promise.all([
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/events?per_page=12`, {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/events?per_page=100`, {
         next: { revalidate: 300 },
       }),
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/event-frameworks?per_page=200`, {
@@ -42,7 +41,7 @@ export default async function EventsPage() {
 
     if (resEvents.ok) {
       const data = await resEvents.json();
-      const all  = Array.isArray(data) ? data : (data.data || []);
+      const all = Array.isArray(data) ? data : (data.data || []);
       const getStartTime = (e) => {
         const raw = e.calendars?.[0]?.start_date;
         if (!raw) return Infinity;
@@ -54,14 +53,11 @@ export default async function EventsPage() {
         .filter(evt => evt.status?.toLowerCase() !== 'inactive')
         .sort((a, b) => getStartTime(a) - getStartTime(b));
 
-      // Hay más si la API reporta más páginas, o si devolvió el máximo que pedimos
-      const totalPages = data.pagination?.total_pages ?? data.meta?.last_page ?? 1;
-      initialHasMore = totalPages > 1 || all.length >= 12;
     }
 
     if (resFrameworks.ok) {
       const data = await resFrameworks.json();
-      const all  = Array.isArray(data) ? data : (data.data || []);
+      const all = Array.isArray(data) ? data : (data.data || []);
       // Filtrar solo los activos (status === 'active' o status === 1)
       apiFrameworks = all.filter(f => {
         const s = f.status;
@@ -83,17 +79,17 @@ export default async function EventsPage() {
   const getCover = (evt) => getThumbnail(evt.cover, evt.gallery);
 
   const formattedEvents = apiEvents.map((evt) => ({
-    id:        evt.id,
-    slug:      evt.slug,
-    title:     evt.title,
-    date:      formatEventDate(evt),
-    location:  evt.organization?.name || 'A confirmar',
-    category:  evt.categories?.[0]?.name?.toUpperCase() || 'EVENTO',
+    id: evt.id,
+    slug: evt.slug,
+    title: evt.title,
+    date: formatEventDate(evt),
+    location: evt.organization?.name || 'A confirmar',
+    category: evt.categories?.[0]?.name?.toUpperCase() || 'EVENTO',
     typeColor: '#f54286',
     thumbnail: getCover(evt),
-    lat:       evt.organization?.addresses?.[0]?.latitude,
-    lng:       evt.organization?.addresses?.[0]?.longitude,
-    rawDate:   evt.calendars?.[0]?.start_date,
+    lat: evt.organization?.addresses?.[0]?.latitude,
+    lng: evt.organization?.addresses?.[0]?.longitude,
+    rawDate: evt.calendars?.[0]?.start_date,
     // description limpia para el filtro de texto
     description: (evt.description || '')
       .replace(/<[^>]*>?/gm, '')
@@ -105,7 +101,7 @@ export default async function EventsPage() {
   const getFrameworkDateRange = (f) => {
     if (f.start_date && f.end_date) {
       const start = parseLocalDate(f.start_date);
-      const end   = parseLocalDate(f.end_date);
+      const end = parseLocalDate(f.end_date);
       if (start && end) {
         return `${start.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })} – ${end.toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' })}`;
       }
@@ -118,17 +114,17 @@ export default async function EventsPage() {
   };
 
   const sliderEvents = apiFrameworks.map(f => ({
-    id:          f.id,
-    title:       f.title || f.name || 'Sin título',
-    date:        getFrameworkDateRange(f),
+    id: f.id,
+    title: f.title || f.name || 'Sin título',
+    date: getFrameworkDateRange(f),
     eventsCount: Array.isArray(f.events) ? f.events.length : (f.events_count ?? f.calendars?.length ?? 0),
-    location:    f.organization?.name || 'Río Cuarto',
-    thumbnail:   getThumbnail(f.cover, f.gallery),
-    href:        `/macro-evento/${f.slug || f.id}`,
-    excerpt:     (f.excerpt || f.short_description || '')
-                   .replace(/<[^>]*>?/gm, '')
-                   .replace(/&nbsp;/g, ' ')
-                   .trim() || null,
+    location: f.organization?.name || 'Río Cuarto',
+    thumbnail: getThumbnail(f.cover, f.gallery),
+    href: `/macro-evento/${f.slug || f.id}`,
+    excerpt: (f.excerpt || f.short_description || '')
+      .replace(/<[^>]*>?/gm, '')
+      .replace(/&nbsp;/g, ' ')
+      .trim() || null,
   }));
 
   const CardWrapper = ({ children, wide = true }) => (
@@ -181,8 +177,8 @@ export default async function EventsPage() {
         </section>
       )}
 
-      {/* Listado con filtros — recibe los eventos ya en el orden de la API */}
-      <EventsListClient initialEvents={formattedEvents} initialHasMore={initialHasMore} />
+      {/* Listado con filtros — paginación 100% frontend, de a 9 eventos */}
+      <EventsListClient initialEvents={formattedEvents} />
 
       <ChatbotIcon />
     </div>

@@ -1,115 +1,105 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import EventCard from '@/components/server/EventCard';
-import { formatEventDate } from '@/utils/date';
-import { getThumbnail } from '@/utils/image';
 import { useDebouncedCallback } from 'use-debounce';
 
-function formatEvent(evt) {
-  const rawDesc = (evt.description || '')
-    .replace(/<[^>]*>?/gm, '')
-    .replace(/&nbsp;/g, ' ');
-  return {
-    id:          evt.id,
-    slug:        evt.slug,
-    title:       evt.title,
-    date:        formatEventDate(evt),
-    location:    evt.organization?.name || 'A confirmar',
-    description: rawDesc.length > 120 ? rawDesc.substring(0, 120) + '...' : rawDesc,
-    thumbnail:   getThumbnail(evt.cover, evt.gallery),
-    category:    evt.categories?.[0]?.name?.trim() || 'Evento',
-    typeColor:   '#f54286',
-    lat:         evt.organization?.addresses?.[0]?.latitude,
-    lng:         evt.organization?.addresses?.[0]?.longitude,
-    rawDate:     evt.calendars?.[0]?.start_date,
-  };
-}
+const EVENTS_PER_PAGE = 9;
 
-export default function EventsListClient({ initialEvents, initialHasMore = false }) {
-  const [events, setEvents]         = useState(initialEvents);
-  const [page, setPage]             = useState(1);
-  const [isLoading, setIsLoading]   = useState(false);
-  const [hasMore, setHasMore]       = useState(initialHasMore);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedDate, setSelectedDate]         = useState('Todos');
+export default function EventsListClient({ initialEvents = [] }) {
+  const [searchTerm, setSearchTerm]         = useState('');
+  const [selectedDate, setSelectedDate]     = useState('Todos');
   const [selectedCategory, setSelectedCategory] = useState('Todos');
+  const [visibleCount, setVisibleCount]     = useState(EVENTS_PER_PAGE);
+  const [activeSearch, setActiveSearch]     = useState('');
 
-  const [categories, setCategories] = useState(() => {
+  // ── Categorías dinámicas extraídas de los datos ──────────────────────────────
+  const categories = useMemo(() => {
     const seen = new Set(initialEvents.map(e => e.category).filter(Boolean));
     return ['Todos', ...[...seen].sort((a, b) => a.localeCompare(b, 'es'))];
-  });
+  }, [initialEvents]);
 
-  // Carga las categorías reales del dataset completo al montar
-  useEffect(() => {
-    fetch('/api/events?per_page=1')
-      .then(r => r.json())
-      .then(data => {
-        if (data.categories?.length) {
-          setCategories(['Todos', ...data.categories]);
+  // ── Filtrado puramente en el frontend ────────────────────────────────────────
+  const filteredEvents = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return initialEvents.filter(evt => {
+      // Filtro de texto
+      if (activeSearch) {
+        const term = activeSearch.toLowerCase();
+        const matchTitle    = evt.title?.toLowerCase().includes(term);
+        const matchDesc     = evt.description?.toLowerCase().includes(term);
+        const matchLocation = evt.location?.toLowerCase().includes(term);
+        if (!matchTitle && !matchDesc && !matchLocation) return false;
+      }
+
+      // Filtro de categoría
+      if (selectedCategory !== 'Todos') {
+        if (evt.category?.toLowerCase() !== selectedCategory.toLowerCase()) return false;
+      }
+
+      // Filtro de fecha
+      if (selectedDate !== 'Todos' && evt.rawDate) {
+        const raw = evt.rawDate;
+        const [y, m, d] = raw.split('T')[0].split('-').map(Number);
+        const evDate = new Date(y, m - 1, d);
+
+        if (selectedDate === 'HOY') {
+          if (evDate.getTime() !== today.getTime()) return false;
+        } else if (selectedDate === 'Esta semana') {
+          const end = new Date(today);
+          end.setDate(today.getDate() + 7);
+          if (evDate < today || evDate > end) return false;
+        } else if (selectedDate === 'Este mes') {
+          if (
+            evDate.getMonth() !== today.getMonth() ||
+            evDate.getFullYear() !== today.getFullYear()
+          ) return false;
         }
-      })
-      .catch(() => {});
-  }, []);
+      }
 
-  const fetchPage = useCallback(async ({ search, category, date, pageNum, append }) => {
-    setIsLoading(true);
-    try {
-      const params = new URLSearchParams({ page: pageNum, per_page: 12 });
-      if (search)                        params.set('search', search);
-      if (category && category !== 'Todos') params.set('category', category);
-      if (date && date !== 'Todos')      params.set('date', date);
+      return true;
+    });
+  }, [initialEvents, activeSearch, selectedCategory, selectedDate]);
 
-      const res = await fetch(`/api/events?${params}`);
-      if (!res.ok) return;
+  // ── Slice visible ─────────────────────────────────────────────────────────────
+  const visibleEvents = filteredEvents.slice(0, visibleCount);
+  const hasMore       = visibleCount < filteredEvents.length;
 
-      const data      = await res.json();
-      const newEvents = (data.data || []).map(formatEvent);
-
-      setEvents(prev => append ? [...prev, ...newEvents] : newEvents);
-      setHasMore(data.hasMore ?? false);
-      setPage(pageNum);
-    } catch (err) {
-      console.error('Error fetching events:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  // Búsqueda con debounce de 400ms
-  const debouncedFetch = useDebouncedCallback((search) => {
-    fetchPage({ search, category: selectedCategory, date: selectedDate, pageNum: 1, append: false });
+  // ── Handlers ──────────────────────────────────────────────────────────────────
+  const debouncedSearch = useDebouncedCallback((value) => {
+    setActiveSearch(value);
+    setVisibleCount(EVENTS_PER_PAGE); // reset al cambiar búsqueda
   }, 400);
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
-    debouncedFetch(e.target.value);
+    debouncedSearch(e.target.value);
   };
 
   const handleCategoryChange = (e) => {
-    const cat = e.target.value;
-    setSelectedCategory(cat);
-    fetchPage({ search: searchTerm, category: cat, date: selectedDate, pageNum: 1, append: false });
+    setSelectedCategory(e.target.value);
+    setVisibleCount(EVENTS_PER_PAGE);
   };
 
   const handleDateChange = (e) => {
-    const date = e.target.value;
-    setSelectedDate(date);
-    fetchPage({ search: searchTerm, category: selectedCategory, date, pageNum: 1, append: false });
+    setSelectedDate(e.target.value);
+    setVisibleCount(EVENTS_PER_PAGE);
   };
 
   const loadMore = () => {
-    if (isLoading || !hasMore) return;
-    fetchPage({ search: searchTerm, category: selectedCategory, date: selectedDate, pageNum: page + 1, append: true });
+    setVisibleCount(prev => prev + EVENTS_PER_PAGE);
   };
 
   const hasActiveFilters = searchTerm !== '' || selectedDate !== 'Todos' || selectedCategory !== 'Todos';
 
   const clearFilters = () => {
     setSearchTerm('');
+    setActiveSearch('');
     setSelectedDate('Todos');
     setSelectedCategory('Todos');
-    fetchPage({ search: '', category: 'Todos', date: 'Todos', pageNum: 1, append: false });
+    setVisibleCount(EVENTS_PER_PAGE);
   };
 
   const activeStyle  = { borderColor: '#f54286', borderWidth: '1.5px' };
@@ -122,17 +112,14 @@ export default function EventsListClient({ initialEvents, initialHasMore = false
         <div className="container-xxl px-lg-5">
           <div className="row g-2 align-items-center">
 
-            {/* Buscador — fila completa en mobile, crece en desktop */}
+            {/* Buscador */}
             <div className="col-12 col-lg">
               <div
                 className="d-flex align-items-center rounded-3 overflow-hidden bg-white"
                 style={{ height: '46px', border: `1.5px solid ${searchTerm ? '#f54286' : '#e5e7eb'}` }}
               >
                 <div className="px-3 border-end h-100 d-flex align-items-center">
-                  {isLoading
-                    ? <span className="spinner-border spinner-border-sm text-muted" role="status" aria-hidden="true" />
-                    : <i className="bi bi-search text-muted" />
-                  }
+                  <i className="bi bi-search text-muted" />
                 </div>
                 <input
                   type="text"
@@ -145,7 +132,7 @@ export default function EventsListClient({ initialEvents, initialHasMore = false
               </div>
             </div>
 
-            {/* Fecha — mitad en mobile, ancho automático en desktop */}
+            {/* Fecha */}
             <div className="col-6 col-lg-auto">
               <select
                 className="form-select font-inter w-100"
@@ -160,7 +147,7 @@ export default function EventsListClient({ initialEvents, initialHasMore = false
               </select>
             </div>
 
-            {/* Categoría — mitad en mobile, ancho automático en desktop */}
+            {/* Categoría */}
             <div className="col-6 col-lg-auto">
               <select
                 className="form-select font-inter w-100"
@@ -174,7 +161,7 @@ export default function EventsListClient({ initialEvents, initialHasMore = false
               </select>
             </div>
 
-            {/* Botón limpiar — fila completa en mobile, ancho automático en desktop */}
+            {/* Limpiar */}
             <div className="col-12 col-lg-auto">
               <button
                 onClick={clearFilters}
@@ -203,12 +190,14 @@ export default function EventsListClient({ initialEvents, initialHasMore = false
       {/* LISTING GRID SECTION */}
       <section className="py-5 bg-listing-page">
         <div className="container-xxl px-lg-5">
-          <h2 className="font-inter fw-bold text-gray-900 mb-4"
-              style={{ fontSize: 'clamp(28px, 7vw, 36px)', letterSpacing: '-1px', lineHeight: '1.1' }}>
+          <h2
+            className="font-inter fw-bold text-gray-900 mb-4"
+            style={{ fontSize: 'clamp(28px, 7vw, 36px)', letterSpacing: '-1px', lineHeight: '1.1' }}
+          >
             Descubrí más Eventos
           </h2>
 
-          {events.length === 0 && !isLoading ? (
+          {visibleEvents.length === 0 ? (
             <div className="text-center py-5 text-muted">
               <i className="bi bi-calendar-x fs-1 mb-3 d-block"></i>
               <h4>No hay eventos con esos filtros</h4>
@@ -222,7 +211,7 @@ export default function EventsListClient({ initialEvents, initialHasMore = false
             </div>
           ) : (
             <div className="listing-grid pb-5">
-              {events.map((event, index) => (
+              {visibleEvents.map((event, index) => (
                 <EventCard
                   key={`${event.id}-${index}`}
                   id={event.id}
@@ -242,17 +231,13 @@ export default function EventsListClient({ initialEvents, initialHasMore = false
           )}
 
           {/* LOAD MORE */}
-          {hasMore && events.length > 0 && (
+          {hasMore && visibleEvents.length > 0 && (
             <div className="text-center mt-2">
               <button
                 onClick={loadMore}
-                disabled={isLoading}
                 className="btn btn-load-more-pink shadow-premium"
               >
-                {isLoading
-                  ? <><span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />CARGANDO...</>
-                  : 'CARGAR MÁS EVENTOS'
-                }
+                CARGAR MÁS EVENTOS
               </button>
             </div>
           )}
