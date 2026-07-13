@@ -1,5 +1,5 @@
 import { Inter, Roboto } from "next/font/google";
-import Script from "next/script";
+
 import "bootstrap/dist/css/bootstrap.min.css"; 
 import "bootstrap-icons/font/bootstrap-icons.css"; // Importamos icons por separado para asegurar visibilidad
 import "@/styles/globals.scss";
@@ -43,25 +43,7 @@ export default function RootLayout({ children }) {
         <GeolocationPopup />
         <ChatbotIcon />
 
-        {/* Google Analytics */}
-        <Script
-          strategy="afterInteractive"
-          src={`https://www.googletagmanager.com/gtag/js?id=G-0JRF2QMXT6`}
-        />
-        <Script
-          id="google-analytics"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-0JRF2QMXT6', {
-                page_path: window.location.pathname,
-              });
-            `,
-          }}
-        />
+
       </body>
     </html>
   );
