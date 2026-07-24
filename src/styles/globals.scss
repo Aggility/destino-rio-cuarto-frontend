@@ -571,6 +571,52 @@ $cal-activity-accent: #8A38F5;
   object-position: center;
 }
 
+// Indicador En Línea con animación de pulso
+.chatbot-online-indicator {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 18px;
+  height: 18px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.chatbot-online-dot {
+  width: 14px;
+  height: 14px;
+  background-color: #22c55e;
+  border: 2.5px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.8);
+  position: relative;
+  z-index: 2;
+}
+
+.chatbot-online-pulse {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background-color: rgba(34, 197, 94, 0.75);
+  border-radius: 50%;
+  z-index: 1;
+  animation: online-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes online-ping {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.9;
+  }
+  75%, 100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
 // 15. DYNAMIC BUTTON HOVER INVERT
 .btn-invert-hover {
   background-color: transparent !important;

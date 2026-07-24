@@ -2,24 +2,35 @@ import React from 'react';
 
 /**
  * ChatbotIcon - Destino Río Cuarto
- * Implementado como burbuja flotante con primer plano del asistente.
- * Tamaño 80px x 80px con efecto de elevación.
+ * Implementado como burbuja flotante con primer plano del asistente y enlace a WhatsApp.
+ * Incluye indicador en línea animado (pulso activo).
  */
 export default function ChatbotIcon() {
-  return null;
-  /*
   return (
     <div className="position-fixed bottom-0 end-0 m-4 z-max" style={{ zIndex: 999999 }}>
-      <div className="chatbot-bubble">
-        <img 
-          src="/bot.png" 
-          alt="Asistente Río Cuarto"
-          className="chatbot-face-zoom"
-        />
-        <div className="position-absolute top-0 end-0 bg-success rounded-circle" 
-             style={{ width: '14px', height: '14px', border: '2px solid white', margin: '5px' }}></div>
-      </div>
+      <a
+        href="https://api.whatsapp.com/send?phone=5493586093011"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-decoration-none d-block position-relative"
+        title="Consultar por WhatsApp"
+      >
+        <div className="chatbot-bubble">
+          <img 
+            src="/bot.png" 
+            alt="Asistente Río Cuarto"
+            className="chatbot-face-zoom"
+          />
+        </div>
+
+        {/* Indicador verde en línea con animación de pulso radar */}
+        <div className="chatbot-online-indicator">
+          <span className="chatbot-online-pulse"></span>
+          <span className="chatbot-online-dot"></span>
+        </div>
+      </a>
     </div>
   );
-  */
 }
+
+
