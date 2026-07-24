@@ -21,8 +21,12 @@ export default function EventsListClient({ initialEvents = [] }) {
 
   // ── Filtrado puramente en el frontend ────────────────────────────────────────
   const filteredEvents = useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const now = new Date();
+    const todayYear = now.getFullYear();
+    const todayMonth = now.getMonth();
+    const todayDay = now.getDate();
+    const todayTime = new Date(todayYear, todayMonth, todayDay).getTime();
+    const weekEndTime = todayTime + 7 * 24 * 60 * 60 * 1000;
 
     return initialEvents.filter(evt => {
       // Filtro de texto
@@ -44,18 +48,14 @@ export default function EventsListClient({ initialEvents = [] }) {
         const raw = evt.rawDate;
         const [y, m, d] = raw.split('T')[0].split('-').map(Number);
         const evDate = new Date(y, m - 1, d);
+        const evTime = evDate.getTime();
 
         if (selectedDate === 'HOY') {
-          if (evDate.getTime() !== today.getTime()) return false;
+          if (evTime !== todayTime) return false;
         } else if (selectedDate === 'Esta semana') {
-          const end = new Date(today);
-          end.setDate(today.getDate() + 7);
-          if (evDate < today || evDate > end) return false;
+          if (evTime < todayTime || evTime > weekEndTime) return false;
         } else if (selectedDate === 'Este mes') {
-          if (
-            evDate.getMonth() !== today.getMonth() ||
-            evDate.getFullYear() !== today.getFullYear()
-          ) return false;
+          if (m - 1 !== todayMonth || y !== todayYear) return false;
         }
       }
 
@@ -225,6 +225,7 @@ export default function EventsListClient({ initialEvents = [] }) {
                   typeColor={event.typeColor}
                   lat={event.lat}
                   lng={event.lng}
+                  calendars={event.calendars}
                 />
               ))}
             </div>

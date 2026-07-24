@@ -6,6 +6,7 @@ import EventImageWithFallback from '@/components/client/EventImageWithFallback';
 /**
  * EventCard - Destino Río Cuarto
  * Basado exactamente en Figma ID I3781:19227 (High Fidelity)
+ * Soporte extendido para eventos multi-día y multi-función vía prop `calendars`.
  */
 export default function EventCard({ 
   id = "1",
@@ -19,8 +20,27 @@ export default function EventCard({
   thumbnail = "/no-img.webp",
   lat = null,
   lng = null,
-  basePath = "eventos"
+  basePath = "eventos",
+  calendars = null,   // array crudo de calendars de la API (opcional)
 }) {
+  // ── Analizar calendars para determinar si es multi-día o multi-función ──────
+  let isMultiDay   = false;
+  let isMultiShow  = false;
+  let showCount    = 0;
+
+  if (calendars && calendars.length > 0) {
+    if (calendars.length > 1) {
+      const activeCals = calendars.filter(c => c.status !== 0);
+      showCount   = (activeCals.length > 0 ? activeCals : calendars).length;
+      isMultiShow = true;
+    } else {
+      const cal      = calendars[0];
+      const startStr = cal.start_date?.split('T')[0];
+      const endStr   = cal.end_date?.split('T')[0];
+      if (endStr && endStr !== startStr) isMultiDay = true;
+    }
+  }
+
   return (
     <Link href={`/${basePath}/${slug || id}`} className="text-decoration-none d-block h-100">
       <div 
@@ -46,12 +66,38 @@ export default function EventCard({
             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
           />
           
-          {/* Tag Overlay — Figma ID I3781:19227;3395:3977 */}
+          {/* Tag Overlay — fecha (o rango de fechas) */}
           <div className="position-absolute top-0 start-0 bg-black px-2 py-1" style={{ zIndex: 10 }}>
-            <span className="text-white fw-semibold font-inter" style={{ fontSize: 'clamp(14px, 4vw, 18px)', letterSpacing: '-0.54px', lineHeight: '1.2' }}>
+            <span className="text-white fw-semibold font-inter" style={{ fontSize: 'clamp(13px, 3.5vw, 16px)', letterSpacing: '-0.5px', lineHeight: '1.2' }}>
               {date}
             </span>
           </div>
+
+          {/* Badge "N funciones" — solo para eventos multi-función */}
+          {isMultiShow && (
+            <div
+              className="position-absolute bottom-0 end-0 d-flex align-items-center gap-1 px-2 py-1"
+              style={{ zIndex: 10, backgroundColor: typeColor, borderTopLeftRadius: '8px' }}
+            >
+              <i className="bi bi-calendar2-week-fill text-white" style={{ fontSize: '11px' }}></i>
+              <span className="text-white fw-bold font-inter" style={{ fontSize: '11px', letterSpacing: '0.3px' }}>
+                {showCount} funciones
+              </span>
+            </div>
+          )}
+
+          {/* Badge "Varios días" — solo para eventos multi-día */}
+          {isMultiDay && !isMultiShow && (
+            <div
+              className="position-absolute bottom-0 end-0 d-flex align-items-center gap-1 px-2 py-1"
+              style={{ zIndex: 10, backgroundColor: '#1d4ed8', borderTopLeftRadius: '8px' }}
+            >
+              <i className="bi bi-arrow-right text-white" style={{ fontSize: '11px' }}></i>
+              <span className="text-white fw-bold font-inter" style={{ fontSize: '11px', letterSpacing: '0.3px' }}>
+                Varios días
+              </span>
+            </div>
+          )}
         </div>
 
         {/* 2. Body — Figma ID I3781:19227;3389:3474 */}
@@ -99,3 +145,4 @@ export default function EventCard({
     </Link>
   );
 }
+

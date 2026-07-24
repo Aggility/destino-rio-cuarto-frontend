@@ -8,7 +8,7 @@ import { getNearbyLocations, getDistance } from '@/utils/geo';
 import ExpandableDescription from '@/components/client/ExpandableDescription';
 import EventsSlider from '@/components/client/EventsSlider';
 import { getThumbnail } from '@/utils/image';
-import { parseLocalDate } from '@/utils/date';
+import { parseLocalDate, getEventDateInfo } from '@/utils/date';
 import HomeSectionSlider from '@/components/client/HomeSectionSlider';
 import EventCard from '@/components/server/EventCard';
 import ShareButton from '@/components/client/ShareButton';
@@ -94,6 +94,7 @@ export default async function EventDetailPage({ params, searchParams }) {
   }
 
   // 2. Fallback y formateo del evento (Mock si falla API)
+  const dateInfo = getEventDateInfo(eventData || {});
   const firstCal = eventData?.calendars?.[0];
   const localEventDate = firstCal?.start_date ? (() => {
     const d = parseLocalDate(firstCal.start_date);
@@ -338,9 +339,56 @@ export default async function EventDetailPage({ params, searchParams }) {
               <div className="row g-3 mb-5 border-top border-bottom py-4 mx-0">
                 <div className="col-12 col-md-6 d-flex align-items-start gap-3 border-md-end mb-3 mb-md-0">
                   <span className="text-muted font-inter fw-normal" style={{ minWidth: '80px' }}>Cuando</span>
-                  <div className="d-flex align-items-center gap-2">
-                    <i className="bi bi-calendar3 text-primary"></i>
-                    <span className="text-gray-900 font-inter fw-medium">{event.date}</span>
+                  <div className="d-flex flex-column gap-1">
+                    {dateInfo.type === 'multishow' ? (
+                      <div className="d-flex flex-column gap-2">
+                        <div className="d-flex align-items-center gap-2">
+                          <i className="bi bi-calendar2-week text-primary"></i>
+                          <span className="text-gray-900 font-inter fw-semibold">{dateInfo.displayDate}</span>
+                        </div>
+                        <div className="d-flex flex-column gap-2 ms-2 ps-2 border-start border-2" style={{ borderColor: '#f54286' }}>
+                          {dateInfo.schedules.map((sch, i) => (
+                            <div key={i} className="small font-inter text-gray-800">
+                              <span className="fw-medium text-capitalize">{sch.dateLabel}</span>
+                              {sch.startTime && (
+                                <span className="text-muted"> · {sch.startTime}{sch.endTime ? ` a ${sch.endTime}` : ''} hs</span>
+                              )}
+                              {sch.observations && (
+                                <div className="text-muted fst-italic mt-0-5" style={{ fontSize: '12px' }}>{sch.observations}</div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : dateInfo.type === 'multiday' ? (
+                      <div className="d-flex flex-column gap-1">
+                        <div className="d-flex align-items-center gap-2">
+                          <i className="bi bi-calendar-range text-primary"></i>
+                          <span className="text-gray-900 font-inter fw-medium text-capitalize">
+                            {dateInfo.displayDate} al {dateInfo.endDate}
+                          </span>
+                        </div>
+                        {dateInfo.startTime && (
+                          <div className="d-flex align-items-center gap-2 text-muted font-inter small">
+                            <i className="bi bi-clock"></i>
+                            <span>{dateInfo.startTime}{dateInfo.endTime ? ` a ${dateInfo.endTime}` : ''} hs</span>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="d-flex flex-column gap-1">
+                        <div className="d-flex align-items-center gap-2">
+                          <i className="bi bi-calendar3 text-primary"></i>
+                          <span className="text-gray-900 font-inter fw-medium text-capitalize">{dateInfo.displayDate}</span>
+                        </div>
+                        {dateInfo.startTime && (
+                          <div className="d-flex align-items-center gap-2 text-muted font-inter small">
+                            <i className="bi bi-clock"></i>
+                            <span>{dateInfo.startTime}{dateInfo.endTime ? ` a ${dateInfo.endTime}` : ''} hs</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="col-12 col-md-6 d-flex align-items-start gap-3 ps-md-4">

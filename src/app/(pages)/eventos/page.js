@@ -7,8 +7,7 @@ import MacroEventCard from '@/components/server/MacroEventCard';
 import EventsListClient from '@/components/client/EventsListClient';
 import HomeSectionSlider from '@/components/client/HomeSectionSlider';
 import { getThumbnail } from '@/utils/image';
-import { formatEventDate } from '@/utils/date';
-import { parseLocalDate } from '@/utils/date';
+import { formatEventDate, formatEventDateFull, parseLocalDate } from '@/utils/date';
 
 /**
  * EventsPage - Destino Río Cuarto
@@ -82,7 +81,7 @@ export default async function EventsPage() {
     id: evt.id,
     slug: evt.slug,
     title: evt.title,
-    date: formatEventDate(evt),
+    date: formatEventDateFull(evt),
     location: evt.organization?.name || 'A confirmar',
     category: evt.categories?.[0]?.name?.toUpperCase() || 'EVENTO',
     typeColor: '#f54286',
@@ -90,6 +89,7 @@ export default async function EventsPage() {
     lat: evt.organization?.addresses?.[0]?.latitude,
     lng: evt.organization?.addresses?.[0]?.longitude,
     rawDate: evt.calendars?.[0]?.start_date,
+    calendars: evt.calendars || [],
     // description limpia para el filtro de texto
     description: (evt.description || '')
       .replace(/<[^>]*>?/gm, '')
@@ -164,11 +164,12 @@ export default async function EventsPage() {
                     id={evt.id}
                     slug={evt.slug}
                     title={evt.title}
-                    date={formatEventDate(evt)}
+                    date={formatEventDateFull(evt)}
                     location={evt.organization?.name || 'A confirmar'}
                     category={evt.categories?.[0]?.name?.toUpperCase() || 'EVENTO'}
                     typeColor="#f54286"
                     thumbnail={getCover(evt)}
+                    calendars={evt.calendars || []}
                   />
                 </CardWrapper>
               ))}
