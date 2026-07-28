@@ -35,7 +35,7 @@ export default async function ServiciosPage() {
           org.status?.toLowerCase() !== 'inactive' &&
           org.types?.some(t => t.key === 'service')
         )
-        .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+        .sort((a, b) => (a.name || '').localeCompare(b.name || '', 'es'));
     }
 
     if (resProp.ok) {
