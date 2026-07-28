@@ -148,11 +148,7 @@ export default function EventsListClient({ initialEvents = [] }) {
     setDateOpen(false);
   };
 
-  const applySingle = (val) => {
-    if (!val) return;
-    setSingleDate(val);
-    setDateMode('single');
-    setQuickDate('');
+  const confirmSingle = () => {
     setVisibleCount(EVENTS_PER_PAGE);
     setDateOpen(false);
   };
@@ -287,10 +283,31 @@ export default function EventsListClient({ initialEvents = [] }) {
                       <input
                         type="date"
                         className="form-control font-inter"
-                        style={{ fontSize: '13px', borderColor: dateMode === 'single' ? PINK : '#e5e7eb', flex: 1 }}
+                        style={{ fontSize: '13px', borderColor: dateMode === 'single' && singleDate ? PINK : '#e5e7eb', flex: 1 }}
                         value={singleDate}
-                        onChange={e => applySingle(e.target.value)}
+                        onChange={e => {
+                          setSingleDate(e.target.value);
+                          setDateMode('single');
+                          setQuickDate('');
+                        }}
                       />
+                      <button
+                        type="button"
+                        onClick={confirmSingle}
+                        disabled={!singleDate}
+                        className="btn btn-sm fw-bold font-inter text-white flex-shrink-0"
+                        style={{
+                          backgroundColor: PINK,
+                          border: 'none',
+                          borderRadius: '8px',
+                          opacity: singleDate ? 1 : 0.4,
+                          fontSize: '13px',
+                          padding: '0 12px',
+                          height: '36px',
+                        }}
+                      >
+                        Aplicar
+                      </button>
                     </div>
 
                     {/* Quitar filtro */}
