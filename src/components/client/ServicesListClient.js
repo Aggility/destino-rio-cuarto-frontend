@@ -6,7 +6,7 @@ import { getDistance } from '@/utils/geo';
 
 export default function ServicesListClient({ initialServices, leftoverFromFirstPage = [] }) {
   const [userLocation, setUserLocation] = useState(null);
-  
+
   // Como ahora traemos todos los servicios desde el servidor (per_page=500), 
   // podemos hacer el filtrado de forma local, instantánea y predictiva.
   const allServices = useMemo(() => {
@@ -15,8 +15,11 @@ export default function ServicesListClient({ initialServices, leftoverFromFirstP
 
   const [visibleCount, setVisibleCount] = useState(9);
   const [selectedFilter, setSelectedFilter] = useState('Todos');
+  const [selectedLetter, setSelectedLetter] = useState('Todos');
   const [searchTerm, setSearchTerm] = useState('');
   const deferredSearchTerm = useDeferredValue(searchTerm);
+
+  const alphabet = useMemo(() => ['Todas', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')], []);
 
   // Ubicación del usuario
   const fetchLocation = () => {
@@ -60,14 +63,14 @@ export default function ServicesListClient({ initialServices, leftoverFromFirstP
     });
   }, [allServices, userLocation]);
 
-  // Filtrado predictivo y por categoría
+  // Filtrado predictivo, por categoría y por letra inicial A-Z
   const filteredServices = useMemo(() => {
     let result = servicesWithDistance;
 
     // Filtro por texto (Predictivo)
     if (deferredSearchTerm.trim() !== '') {
       const lowerTerm = deferredSearchTerm.toLowerCase();
-      result = result.filter(s => 
+      result = result.filter(s =>
         (s.title && s.title.toLowerCase().includes(lowerTerm)) ||
         (s.category && s.category.toLowerCase().includes(lowerTerm)) ||
         (s.address && s.address.toLowerCase().includes(lowerTerm))
@@ -79,6 +82,20 @@ export default function ServicesListClient({ initialServices, leftoverFromFirstP
       result = result.filter(s => s.category === selectedFilter);
     }
 
+    // Filtro por letra inicial (A-Z)
+    if (selectedLetter !== 'Todas') {
+      result = result.filter(s => {
+        if (!s.title) return false;
+        const firstChar = s.title
+          .trim()
+          .charAt(0)
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .toUpperCase();
+        return firstChar === selectedLetter;
+      });
+    }
+
     // Ordenar por cercanos
     if (selectedFilter === 'Cercanos' && userLocation) {
       result = result
@@ -87,12 +104,12 @@ export default function ServicesListClient({ initialServices, leftoverFromFirstP
     }
 
     return result;
-  }, [servicesWithDistance, searchTerm, selectedFilter, userLocation]);
+  }, [servicesWithDistance, deferredSearchTerm, selectedFilter, selectedLetter, userLocation]);
 
   // Cuando cambia un filtro o búsqueda, reiniciar la cantidad visible
   useEffect(() => {
     setVisibleCount(9);
-  }, [deferredSearchTerm, selectedFilter]);
+  }, [deferredSearchTerm, selectedFilter, selectedLetter]);
 
   const loadMore = () => {
     setVisibleCount(prev => prev + 9);
@@ -110,8 +127,8 @@ export default function ServicesListClient({ initialServices, leftoverFromFirstP
 
   return (
     <div className="d-flex flex-column gap-3">
-      
-      {/* ── FILTROS (Buscador unificado) ── */}
+
+      {/* ── FILTROS (Buscador + Selector de Categoría + Abecedario A-Z) ── */}
       <div className="bg-white rounded-4 p-3 shadow-sm mb-4" style={{ border: '1px solid #f3f4f6' }}>
         <div className="row g-3 align-items-center">
           {/* Buscador */}
@@ -166,19 +183,50 @@ export default function ServicesListClient({ initialServices, leftoverFromFirstP
           </div>
         </div>
 
-        {/* El selector de escritorio ahora también se muestra en mobile */}
+        {/* ── FILTRO A-Z (BARRA DE LETRAS ABECEDARIO) ── */}
+        <div className="pt-3 border-top mt-3">
+          <div className="d-flex align-items-center gap-1 overflow-auto pb-1 custom-scrollbar" style={{ scrollbarWidth: 'thin' }}>
+            {alphabet.map((letter) => {
+              const isActive = selectedLetter === letter;
+              return (
+                <button
+                  key={letter}
+                  type="button"
+                  onClick={() => {
+                    setSelectedLetter(letter);
+                    setVisibleCount(9);
+                  }}
+                  className={`btn btn-sm font-inter transition-all flex-shrink-0 d-flex align-items-center justify-content-center ${isActive
+                    ? 'text-white fw-bold shadow-sm'
+                    : 'text-gray-700 hover-bg-gray-200 border-0'
+                    }`}
+                  style={{
+                    minWidth: letter === 'Todas' ? '56px' : '34px',
+                    height: '34px',
+                    fontSize: '13px',
+                    borderRadius: '8px',
+                    backgroundColor: isActive ? '#1a56db' : '#f3f4f6',
+                    color: isActive ? '#ffffff' : '#374151',
+                  }}
+                >
+                  {letter}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {/* ── HEADER DE RESULTADOS ── */}
       <div className="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
         <h2 className="font-inter fw-bold text-gray-900 mb-0" style={{ fontSize: 'clamp(22px, 4vw, 28px)', letterSpacing: '-0.5px' }}>
-          Todos los Servicios
+          Todos los Servicios {selectedLetter !== 'Todas' ? `(${selectedLetter})` : ''}
         </h2>
 
-        {(searchTerm || selectedFilter !== 'Todos') && (
+        {(searchTerm || selectedFilter !== 'Todos' || selectedLetter !== 'Todas') && (
           <button
             className="btn btn-sm btn-outline-secondary rounded-pill px-3 font-inter"
-            onClick={() => { setSearchTerm(''); setSelectedFilter('Todos'); }}
+            onClick={() => { setSearchTerm(''); setSelectedFilter('Todos'); setSelectedLetter('Todas'); }}
           >
             <i className="bi bi-x-circle me-1"></i> Limpiar filtros
           </button>
@@ -189,7 +237,7 @@ export default function ServicesListClient({ initialServices, leftoverFromFirstP
       <div className="d-flex flex-column gap-3 mt-3">
         {displayedServices.length > 0 ? (
           displayedServices.map((service, idx) => (
-            <ServiceListItem 
+            <ServiceListItem
               key={service.id || idx}
               id={service.id}
               slug={service.slug}
@@ -213,9 +261,9 @@ export default function ServicesListClient({ initialServices, leftoverFromFirstP
 
       {hasMore && (
         <div className="text-center mt-4">
-          <button 
+          <button
             onClick={loadMore}
-            className="btn btn-load-more-blue shadow-premium" 
+            className="btn btn-load-more-blue shadow-premium"
           >
             CARGAR MÁS RESULTADOS
           </button>
