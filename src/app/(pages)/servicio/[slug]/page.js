@@ -10,6 +10,7 @@ import EventImageWithFallback from '@/components/client/EventImageWithFallback';
 import { getThumbnail } from '@/utils/image';
 import ContactButtons from '@/components/client/ContactButtons';
 import EventContactButton from '@/components/client/EventContactButton';
+import EventGallerySlider from '@/components/client/EventGallerySlider';
 
 /**
  * ServicioDetailPage - Destino Río Cuarto
@@ -280,6 +281,8 @@ export default async function ServicioDetailPage({ params }) {
                   <EventContactButton contacts={orgData?.contacts || []} themeColor="#1a56db" themeColorLight="#ebf5ff" />
                 </div>
 
+                {/* Galería de imágenes (solo si existen) */}
+                <EventGallerySlider gallery={orgData?.gallery || []} />
 
 
                 {/* Servicios relacionados */}
