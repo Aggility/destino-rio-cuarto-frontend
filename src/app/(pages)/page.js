@@ -19,29 +19,45 @@ import { formatEventDate } from '@/utils/date';
 export const revalidate = 60; // ISR: revalidar c60ada 5 minutos
 
 export default async function Home() {
-  // ── 1. Fetch único al endpoint unificado ──────────────────────────────────
+  // ── 1. Fetch único al endpoint unificado y a organizaciones (lugares) ───────
   let featuredEvents = [];
   let suggestedExp = [];
   let relevantActivities = [];
+  let placesToDiscover = [];
 
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/home`, {
-      next: { revalidate: 300 },
-    });
+    const [resHome, resOrgs] = await Promise.all([
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/home`, {
+        next: { revalidate: 300 },
+      }),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/organizations?per_page=50`, {
+        next: { revalidate: 300 },
+      }),
+    ]);
 
-    if (res.ok) {
-      const json = await res.json();
+    if (resHome.ok) {
+      const json = await resHome.json();
       const data = json.data || {};
 
       const sortDesc = (arr) => arr;
-      //[...arr].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
 
       featuredEvents = sortDesc(Array.isArray(data.featured_events) ? data.featured_events : []);
       suggestedExp = sortDesc(Array.isArray(data.suggested_experiences) ? data.suggested_experiences : []);
       relevantActivities = sortDesc(Array.isArray(data.relevant_activities) ? data.relevant_activities : []);
     }
+
+    if (resOrgs.ok) {
+      const jsonOrgs = await resOrgs.json();
+      const listOrgs = Array.isArray(jsonOrgs) ? jsonOrgs : (jsonOrgs.data || []);
+      placesToDiscover = listOrgs
+        .filter(org =>
+          org.status?.toLowerCase() !== 'inactive' &&
+          org.types?.some(t => t.key === 'place')
+        )
+        .slice(0, 10);
+    }
   } catch (error) {
-    console.error('Error fetching /api/v1/home:', error);
+    console.error('Error fetching data for Home:', error);
   }
 
   // ── 2. Helpers de formato ─────────────────────────────────────────────────
@@ -181,6 +197,37 @@ export default async function Home() {
                 description=""
                 thumbnail={getCover(item)}
                 type="actividades"
+              />
+            </CardWrapper>
+          );
+        }),
+    },
+    {
+      id: 'places_to_discover',
+      title: 'Lugares para Descubrir',
+      slug: 'lugares',
+      color: '#059669',
+      hasData: placesToDiscover.length > 0,
+      renderItems: () =>
+        placesToDiscover.map((place) => {
+          const category = place.categories?.[0]?.name?.trim() || 'Lugar Destacado';
+          const address = place.addresses?.[0]?.address?.split(',')[0] || place.addresses?.[0]?.city || 'Río Cuarto';
+
+          return (
+            <CardWrapper key={place.id}>
+              <EventCard
+                id={place.id}
+                slug={place.slug}
+                title={place.name || 'Sin título'}
+                date={category.toUpperCase()}
+                location={address}
+                category={category}
+                description={place.excerpt || ''}
+                thumbnail={getCover(place)}
+                lat={place.addresses?.[0]?.latitude}
+                lng={place.addresses?.[0]?.longitude}
+                basePath="lugares"
+                typeColor="#059669"
               />
             </CardWrapper>
           );
