@@ -40,6 +40,7 @@ export default function NavBar() {
     { label: 'Experiencias', href: '/experiencias' },
     { label: 'Servicios', href: '/servicios' },
     { label: 'Calendario', href: '/calendario' },
+    { label: 'Lugares', href: '/lugares' },
   ];
 
   return (

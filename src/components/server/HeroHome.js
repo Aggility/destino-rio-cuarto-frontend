@@ -17,11 +17,14 @@ export default function HeroHome({ initialSlug = null }) {
     { label: 'Servicios', slug: 'servicios', icon: 'bi-shop', color: '#1a56db' },
   ];
 
-  // Buscamos si la ruta actual coincide con alguna categoría
+  // Buscamos si la ruta actual coincide con alguna categoría o con 'lugares'
+  const isLugares = pathname.includes('/lugares') || initialSlug === 'lugares';
   const currentCategoryPath = categories.find(c => pathname.includes(`/${c.slug}`));
 
   // O usamos la categoría actual de la ruta, o el slug inicial que pasamos
-  const activeCategory = currentCategoryPath || categories.find(c => c.slug === initialSlug) || null;
+  const activeCategory = isLugares
+    ? { label: 'Lugares', slug: 'lugares', color: '#059669' }
+    : (currentCategoryPath || categories.find(c => c.slug === initialSlug) || null);
 
   const connectors = ['de', 'del', 'en', 'y', 'a', 'e', 'o', 'u', 'por', 'para', 'con', 'sin', 'el', 'la', 'lo', 'los', 'las', 'un', 'una', 'unos', 'unas', 'que', 'qué', 'hay', 'vos', 'para'];
 
@@ -41,6 +44,7 @@ export default function HeroHome({ initialSlug = null }) {
       case 'actividades': return '/Actividades_ok.jpg';
       case 'experiencias': return '/Experiencias_ok.jpg';
       case 'servicios': return '/Servicios_ok.jpg';
+      case 'lugares': return '/Portada_home.jpg';
       default: return '/Portada_home.jpg';
     }
   };
@@ -95,6 +99,15 @@ export default function HeroHome({ initialSlug = null }) {
         <span style={coloredSpanStyle(activeCategory.color)}>Eventos</span>{' '}
         <br className="d-none d-md-block" />
         en un solo lugar
+      </>
+    );
+  } else if (activeCategory.slug === 'lugares') {
+    displayTitle = (
+      <>
+        Descubrí los mejores{' '}
+        <span style={coloredSpanStyle(activeCategory.color)}>Lugares</span>{' '}
+        <br className="d-none d-md-block" />
+        de Río Cuarto
       </>
     );
   } else {

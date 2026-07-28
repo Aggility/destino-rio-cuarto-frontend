@@ -525,6 +525,19 @@ $cal-activity-accent: #8A38F5;
   }
 }
 
+.btn-load-more-green {
+  @extend .btn-load-more-custom;
+  border: 1px solid #059669 !important;
+  color: #059669 !important;
+
+  &:hover {
+    background-color: #059669 !important;
+    color: white !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+  }
+}
+
 // 14. CHATBOT ICON
 .chatbot-bubble {
   width: 80px;
