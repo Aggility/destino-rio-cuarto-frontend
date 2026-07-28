@@ -426,6 +426,41 @@ export default function EventsListClient({ initialEvents = [] }) {
               </button>
             </div>
           )}
+
+          {/* TARJETA SUMAR EVENTO */}
+          <div className="mt-5 pt-2">
+            <div 
+              className="bg-white rounded-4 p-3 p-md-4 shadow-sm border position-relative overflow-hidden"
+              style={{ borderColor: '#fce8ef' }}
+            >
+              <div 
+                className="position-absolute top-0 start-0 h-100" 
+                style={{ width: '5px', backgroundColor: '#f54286' }}
+              />
+              <div className="row align-items-center g-3 ps-2 pe-1">
+                <div className="col-12 col-md-8">
+                  <h3 className="font-inter fw-bold text-gray-900 mb-2" style={{ fontSize: 'clamp(20px, 4vw, 24px)', letterSpacing: '-0.5px' }}>
+                    ¿Querés sumar tu evento?
+                  </h3>
+                  <p className="font-inter text-muted mb-0" style={{ fontSize: '14px', lineHeight: '1.5' }}>
+                    Completá nuestro formulario en línea con los datos de tu actividad para que lo publiquemos en la agenda oficial de la ciudad.
+                  </p>
+                </div>
+                <div className="col-12 col-md-4 text-md-end">
+                  <a
+                    href="https://forms.gle/jBnNkTjsmYQnJdCPA"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn font-inter fw-bold text-white px-4 py-2-5 rounded-3 shadow-sm d-inline-flex align-items-center justify-content-center gap-2 transition-all hover-lift w-100 w-md-auto"
+                    style={{ backgroundColor: '#f54286', fontSize: '14px' }}
+                  >
+                    <i className="bi bi-plus-circle-fill"></i>
+                    Completar Solicitud
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </>
