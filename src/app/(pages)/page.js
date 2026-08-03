@@ -6,7 +6,7 @@ import ActivityCard from '@/components/server/ActivityCard';
 
 import HomeSectionSlider from '@/components/client/HomeSectionSlider';
 import { getThumbnail } from '@/utils/image';
-import { formatEventDate } from '@/utils/date';
+import { formatEventDate, deduplicateEvents } from '@/utils/date';
 
 /**
  * Home - Destino Río Cuarto
@@ -41,7 +41,7 @@ export default async function Home() {
 
       const sortDesc = (arr) => arr;
 
-      featuredEvents = sortDesc(Array.isArray(data.featured_events) ? data.featured_events : []);
+      featuredEvents = sortDesc(deduplicateEvents(Array.isArray(data.featured_events) ? data.featured_events : []));
       suggestedExp = sortDesc(Array.isArray(data.suggested_experiences) ? data.suggested_experiences : []);
       relevantActivities = sortDesc(Array.isArray(data.relevant_activities) ? data.relevant_activities : []);
     }

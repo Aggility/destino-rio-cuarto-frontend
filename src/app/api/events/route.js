@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { deduplicateEvents } from "@/utils/date";
 
 const EVENTS_PER_PAGE = 12;
 
@@ -29,9 +30,8 @@ export async function GET(request) {
       return new Date(y, m - 1, d).getTime();
     };
 
-    const active = items
-      .filter(e => e.status?.toLowerCase() !== 'inactive')
-      .sort((a, b) => getStartTime(a) - getStartTime(b));
+    const activeFiltered = items.filter(e => e.status?.toLowerCase() !== 'inactive');
+    const active = deduplicateEvents(activeFiltered).sort((a, b) => getStartTime(a) - getStartTime(b));
 
     // Categorías únicas del dataset completo (sin filtros) para el selector
     const categories = [...new Set(

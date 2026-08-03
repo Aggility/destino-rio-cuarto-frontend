@@ -7,7 +7,7 @@ import MacroEventCard from '@/components/server/MacroEventCard';
 import EventsListClient from '@/components/client/EventsListClient';
 import HomeSectionSlider from '@/components/client/HomeSectionSlider';
 import { getThumbnail } from '@/utils/image';
-import { formatEventDate, formatEventDateFull, parseLocalDate } from '@/utils/date';
+import { formatEventDate, formatEventDateFull, parseLocalDate, deduplicateEvents } from '@/utils/date';
 
 /**
  * EventsPage - Destino Río Cuarto
@@ -48,9 +48,8 @@ export default async function EventsPage() {
         return new Date(y, m - 1, d).getTime();
       };
 
-      apiEvents = all
-        .filter(evt => evt.status?.toLowerCase() !== 'inactive')
-        .sort((a, b) => getStartTime(a) - getStartTime(b));
+      const active = all.filter(evt => evt.status?.toLowerCase() !== 'inactive');
+      apiEvents = deduplicateEvents(active).sort((a, b) => getStartTime(a) - getStartTime(b));
 
     }
 
@@ -68,7 +67,8 @@ export default async function EventsPage() {
       const json = await resHome.json();
       const homeData = json.data || {};
       const featured = Array.isArray(homeData.featured_events) ? homeData.featured_events : [];
-      apiFeaturedEvents = featured.filter(evt => evt.status?.toLowerCase() !== 'inactive');
+      const active = featured.filter(evt => evt.status?.toLowerCase() !== 'inactive');
+      apiFeaturedEvents = deduplicateEvents(active);
     }
   } catch (error) {
     console.error('Error fetching events/frameworks API:', error);
