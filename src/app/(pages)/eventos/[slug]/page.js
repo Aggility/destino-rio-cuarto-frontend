@@ -8,7 +8,7 @@ import { getNearbyLocations, getDistance } from '@/utils/geo';
 import ExpandableDescription from '@/components/client/ExpandableDescription';
 import EventsSlider from '@/components/client/EventsSlider';
 import { getThumbnail } from '@/utils/image';
-import { parseLocalDate, getEventDateInfo } from '@/utils/date';
+import { parseLocalDate, getEventDateInfo, deduplicateEvents } from '@/utils/date';
 import HomeSectionSlider from '@/components/client/HomeSectionSlider';
 import EventCard from '@/components/server/EventCard';
 import ShareButton from '@/components/client/ShareButton';
@@ -142,8 +142,8 @@ export default async function EventDetailPage({ params, searchParams }) {
     const resEvents = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events?per_page=50`, { cache: 'no-store' });
     if (resEvents.ok) {
       const eventsData = await resEvents.json();
-      const allEvents = (eventsData.data || [])
-        .filter(e => String(e.id) !== String(event.id) && (e.status === 'active' || e.status === 'activo'))
+      const allEvents = deduplicateEvents((eventsData.data || [])
+        .filter(e => String(e.id) !== String(event.id) && (e.status === 'active' || e.status === 'activo')))
         .sort((a, b) => {
           const dateA = a.created_at ? new Date(a.created_at).getTime() : a.id;
           const dateB = b.created_at ? new Date(b.created_at).getTime() : b.id;

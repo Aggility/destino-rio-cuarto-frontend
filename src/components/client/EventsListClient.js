@@ -3,6 +3,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import EventCard from '@/components/server/EventCard';
 import { useDebouncedCallback } from 'use-debounce';
+import { deduplicateEvents } from '@/utils/date';
 
 const EVENTS_PER_PAGE = 9;
 
@@ -55,11 +56,14 @@ export default function EventsListClient({ initialEvents = [] }) {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  // ── Eventos unificados sin duplicados ──────────────────────────────────────
+  const events = useMemo(() => deduplicateEvents(initialEvents), [initialEvents]);
+
   // ── Categorías dinámicas ───────────────────────────────────────────────────
   const categories = useMemo(() => {
-    const seen = new Set(initialEvents.map(e => e.category).filter(Boolean));
+    const seen = new Set(events.map(e => e.category).filter(Boolean));
     return ['Todos', ...[...seen].sort((a, b) => a.localeCompare(b, 'es'))];
-  }, [initialEvents]);
+  }, [events]);
 
   // ── Filtrado ──────────────────────────────────────────────────────────────
   const filteredEvents = useMemo(() => {
@@ -68,7 +72,7 @@ export default function EventsListClient({ initialEvents = [] }) {
     const now = new Date();
     const monthYear = { m: now.getMonth(), y: now.getFullYear() };
 
-    return initialEvents.filter(evt => {
+    return events.filter(evt => {
       // Texto
       if (activeSearch) {
         const term = activeSearch.toLowerCase();
@@ -102,7 +106,7 @@ export default function EventsListClient({ initialEvents = [] }) {
 
       return true;
     });
-  }, [initialEvents, activeSearch, selectedCategory, dateMode, quickDate, singleDate]);
+  }, [events, activeSearch, selectedCategory, dateMode, quickDate, singleDate]);
 
   // ── Slice visible ────────────────────────────────────────────────────────
   const visibleEvents = filteredEvents.slice(0, visibleCount);

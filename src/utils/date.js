@@ -163,3 +163,19 @@ export function getEventDateInfo(evt) {
   };
 }
 
+/**
+ * Deduplica una lista de eventos basándose en id, slug o título.
+ * Evita que eventos con múltiples funciones (calendars) aparezcan repetidos en grillas.
+ */
+export function deduplicateEvents(events) {
+  if (!Array.isArray(events)) return [];
+  const seen = new Set();
+  return events.filter((evt) => {
+    if (!evt) return false;
+    const key = evt.id ?? (evt.slug?.trim() || evt.title?.trim());
+    if (!key) return true;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
