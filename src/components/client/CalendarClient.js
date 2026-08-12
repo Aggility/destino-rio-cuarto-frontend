@@ -574,7 +574,19 @@ export default function CalendarClient() {
 
     // Ordenar por fecha → hora
     items.sort((a, b) => a.activeDate - b.activeDate);
-    return items;
+
+    // Deduplicar: mismo evento/actividad, mismo día, misma hora de inicio → conservar solo 1
+    const seen = new Set();
+    const deduped = items.filter(item => {
+      const d = item.activeDate;
+      const dayKey = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+      const key = `${item.itemType}-${item.calendarable_id}-${dayKey}-${item.startTime || ''}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+    return deduped;
   }, [calendars, rangeStart, rangeEnd, eventLocations, proposalLocations]);
 
   // Agrupar por día (key = "YYYY-MM-DD")

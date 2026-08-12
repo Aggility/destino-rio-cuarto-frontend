@@ -15,7 +15,7 @@ export default function ServicesListClient({ initialServices, leftoverFromFirstP
 
   const [visibleCount, setVisibleCount] = useState(9);
   const [selectedFilter, setSelectedFilter] = useState('Todos');
-  const [selectedLetter, setSelectedLetter] = useState('Todos');
+  const [selectedLetter, setSelectedLetter] = useState('Todas');
   const [searchTerm, setSearchTerm] = useState('');
   const deferredSearchTerm = useDeferredValue(searchTerm);
 
