@@ -27,7 +27,7 @@ export default async function EventsPage() {
 
   try {
     const [resEvents, resFrameworks, resHome] = await Promise.all([
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/events?per_page=100`, {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/events?per_page=200`, {
         next: { revalidate: 300 },
       }),
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/event-frameworks?per_page=200`, {
